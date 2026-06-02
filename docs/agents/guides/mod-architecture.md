@@ -32,10 +32,11 @@ Entry: `Plugin.cs` (Harmony + config only). Registry: `Systems/DreadSystemRegist
 
 ## Runtime systems (one host each)
 
-### Core (nine, all production builds)
+### Core (ten, all production builds)
 
 | Id | System | Host name | Role |
 |----|--------|-----------|------|
+| `audio-assets` | `AudioAssetSystem` | `DreadAudioAssetsHost` | Manifest, GitHub Release download, `audio-cache/v{VERSION}/`, `AudioAssetApi` |
 | `audio-dread` | `AudioDreadSystem` | `DreadAudioHost` | Weighted 3D ambient horror during a **Run** |
 | `monster-overhaul` | `MonsterOverhaulSystem` | `DreadMonsterHost` | Periodic enemy audio tweaks; Harmony lives in same file |
 | `tension` | `TensionSystem` | `DreadTensionHost` | Proximity scan + adrenaline, panic sprint, breath, fake footsteps |
@@ -115,7 +116,8 @@ Use `SemiFunc.MenuLevel()` for menu/main UI. `MonsterOverhaulSystem` also tracks
 | Config | `Config/DreadConfig.cs` |
 | Core compat | `Systems/Core/` |
 | Systems (overview) | `Systems/` (subfolders: `Core/`, `Patches/`, `PsychoticBreak/`, `ErrorReporting/`, `DebugOverlay/`; other hosts at `Systems/*.cs`) |
-| Audio assets | `audio/*.ogg` |
+| Remote audio | `Systems/AudioAssets/`, `audio/audio-manifest.json`, runtime `audio-cache/` |
+| Authoring OGG (git + Release) | `audio/{category}/*.ogg` |
 | ADRs | `docs/adr/` |
 | Per-system agent guides | `docs/agents/guides/README.md` |
 | Reflection inventory (ARCH-2) | `docs/agents/guides/reflection-inventory.md` |
@@ -125,7 +127,7 @@ Use `SemiFunc.MenuLevel()` for menu/main UI. `MonsterOverhaulSystem` also tracks
 
 Follow [specs/002-arch-3-extensible-core/contracts/system-lifecycle.md](../../../specs/002-arch-3-extensible-core/contracts/system-lifecycle.md):
 
-1. Create `Systems/YourSystem.cs` as `MonoBehaviour`
+1. Create the system under the correct `Systems/` subfolder per [systems-folder-governance.md](../systems-folder-governance.md) (no new loose files at `Systems/` root unless the governance doc allows it)
 2. Add config entries in `Config/DreadConfig.cs`
 3. Add one row to `Systems/DreadSystemRegistry.cs` (Core or Debug group; optional `IsEnabled` predicate)
 4. **Do not** add `TryAddSystem` in `Plugin.cs`

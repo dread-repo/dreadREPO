@@ -21,13 +21,14 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - CD: per-file audio upload to GitHub Releases (`upload-audio-release-assets.ps1`); Thunderstore zip no longer includes OGG files
 
 ### Changed
+- **Docs:** post-014 pass: ten core registry systems (`AudioAssetSystem`), remote audio install notes (README, THUNDERSTORE), project tree, extension-registry, ADR-0016/0007 agent notes; SPECKIT block notes 014 merged on `master`
 - Audio reorganized under `audio/{ambient_dread,tension,psychotic_break,shared,monster}/` with release asset names `category__file.ogg`
 - `AudioDreadSystem`, `TensionSystem`, `PsychoticBreakSystem`, and `SnitchSystem` use `AudioAssetApi` (progressive load) instead of bundled `audio/` folder; `door_creak.ogg` added to ambient manifest
 - `AudioClipLoader` is decode-only (NVorbis from `audio-cache/`); bundled `LoadClip` removed so features cannot bypass remote assets
 - `AudioManifestJson` parses embedded manifest (`files[]`); Unity `JsonUtility` is not used for manifest load
 - Audio cache paths reject `..` and rooted manifest segments; first-run download notice marker is written only after the version cache is complete
 - CI runs `tests/Dread.AudioManifestJson.Tests`; Debug `DeployToProfile` / `DeployToLol` copy `audio/` only when `DREAD_DEBUG` is defined
-- **Docs:** agent documentation sync: nine core registry systems in CONTEXT, mod-architecture, extension-registry, and ADR-0016; removed stale ErrorReporter build note from AGENTS.md; CONTRIBUTING verify command; CHANGELOG section order; superpowers archive banners; `dread-mcp-server/README.md`; [ui-notifications.md](docs/agents/guides/ui-notifications.md)
+- **Docs:** agent documentation sync (pre-014): registry counts, extension-registry, and ADR-0016 (superseded by post-014 pass for `AudioAssetSystem`); removed stale ErrorReporter build note from AGENTS.md; CONTRIBUTING verify command; CHANGELOG section order; superpowers archive banners; `dread-mcp-server/README.md`; [ui-notifications.md](docs/agents/guides/ui-notifications.md)
 - **Build:** CD and Thunderstore releases compile a production `Dread.dll` that excludes debug overlay, TCP debug server, and test-crash tooling (`DREAD_DEBUG` profile). Production config renumbers **Logging** to section **8** (sections 8-9 and 11 exist only in development builds). Use `dotnet build -c Debug` or `build.ps1 -DebugBuild` for MCP/agent workflows. CI/CD runs `.github/scripts/verify-production-dll.sh` on Release artifacts.
 - **Docs:** [development-only-features.md](docs/agents/guides/development-only-features.md) agent checklist for `#if DREAD_DEBUG`, `Compile Remove`, config, and registry when adding MCP/overlay tooling.
 - **Core:** `ProximityScan` in `Systems/Core/` replaces `EnemyScanCache`; tension, monster audio, debug server, psychotic break, and error reporting share one scan seam (ADR-0008 proximity pattern consolidated)

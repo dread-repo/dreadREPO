@@ -3,7 +3,7 @@
 > **Agents:** start at [`docs/agents/README.md`](docs/agents/README.md) (orchestration, verify, implementation guides). This README is player- and contributor-oriented.
 
 > **Atmospheric horror overhaul for R.E.P.O.**  
-> Nine core runtime systems layer ambient dread, scarier monsters, proximity tension, psychotic break episodes, error reporting (with a first-run privacy prompt), in-game notifications, camp lure, and snitch. Debug tooling (overlay, MCP TCP server, test crash) is development-only and excluded from Thunderstore releases.
+> Ten core runtime systems: remote **audio assets** (GitHub Release download + cache), ambient audio, monster overhaul, proximity tension, psychotic break, error reporting (with a first-run privacy prompt), in-game notifications, camp lure, and snitch. Debug tooling (overlay, MCP TCP server, test crash) is development-only and excluded from Thunderstore releases.
 
 ![Version](https://img.shields.io/badge/version-1.6.1-crimson?style=flat-square)
 ![Status](https://img.shields.io/badge/status-release-brightgreen?style=flat-square)
@@ -42,12 +42,13 @@ Every feature is independently toggleable via `BepInEx/config/elytraking.dread.c
 ```
 Plugin.Awake()
   +-- LoggingService.Initialize()      # level-gated logging
-  +-- DreadConfig.Initialize()          # 9 config sections
+  +-- DreadConfig.Initialize()          # gameplay + error reporting + logging (see DreadConfig.cs)
   +-- Harmony patch application         # conditional patches
   |
 Plugin.Start() / deferred retry
   +-- DreadSystemInitializer.TryInitialize()
        +-- DreadSystemRegistry (ordered registrations, config gates)
+            +-- AudioAssetSystem              # manifest, audio-cache, GitHub Release downloads
             +-- AudioDreadSystem              # coroutine: weighted ambient sounds
             +-- MonsterOverhaulSystem         # scan loop + Harmony patches (Systems/Patches/)
             +-- TensionSystem                 # 0.5s proximity scan drives 4 features
@@ -63,7 +64,7 @@ Plugin.Start() / deferred retry
                  +-- DebugServerSystem        # TCP debug server for MCP/agents
 ```
 
-Runtime systems are registered in `DreadSystemRegistry` and spawned with per-system fail-safe isolation (ARCH-3). Thunderstore releases include the nine core rows only; debug hosts are compiled out of production `Dread.dll`. **Audio** downloads version-pinned OGG files from the matching [GitHub Release](https://github.com/grompen91-droid/dreadREPO/releases) on first run (into `audio-cache/v{version}/`), then decodes via **NVorbis** (`AudioAssetSystem`, `AudioClipLoader`). The Thunderstore package is DLL-only; features start progressively as each clip arrives. Debug builds can copy local `audio/` beside the plugin for offline testing. A failure in one system does not prevent others from starting.
+Runtime systems are registered in `DreadSystemRegistry` and spawned with per-system fail-safe isolation (ARCH-3). Thunderstore releases include the ten core rows only; debug hosts are compiled out of production `Dread.dll`. **`AudioAssetSystem`** downloads version-pinned OGG from the matching [GitHub Release](https://github.com/grompen91-droid/dreadREPO/releases) on first run (into `audio-cache/v{version}/`); **`AudioClipLoader`** decodes from cache via **NVorbis**. The Thunderstore zip is DLL-only (no bundled OGG); gameplay features start progressively as each clip arrives. Debug builds can copy repo `audio/**` beside the plugin for offline testing. A failure in one system does not prevent others from starting.
 
 ---
 
@@ -308,6 +309,7 @@ Dread/
   Systems/
     DreadSystemRegistry.cs           # Ordered runtime system registrations (ARCH-3)
     DreadSystemInitializer.cs        # Fail-safe AddComponent loop
+    AudioAssets/                     # AudioAssetSystem, manifest, downloader, cache (ADR-0017)
     AudioDreadSystem.cs, AudioClipLoader.cs, AudioPlayUtil.cs
     MonsterOverhaulSystem.cs, TensionSystem.cs, TestCrashSystem.cs
     Patches/                         # Harmony patch classes (enemy, player, debug console guard)
@@ -316,16 +318,9 @@ Dread/
     DebugOverlay/                    # F10 overlay panel + styles
     DebugServerSystem.cs, LoggingService.cs, HarmonyPatchCompat.cs, ...
   audio/
-    scraping.ogg                     # Common ambient sound
-    footsteps.ogg                    # Common ambient + fake footsteps + psychotic break
-    breathing.ogg                    # Uncommon ambient + out-of-breath sound
-    breath2.ogg                      # Out-of-breath variant
-    breath3.ogg                      # Out-of-breath variant
-    whisper.ogg                      # Rare ambient
-    door_creak.ogg                   # Ambient variant
-    scream_peak.ogg                  # Psychotic Break peak scream
-    scream_distant.ogg               # Psychotic Break distant scream
-    scream_threat.ogg                # Psychotic Break phantom threat sound
+    audio-manifest.json              # Authoring manifest (embedded in DLL at build)
+    ambient_dread/, tension/, psychotic_break/, shared/, monster/  # OGG sources for CD → GitHub Release
+  tests/Dread.AudioManifestJson.Tests/  # Manifest JSON parser (CI)
   dread-mcp-server/                  # MCP server for AI-assisted debugging
     src/index.ts                     # Zod 4 strictObject tool schemas
     package.json                     # TypeScript 6, @modelcontextprotocol/sdk
@@ -380,19 +375,15 @@ Install through r2modman or Thunderstore Mod Manager. Search for **Dread** under
 BepInEx/
   plugins/
     elytraking-Dread/
-      Dread.dll
-      audio/
-        breathing.ogg
-        breath2.ogg
-        breath3.ogg
-        footsteps.ogg
-        scraping.ogg
-        whisper.ogg
-        door_creak.ogg
-        scream_peak.ogg
-        scream_distant.ogg
-        scream_threat.ogg
+      Dread.dll                        # includes embedded audio-manifest.json
+      audio-cache/
+        v1.6.1/                        # created on first run (version matches mod)
+          ambient_dread/
+          shared/
+          ...
 ```
+
+First launch downloads OGG from the matching [GitHub Release](https://github.com/grompen91-droid/dreadREPO/releases). Offline play requires a populated `audio-cache/v{version}/` (or a Debug build with local `audio/` copied beside the plugin).
 
 ---
 
@@ -402,7 +393,7 @@ Requires .NET SDK 4.8 targeting pack and a local R.E.P.O. installation (for `Ass
 
 ### Testing
 
-This mod has no test suite. All testing is done manually in-game. The nine core systems (independent MonoBehaviours on `DontDestroyOnLoad` hosts) are testable in isolation by disabling the others via config.
+CI runs `tests/Dread.AudioManifestJson.Tests` for manifest JSON. Gameplay is otherwise tested manually in-game. The ten core systems (independent MonoBehaviours on `DontDestroyOnLoad` hosts) are testable in isolation by disabling the others via config.
 
 ### MCP Server
 

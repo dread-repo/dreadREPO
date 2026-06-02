@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-1.6.1-crimson?style=flat-square)
 ![Status](https://img.shields.io/badge/status-release-brightgreen?style=flat-square)
 
-Atmospheric horror overhaul for R.E.P.O. Nine core runtime systems (ambient audio, monster overhaul, tension, psychotic break, error reporting + first-run prompt, in-game notifications, camp lure, snitch). Debug overlay, TCP server, and test crash ship only in **development** builds, not in the Thunderstore package.
+Atmospheric horror overhaul for R.E.P.O. Ten core runtime systems (remote audio download + cache, ambient audio, monster overhaul, tension, psychotic break, error reporting + first-run prompt, in-game notifications, camp lure, snitch). Debug overlay, TCP server, and test crash ship only in **development** builds, not in the Thunderstore package.
 
 ## What's new (1.6.0)
 
@@ -37,6 +37,8 @@ Full notes: [CHANGELOG.md](https://github.com/grompen91-droid/dreadREPO/blob/mas
 **Mod Manager (recommended):** Search Dread under R.E.P.O. in r2modman or Thunderstore Mod Manager.
 
 **Manual:** Download from Thunderstore, extract into `BepInEx/plugins/elytraking-Dread/`. Requires BepInEx 5.4.2100+. No other dependencies.
+
+**First-run audio:** The Thunderstore zip contains `Dread.dll` only (no OGG). On first launch the mod downloads sounds from the matching [GitHub Release](https://github.com/grompen91-droid/dreadREPO/releases) into `audio-cache/v{version}/` beside the DLL. You need network access once per mod version. Sounds are cached for offline play afterward.
 
 ## Multiplayer
 
