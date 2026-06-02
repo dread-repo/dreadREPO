@@ -307,6 +307,24 @@ namespace UnityEngine
         }
     }
 
+    // 9-slice border offsets for GUIStyle. Dread zeroes these so thin solid fills
+    // (ticks, rails, separators) blit flat instead of bloating into a square.
+    public sealed class RectOffset
+    {
+        public int left { get; set; }
+        public int right { get; set; }
+        public int top { get; set; }
+        public int bottom { get; set; }
+        public RectOffset() { }
+        public RectOffset(int left, int right, int top, int bottom)
+        {
+            this.left = left;
+            this.right = right;
+            this.top = top;
+            this.bottom = bottom;
+        }
+    }
+
     // IMGUI types (GUI, GUIStyle, GUIContent, GUISkin, GUIStyleState) moved to
     // UnityEngine.IMGUIModule_stubs.cs to mirror real Unity, where they live in
     // UnityEngine.IMGUIModule.dll. Keep them out of this assembly.
