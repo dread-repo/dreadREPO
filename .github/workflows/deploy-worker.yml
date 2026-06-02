@@ -6,6 +6,8 @@ concurrency:
 
 on:
   push:
+    branches:
+      - master
     paths:
       - "workers/error-reporter/**"
       - ".github/workflows/deploy-worker.yml"

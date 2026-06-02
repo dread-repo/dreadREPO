@@ -32,11 +32,11 @@ jobs:
           title="${{ github.event.pull_request.title }}"
           passed="true"
 
-          if echo "$title" | grep -qiE 'fix|feat|refactor|ci|build|docs|dread|audio|monster|tension|panic|psychotic|telemetry|crash'; then
+          if echo "$title" | grep -qiE 'fix|feat|refactor|ci|build|docs|deps|dread|audio|monster|tension|panic|psychotic|telemetry|crash|worker|wrangler|vitest'; then
             echo "::notice::PR title matches project keywords"
           else
             files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || echo "")
-            if echo "$files" | grep -qiE '\.(cs|ps1|yml|md|csproj)$|^docs/|^\.github/'; then
+            if echo "$files" | grep -qiE '\.(cs|ps1|yml|md|csproj|json)$|^docs/|^\.github/|^workers/'; then
               echo "::notice::PR touches project files, relevance passed"
             else
               echo "::notice::PR does not appear project-relevant (skipping build/analyze)"
