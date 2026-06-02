@@ -1,4 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(EnableDebugFeatures)' == 'true'">
+    <DreadDebug>true</DreadDebug>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(DreadDebug)' == 'true'">
+    <DefineConstants>$(DefineConstants);DREAD_DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(DreadDebug)' != 'true'">
+    <Compile Remove="Systems/DebugOverlay/**/*.cs" />
+    <Compile Remove="Systems/DebugServerSystem.cs" />
+    <Compile Remove="Systems/TestCrashSystem.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="tests/**" />
     <None Remove="tests/**" />
@@ -13,9 +26,11 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Configurations>Debug;Release</Configurations>
+    <EnableDebugFeatures Condition="'$(EnableDebugFeatures)' == ''">false</EnableDebugFeatures>
     <GameDir>C:\Program Files (x86)\Steam\steamapps\common\REPO\REPO_Data\Managed</GameDir>
     <BepInExDir>$(AppData)\r2modmanPlus-local\REPO\profiles\REALMULTIPLAYER\BepInEx</BepInExDir>
-    <PluginDir>$(BepInExDir)\plugins\elytraking-Dread\elytraking-Dread</PluginDir>
+    <PluginDir>$(BepInExDir)\plugins\elytraking-Dread</PluginDir>
+    <LolPluginDir>$(AppData)\r2modmanPlus-local\REPO\profiles\lol\BepInEx\plugins\elytraking-Dread</LolPluginDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -90,15 +105,28 @@
     </Reference>
   </ItemGroup>
 
-  <!-- Copy audio folder to output alongside DLL -->
   <ItemGroup>
-    <None Include="audio\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="audio\audio-manifest.json">
+      <LogicalName>Dread.audio.audio-manifest.json</LogicalName>
+    </EmbeddedResource>
+    <None Include="audio\**\*.ogg" />
   </ItemGroup>
 
   <Target Name="GenerateStubs" BeforeTargets="CoreCompile" Condition="!Exists('$(GameDir)\UnityEngine.dll') And !Exists('$(MSBuildProjectDirectory)/.github/stubs/refs/UnityEngine.dll')">
     <Exec Command="pwsh -NoProfile .github/scripts/gen-stubs.ps1" />
+  </Target>
+
+  <Target Name="DeployToLol" AfterTargets="Build" Condition="Exists('$(LolPluginDir)')">
+    <Copy SourceFiles="$(OutputPath)Dread.dll" DestinationFolder="$(LolPluginDir)" SkipUnchangedFiles="false" />
+    <ItemGroup>
+      <LolPluginDeps Include="$(OutputPath)NVorbis.dll;$(OutputPath)System.Memory.dll;$(OutputPath)System.Buffers.dll;$(OutputPath)System.Numerics.Vectors.dll;$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(LolPluginDeps)" DestinationFolder="$(LolPluginDir)" SkipUnchangedFiles="true" Condition="Exists('%(LolPluginDeps.Identity)')" />
+    <ItemGroup Condition="'$(DreadDebug)' == 'true'">
+      <LolAudioFiles Include="audio\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(LolAudioFiles)" DestinationFolder="$(LolPluginDir)\audio\%(RecursiveDir)" SkipUnchangedFiles="true" Condition="'$(DreadDebug)' == 'true'" />
+    <Message Text="[Dread] Deployed to lol profile" Importance="high" />
   </Target>
 
   <Target Name="DeployToProfile" AfterTargets="Build" Condition="Exists('$(PluginDir)')">
@@ -107,21 +135,29 @@
       <PluginDeps Include="$(OutputPath)NVorbis.dll;$(OutputPath)System.Memory.dll;$(OutputPath)System.Buffers.dll;$(OutputPath)System.Numerics.Vectors.dll;$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(PluginDeps)" DestinationFolder="$(PluginDir)" SkipUnchangedFiles="true" Condition="Exists('%(PluginDeps.Identity)')" />
-    <ItemGroup>
-      <AudioFiles Include="audio\**\*" />
+    <ItemGroup Condition="'$(DreadDebug)' == 'true'">
+      <ProfileAudioFiles Include="audio\**\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(AudioFiles)" DestinationFolder="$(PluginDir)\audio\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ProfileAudioFiles)" DestinationFolder="$(PluginDir)\audio\%(RecursiveDir)" SkipUnchangedFiles="true" Condition="'$(DreadDebug)' == 'true'" />
     <Message Text="[Dread] Deployed to $(PluginDir)" Importance="high" />
   </Target>
 
   <PropertyGroup>
-    <DistPluginDir>$(MSBuildProjectDirectory)\dist\elytraking-Dread-1.5.0\BepInEx\plugins\elytraking-Dread</DistPluginDir>
+    <DistPluginDir>$(MSBuildProjectDirectory)\dist\elytraking-Dread-1.6.1\BepInEx\plugins\elytraking-Dread</DistPluginDir>
   </PropertyGroup>
 
   <Target Name="DeployToDist" AfterTargets="Build" Condition="Exists('$(DistPluginDir)')">
     <Copy SourceFiles="$(OutputPath)Dread.dll" DestinationFolder="$(DistPluginDir)" SkipUnchangedFiles="false" />
-    <Delete Files="$(MSBuildProjectDirectory)\dist\elytraking-Dread-1.5.0.zip" />
-    <ZipDirectory SourceDirectory="$(MSBuildProjectDirectory)\dist\elytraking-Dread-1.5.0" DestinationFile="$(MSBuildProjectDirectory)\dist\elytraking-Dread-1.5.0.zip" />
+    <ItemGroup>
+      <DistPluginDeps Include="$(OutputPath)NVorbis.dll;$(OutputPath)System.Memory.dll;$(OutputPath)System.Buffers.dll;$(OutputPath)System.Numerics.Vectors.dll;$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DistPluginDeps)" DestinationFolder="$(DistPluginDir)" SkipUnchangedFiles="false" Condition="Exists('%(DistPluginDeps.Identity)')" />
+    <ItemGroup Condition="'$(DreadDebug)' == 'true'">
+      <DistAudioFiles Include="audio\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DistAudioFiles)" DestinationFolder="$(DistPluginDir)\audio\%(RecursiveDir)" SkipUnchangedFiles="false" Condition="'$(DreadDebug)' == 'true'" />
+    <Delete Files="$(MSBuildProjectDirectory)\dist\elytraking-Dread-1.6.1.zip" />
+    <ZipDirectory SourceDirectory="$(MSBuildProjectDirectory)\dist\elytraking-Dread-1.6.1" DestinationFile="$(MSBuildProjectDirectory)\dist\elytraking-Dread-1.6.1.zip" />
     <Message Text="[Dread] Deployed to dist and re-zipped" Importance="high" />
   </Target>
 

@@ -11,9 +11,21 @@ namespace Dread.Config
         public static ConfigEntry<float> AudioFrequency = null!;
         public static ConfigEntry<float> AudioVolume = null!;
 
+        // 1b. Audio Assets (remote download)
+        public static ConfigEntry<int> AudioAssetsMaxConcurrentDownloads = null!;
+        public static ConfigEntry<bool> AudioAssetsShowFirstRunNotice = null!;
+        public static ConfigEntry<bool> AudioAssetsKeepOtherCaches = null!;
+
         // 2. Monster Overhaul
         public static ConfigEntry<bool> MonsterAggressionEnabled = null!;
         public static ConfigEntry<bool> MonsterAudioEnabled = null!;
+        public static ConfigEntry<bool> MonsterLureEnabled = null!;
+        public static ConfigEntry<float> LureSafeDistance = null!;
+        public static ConfigEntry<float> LureCampSeconds = null!;
+        public static ConfigEntry<float> LureEscalateSeconds = null!;
+        public static ConfigEntry<float> LureCooldownSeconds = null!;
+        public static ConfigEntry<bool> SnitchEnabled = null!;
+        public static ConfigEntry<float> SnitchPOIDurationSeconds = null!;
 
         // 3. Tension
         public static ConfigEntry<bool> FakeFootstepsEnabled = null!;
@@ -39,18 +51,18 @@ namespace Dread.Config
         public static ConfigEntry<bool> ErrorReportingEnabled = null!;
         public static ConfigEntry<bool> ErrorReportingPromptShown = null!;
 
-        // 8. Debug Overlay
+#if DREAD_DEBUG
         public static ConfigEntry<bool> DebugOverlayEnabled = null!;
-
-        // 9. Debug Server
+        public static ConfigEntry<float> DebugOverlayZoom = null!;
+        public static ConfigEntry<float> DebugOverlayPanelX = null!;
+        public static ConfigEntry<float> DebugOverlayPanelY = null!;
+        public static ConfigEntry<string> DebugOverlayCollapsedSections = null!;
         public static ConfigEntry<bool> DebugServerEnabled = null!;
         public static ConfigEntry<int> DebugServerPort = null!;
-
-        // 10. Logging
-        public static ConfigEntry<LogLevel> LogLevelEntry = null!;
-
-        // 11. Testing
         public static ConfigEntry<bool> TestCrashButton = null!;
+#endif
+
+        public static ConfigEntry<LogLevel> LogLevelEntry = null!;
 
         private static bool _initialized;
 
@@ -71,10 +83,56 @@ namespace Dread.Config
                     "Ambient sound volume (0.0 - 1.0).",
                     new AcceptableValueRange<float>(0.0f, 1.0f)));
 
+            AudioAssetsMaxConcurrentDownloads = cfg.Bind(
+                "1b. Audio Assets",
+                "MaxConcurrentDownloads",
+                0,
+                new ConfigDescription(
+                    "Parallel audio downloads. 0 = auto from network speed and CPU, 1-3 = fixed cap.",
+                    new AcceptableValueRange<int>(0, 3)));
+            AudioAssetsShowFirstRunNotice = cfg.Bind(
+                "1b. Audio Assets",
+                "ShowFirstRunNotice",
+                true,
+                "Log a one-time info message when audio downloads start on first run.");
+            AudioAssetsKeepOtherCaches = cfg.Bind(
+                "1b. Audio Assets",
+                "KeepOtherCaches",
+                false,
+                "Debug only: do not delete other version folders under audio-cache after reconcile.");
+
             MonsterAggressionEnabled = cfg.Bind("2. Monster Overhaul", "AggressionEnabled", true,
                 "Increase monster speed. HOST ONLY.");
             MonsterAudioEnabled = cfg.Bind("2. Monster Overhaul", "AudioEnabled", true,
                 "Lower monster pitch for deeper, scarier sounds.");
+            MonsterLureEnabled = cfg.Bind("2. Monster Overhaul", "LureEnabled", true,
+                "Anti-camping: draw enemies toward a player who stays far from danger too long. HOST ONLY.");
+            LureSafeDistance = cfg.Bind("2. Monster Overhaul", "LureSafeDistance", 20f,
+                new ConfigDescription(
+                    "Distance in meters beyond which a player counts as isolated (safe).",
+                    new AcceptableValueRange<float>(5f, 60f)));
+            LureCampSeconds = cfg.Bind("2. Monster Overhaul", "LureCampSeconds", 90f,
+                new ConfigDescription(
+                    "Seconds a player must stay isolated before enemies start being drawn to them. "
+                    + "Lower = triggers faster.",
+                    new AcceptableValueRange<float>(10f, 300f)));
+            LureEscalateSeconds = cfg.Bind("2. Monster Overhaul", "LureEscalateSeconds", 30f,
+                new ConfigDescription(
+                    "Seconds of continued camping per escalation step (the pull reaches farther each "
+                    + "step). Lower = the lure ramps up faster.",
+                    new AcceptableValueRange<float>(5f, 120f)));
+            LureCooldownSeconds = cfg.Bind("2. Monster Overhaul", "LureCooldownSeconds", 60f,
+                new ConfigDescription(
+                    "Seconds of immunity after enemies reach you and the lure resets. Prevents instant "
+                    + "re-lure while hiding. HOST ONLY.",
+                    new AcceptableValueRange<float>(10f, 300f)));
+            SnitchEnabled = cfg.Bind("2. Monster Overhaul", "SnitchEnabled", true,
+                "One random item per run is the snitch. Picking it up first triggers a loud bang "
+                    + "and draws all enemies to that spot. HOST ONLY.");
+            SnitchPOIDurationSeconds = cfg.Bind("2. Monster Overhaul", "SnitchPOIDurationSeconds", 180f,
+                new ConfigDescription(
+                    "Seconds enemies keep returning to the snitch pickup position.",
+                    new AcceptableValueRange<float>(30f, 300f)));
 
             FakeFootstepsEnabled = cfg.Bind("3. Tension", "FakeFootstepsEnabled", true,
                 "Occasionally plays footstep sounds behind you with no source.");
@@ -131,32 +189,61 @@ namespace Dread.Config
                 "Internal: set true after first-run error reporting disclosure. "
                     + "Do not edit unless resetting the prompt.");
 
+#if DREAD_DEBUG
             DebugOverlayEnabled = cfg.Bind(
-                "8. Debug Overlay",
+                DreadConfigSections.DebugOverlay,
                 "DebugOverlayEnabled",
-                false,
+                true,
                 "Show an in-game IMGUI debug HUD during runs. Press F10 to toggle visibility at runtime. "
                     + "Hidden on menu levels.");
 
+            DebugOverlayZoom = cfg.Bind(
+                DreadConfigSections.DebugOverlay,
+                "Zoom",
+                1.0f,
+                new ConfigDescription(
+                    "Saved zoom level of the debug HUD panel. Set in-game by the +/- footer buttons; "
+                        + "persists across launches.",
+                    new AcceptableValueRange<float>(0.6f, 1.6f)));
+            DebugOverlayPanelX = cfg.Bind(
+                DreadConfigSections.DebugOverlay,
+                "PanelX",
+                12f,
+                "Saved top-left X of the debug HUD panel in pixels. Set in-game by dragging the panel "
+                    + "header (F9 mouse mode); persists across launches.");
+            DebugOverlayPanelY = cfg.Bind(
+                DreadConfigSections.DebugOverlay,
+                "PanelY",
+                140f,
+                "Saved top-left Y of the debug HUD panel in pixels. Set in-game by dragging the panel "
+                    + "header (F9 mouse mode); persists across launches.");
+            DebugOverlayCollapsedSections = cfg.Bind(
+                DreadConfigSections.DebugOverlay,
+                "CollapsedSections",
+                string.Empty,
+                "Internal: comma-separated list of debug HUD sections folded shut. Set in-game by "
+                    + "clicking a section header (F9 mouse mode); persists across launches.");
+
             DebugServerEnabled = cfg.Bind(
-                "9. Debug Server",
+                DreadConfigSections.DebugServer,
                 "DebugServerEnabled",
-                false,
+                true,
                 "Enable the TCP debug server for AI-assisted debugging (localhost only).");
-            DebugServerPort = cfg.Bind("9. Debug Server", "DebugServerPort", 15432,
+            DebugServerPort = cfg.Bind(DreadConfigSections.DebugServer, "DebugServerPort", 15432,
                 new ConfigDescription(
                     "Port for the debug server. Falls back to +1 if unavailable.",
                     new AcceptableValueRange<int>(1024, 65535)));
 
+            // Bind logging after debug sections so REPOConfig section numbers stay ascending.
             LogLevelEntry = cfg.Bind(
-                "10. Logging",
+                DreadConfigSections.Logging,
                 "LogLevel",
                 LogLevel.Debug,
                 "Logging verbosity. None = suppress all output, Error = only errors, "
                     + "Debug = info + warnings + errors, Verbose = everything including debug traces.");
 
             TestCrashButton = cfg.Bind(
-                "11. Testing",
+                DreadConfigSections.Testing,
                 "Crash Game",
                 false,
                 new ConfigDescription(
@@ -164,18 +251,38 @@ namespace Dread.Config
                         + "Use only when error reporting is enabled.",
                     null,
                     new ConfigurationManagerAttributes { ShowAsButton = true }));
+#endif
+
+#if !DREAD_DEBUG
+            LogLevelEntry = cfg.Bind(
+                DreadConfigSections.Logging,
+                "LogLevel",
+                LogLevel.Error,
+                "Logging verbosity. None = suppress all output, Error = only errors, "
+                    + "Debug = info + warnings + errors, Verbose = everything including debug traces.");
+#endif
 
             ConfigEntryBase?[] allFields =
             [
                 AudioEnabled, AudioFrequency, AudioVolume,
+                AudioAssetsMaxConcurrentDownloads, AudioAssetsShowFirstRunNotice, AudioAssetsKeepOtherCaches,
                 MonsterAggressionEnabled, MonsterAudioEnabled,
+                MonsterLureEnabled, LureSafeDistance, LureCampSeconds, LureEscalateSeconds, LureCooldownSeconds,
+                SnitchEnabled, SnitchPOIDurationSeconds,
                 FakeFootstepsEnabled, AdrenalineEnabled, LowStaminaSoundEnabled, PanicSprintEnabled,
                 PsychoticBreakEnabled, PsychoticBreakTriggerChance, PsychoticBreakDuration, PsychoticBreakOncePerMatch,
                 CrouchSpeedBoostEnabled,
                 CompatibilityMode, CompatibilitySkipConflictingPatches, DebugConsoleGuardEnabled,
                 ErrorReportingEnabled, ErrorReportingPromptShown,
-                DebugOverlayEnabled, DebugServerEnabled, DebugServerPort,
-                LogLevelEntry, TestCrashButton,
+#if DREAD_DEBUG
+                DebugOverlayEnabled, DebugOverlayZoom, DebugOverlayPanelX, DebugOverlayPanelY,
+                DebugOverlayCollapsedSections,
+                DebugServerEnabled, DebugServerPort,
+#endif
+                LogLevelEntry,
+#if DREAD_DEBUG
+                TestCrashButton,
+#endif
             ];
             for (int i = 0; i < allFields.Length; i++)
             {
@@ -201,8 +308,10 @@ namespace Dread.Config
         }
     }
 
+#if DREAD_DEBUG
     internal class ConfigurationManagerAttributes
     {
         public bool? ShowAsButton;
     }
+#endif
 }

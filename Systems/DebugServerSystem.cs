@@ -405,13 +405,17 @@ namespace Dread.Systems
             try
             {
                 scene = SceneManager.GetActiveScene().name ?? "unknown";
-                var enemies = FindObjectsOfType<EnemyHealth>();
+                var enemies = ProximityScan.GetEnemies();
                 enemyCount = enemies.Length;
                 var player = FindObjectOfType<PlayerController>();
                 if (player != null)
                 {
-                    playerHp = ReadPlayerFloat(player, "Health", "health", "playerHealth");
-                    playerStamina = ReadPlayerFloat(player, "stamina", "Stamina", "energy");
+                    playerHp = PlayerControllerCompat.GetHealth(player);
+                    playerStamina = PlayerControllerCompat.GetStamina(player);
+                    if (playerHp < 0f)
+                        playerHp = ReadPlayerFloat(player, "Health", "health", "playerHealth");
+                    if (playerStamina < 0f)
+                        playerStamina = ReadPlayerFloat(player, "stamina", "Stamina", "energy");
                     foreach (var e in enemies)
                     {
                         if (EnemyHealthCompat.TryIsAlive(e))
@@ -513,18 +517,19 @@ namespace Dread.Systems
                         DreadConfig.DebugConsoleGuardEnabled)),
                 Section("7. Error Reporting",
                     Entry("ErrorReportingEnabled", "errorReporting", DreadConfig.ErrorReportingEnabled)),
-                Section("8. Debug Overlay",
+                Section(DreadConfigSections.DebugOverlay,
                     Entry("DebugOverlayEnabled", "overlay.enabled", DreadConfig.DebugOverlayEnabled)),
-                Section("9. Debug Server",
+                Section(DreadConfigSections.DebugServer,
                     Entry(
                         "DebugServerEnabled",
                         "debugServer.enabled",
                         DreadConfig.DebugServerEnabled,
                         restartRequired: true),
                     Entry("DebugServerPort", "debugServer.port", DreadConfig.DebugServerPort, restartRequired: true)),
-                Section("10. Logging",
+                Section(DreadConfigSections.Logging,
                     Entry("LogLevel", "logging.level", DreadConfig.LogLevelEntry)),
-                Section("11. Testing",
+                Section(
+                    DreadConfigSections.Testing,
                     Entry("Crash Game", "testing.crash", DreadConfig.TestCrashButton)),
             };
         }
@@ -639,7 +644,7 @@ namespace Dread.Systems
                 Check("debug_server_listening", _running && _listener != null, $"port={_boundPort}"),
                 Check("systems_count", CountActiveSystems() >= 7, $"count={CountActiveSystems()}"),
                 Check("audio_clips", DreadRuntimeState.AudioClipCount > 0,
-                    $"loaded={DreadRuntimeState.AudioClipCount}/4"),
+                    $"loaded={DreadRuntimeState.AudioClipCount}/5"),
                 Check("psychotic_break_clips", DreadRuntimeState.PsychoticBreakClipsLoaded,
                     DreadRuntimeState.PsychoticBreakClipsLoaded ? "all loaded" : "missing clips"),
                 Check("overlay_present", FindObjectOfType<DebugOverlaySystem>() != null, "DebugOverlaySystem host"),

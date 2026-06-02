@@ -14,11 +14,14 @@ Current-state reference for working in the Dread codebase. These replace the old
 | [reflection-inventory.md](reflection-inventory.md) | ARCH-2: reflection sites, stub/full, hot paths |
 | [audio-dread-and-loading.md](audio-dread-and-loading.md) | Ambient audio, OGG loading, NVorbis, weights |
 | [monster-overhaul.md](monster-overhaul.md) | Monster audio loop, aggression patches |
+| [camp-lure-and-snitch.md](camp-lure-and-snitch.md) | Camp lure, snitch, gameplay phase gate (links `specs/006`) |
+| [ui-notifications.md](ui-notifications.md) | `DreadNotificationSystem`, `DreadWidgets` |
 | [tension-and-proximity.md](tension-and-proximity.md) | Proximity scan, adrenaline, panic sprint |
 | [psychotic-break.md](psychotic-break.md) | Episode triggers, solo/LoS/crouch, debug force |
 | [harmony-and-patches.md](harmony-and-patches.md) | Apply/Remove, compat skip, host-only |
 | [error-reporting.md](error-reporting.md) | Worker pipeline, opt-in telemetry, tests |
 | [debug-tooling.md](debug-tooling.md) | TCP debug server, MCP, overlay, TestCrash |
+| [development-only-features.md](development-only-features.md) | **Checklist:** `#if DREAD_DEBUG`, Compile Remove, config/registry for agent-only work |
 | [config-and-logging.md](config-and-logging.md) | DreadConfig sections, LoggingService |
 | [compatibility.md](compatibility.md) | Compatibility mode, REPOConfig, optional mods |
 
@@ -31,11 +34,14 @@ Current-state reference for working in the Dread codebase. These replace the old
 | Orient in repo | [mod-architecture.md](mod-architecture.md) + [systems-folder-governance.md](../systems-folder-governance.md) + [ADR-0016](../../adr/0016-arch-3-extension-model.md) |
 | Add a runtime system | [mod-architecture.md](mod-architecture.md) + [system-lifecycle contract](../../../specs/002-arch-3-extensible-core/contracts/system-lifecycle.md) |
 | Change gameplay near enemies | [tension-and-proximity.md](tension-and-proximity.md) or [monster-overhaul.md](monster-overhaul.md) |
+| Camp lure / snitch / run phase gate | [camp-lure-and-snitch.md](camp-lure-and-snitch.md) |
+| Corner toasts / HUD widgets | [ui-notifications.md](ui-notifications.md) |
 | Patch game methods | [harmony-and-patches.md](harmony-and-patches.md) |
 | Add sounds | [audio-dread-and-loading.md](audio-dread-and-loading.md) |
 | Psychotic break behavior | [psychotic-break.md](psychotic-break.md) |
 | Crashes / GitHub auto-issues | [error-reporting.md](error-reporting.md) |
 | Agent verify / MCP | [debug-tooling.md](debug-tooling.md) + [verify-dread.md](../verify-dread.md) |
+| Agent-only feature (not in Thunderstore) | [development-only-features.md](development-only-features.md) |
 | New config knob | [config-and-logging.md](config-and-logging.md) |
 | Mod conflicts | [compatibility.md](compatibility.md) + [mod-compatibility.md](../../mod-compatibility.md) |
 | Reduce reflection / stub CI | [reflection-inventory.md](reflection-inventory.md), [mod-architecture.md](mod-architecture.md) build profiles |

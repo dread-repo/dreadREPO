@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-1.6.1-crimson?style=flat-square)
 ![Status](https://img.shields.io/badge/status-release-brightgreen?style=flat-square)
 
-Atmospheric horror overhaul for R.E.P.O. Seven runtime systems that layer ambient dread, scarier monsters, real-time proximity tension, psychotic episodes, automated error reporting, and AI-assisted debugging.
+Atmospheric horror overhaul for R.E.P.O. Nine core runtime systems (ambient audio, monster overhaul, tension, psychotic break, error reporting + first-run prompt, in-game notifications, camp lure, snitch). Debug overlay, TCP server, and test crash ship only in **development** builds, not in the Thunderstore package.
 
 ## What's new (1.6.0)
 
@@ -85,18 +85,8 @@ CompatibilityMode = false
 ErrorReportingEnabled = true     # default on for new cfg; first-run prompt on first gameplay level
 ErrorReportingPromptShown = false
 
-[8. Debug Overlay]
-DebugOverlayEnabled = false
-
-[9. Debug Server]
-DebugServerEnabled = false
-DebugServerPort = 15432
-
-[10. Logging]
-LogLevel = Debug
-
-[11. Testing]
-Crash Game = false
+[8. Logging]
+LogLevel = Error
 ```
 
 ## Compatibility

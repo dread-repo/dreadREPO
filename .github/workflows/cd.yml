@@ -99,6 +99,15 @@ jobs:
           $pluginContent = $pluginContent -replace 'public const string VERSION = "[\d.]+"', "public const string VERSION = `"$newVersion`""
           Set-Content Plugin.cs $pluginContent
 
+          $audioManifestPath = "audio/audio-manifest.json"
+          if (Test-Path $audioManifestPath) {
+            $audioContent = Get-Content $audioManifestPath -Raw
+            $audioContent = $audioContent -replace '"modVersion": "[\d.]+"', "`"modVersion`": `"$newVersion`""
+            $audioContent = $audioContent -replace '"releaseTag": "v[\d.]+"', "`"releaseTag`": `"$releaseTag`""
+            $audioContent = $audioContent -replace '"baseUrl": "https://github.com/grompen91-droid/dreadREPO/releases/download/v[\d.]+"', "`"baseUrl`": `"https://github.com/grompen91-droid/dreadREPO/releases/download/$releaseTag`""
+            Set-Content $audioManifestPath $audioContent
+          }
+
           $readme = Get-Content README.md -Raw
           $readme = $readme -replace 'version-[\d.]+-crimson', "version-$newVersion-crimson"
           $readme = $readme -replace 'status-(active|release)-brightgreen', "status-release-brightgreen"
@@ -141,6 +150,7 @@ jobs:
             CHANGELOG.md
             README.md
             THUNDERSTORE_README.md
+            audio/audio-manifest.json
           retention-days: 1
 
       - name: Upload release body
@@ -193,16 +203,21 @@ jobs:
           name: modified-files
           path: ${{ runner.temp }}/modified
 
-      - name: Apply bumped Plugin.cs
+      - name: Apply bumped release files
         shell: bash
         run: |
           cp "${{ runner.temp }}/modified/Plugin.cs" Plugin.cs
+          cp "${{ runner.temp }}/modified/audio/audio-manifest.json" audio/audio-manifest.json
 
       - name: Verify Plugin.cs version
         shell: bash
         run: |
           grep -q "VERSION = \"${{ needs.version.outputs.new_version }}\"" Plugin.cs \
             || { echo "::error::Plugin.cs version mismatch (expected ${{ needs.version.outputs.new_version }})"; exit 1; }
+
+      - name: Validate audio manifest
+        shell: pwsh
+        run: pwsh -NoProfile ./.github/scripts/validate-audio-manifest.ps1
 
       - name: Build
         shell: bash
@@ -211,6 +226,7 @@ jobs:
           output=$(dotnet build Dread.csproj -c Release --nologo \
             -p:GameDir="$refsDir" \
             -p:BepInExDir="$refsDir" \
+            -p:EnableDebugFeatures=false \
             -p:DeployToProfile=false \
             -p:DeployToDist=false 2>&1)
           exitCode=$?
@@ -219,6 +235,10 @@ jobs:
             echo "::error::Build failed (exit code $exitCode)"
             exit $exitCode
           fi
+
+      - name: Verify production DLL profile
+        shell: bash
+        run: bash .github/scripts/verify-production-dll.sh bin/Release/net48/Dread.dll
 
       - name: Upload plugin binaries
         uses: actions/upload-artifact@v7
@@ -270,10 +290,6 @@ jobs:
           Copy-PluginBinaries -SourceDir "${{ runner.temp }}/dll" -DestDir $pluginDir
           Test-PluginBinariesPresent -Dir $pluginDir
 
-          if (Test-Path "audio") {
-            Copy-Item -Recurse "audio" "$outDir/BepInEx/plugins/$name/"
-          }
-
           Copy-Item "${{ runner.temp }}/modified/manifest.json" $outDir
 
           if (Test-Path "THUNDERSTORE_README.md") {
@@ -290,6 +306,26 @@ jobs:
 
           Compress-Archive -Path "$outDir/*" -DestinationPath $zipPath -Force
           Write-Host "Package created: $zipPath"
+
+      - name: Verify production Thunderstore zip
+        shell: bash
+        run: |
+          zipFile=$(ls "${{ runner.temp }}"/elytraking-Dread-*.zip | head -1)
+          checkDir="${{ runner.temp }}/zip-check"
+          rm -rf "$checkDir"
+          mkdir -p "$checkDir"
+          unzip -q "$zipFile" -d "$checkDir"
+          dll=$(find "$checkDir" -path '*/BepInEx/plugins/*/Dread.dll' | head -1)
+          if [ -z "$dll" ]; then
+            echo "::error::Dread.dll not found in Thunderstore zip"
+            exit 1
+          fi
+          bash .github/scripts/verify-production-dll.sh "$dll"
+          if find "$checkDir" -path '*dread-mcp-server*' | grep -q .; then
+            echo "::error::dread-mcp-server must not appear in Thunderstore zip"
+            exit 1
+          fi
+          echo "Thunderstore zip verified: production Dread.dll profile, no MCP bundle"
 
       - name: Upload Thunderstore zip
         uses: actions/upload-artifact@v7
@@ -346,6 +382,7 @@ jobs:
           Copy-Item "${{ runner.temp }}/modified/Plugin.cs" "Plugin.cs"
           Copy-Item "${{ runner.temp }}/modified/CHANGELOG.md" "CHANGELOG.md"
           Copy-Item "${{ runner.temp }}/modified/README.md" "README.md"
+          Copy-Item "${{ runner.temp }}/modified/audio/audio-manifest.json" "audio/audio-manifest.json"
 
           if (Test-Path "${{ runner.temp }}/modified/THUNDERSTORE_README.md") {
             Copy-Item "${{ runner.temp }}/modified/THUNDERSTORE_README.md" "THUNDERSTORE_README.md"
@@ -353,7 +390,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add manifest.json Plugin.cs CHANGELOG.md README.md
+          git add manifest.json Plugin.cs CHANGELOG.md README.md audio/audio-manifest.json
           if (Test-Path "THUNDERSTORE_README.md") { git add THUNDERSTORE_README.md }
           git commit -m "release: v${newVersion} bump"
 
@@ -382,10 +419,14 @@ jobs:
 
           $dllAssets = Get-ChildItem "${{ runner.temp }}/dll/*.dll" | ForEach-Object { $_.FullName }
           gh release create "$releaseTag" `
+            --draft `
             --title "v$newVersion" `
             --notes-file "${{ runner.temp }}/release-body/release-body.md" `
             @dllAssets `
             "$($zipFile.FullName)"
+
+          pwsh -NoProfile ./.github/scripts/upload-audio-release-assets.ps1 -ReleaseTag $releaseTag
+          gh release edit "$releaseTag" --draft=false
 
       - name: Create post-release issue
         if: success()

@@ -56,7 +56,7 @@ _Avoid_: treating **In-level** and **Run** as synonyms; prefer **In-level** for 
 
 ### Runtime systems
 
-Seven systems start from the plugin entry on typical builds (see **File map**). Each lives on its own **System host**.
+**Nine core systems** register in `DreadSystemRegistry` on every production build; **three debug systems** register only in development builds (`#if DREAD_DEBUG`). See `Systems/DreadSystemRegistry.cs` and [mod-architecture.md](docs/agents/guides/mod-architecture.md). Each lives on its own **System host**.
 
 **Audio Dread**:
 During a **Run**, plays rare weighted 3D ambient horror sounds around the player; frequency and volume follow config.
@@ -67,6 +67,16 @@ _Avoid_: "ambient mod", "background sounds"
 Makes enemies feel harder to read and more threatening: host-side aggression tuning, periodic enemy audio treatment, and related monster-facing behavior.
 _Implements:_ `MonsterOverhaulSystem`
 _Avoid_: using the name for only **Monster aggression** or only audio tweaks
+
+**Camp Lure**:
+Host-only anti-camping: draws enemies toward a player who stays isolated too long, with escalation and a post-contact cooldown. Active only during **Extraction level** (`GameplayContext.AllowsHostMonsterFeatures`).
+_Implements:_ `CampLureSystem`
+_Avoid_: "lure mod", treating as client-local tension
+
+**Snitch**:
+Host-only: one random item per extraction level secretly triggers a 3D bang and enemy POI on first pickup. Active only during **Extraction level**.
+_Implements:_ `SnitchSystem`
+_Avoid_: calling every item dangerous; snitch is one hidden item per level
 
 **Tension System**:
 One shared **proximity scan** drives four client-local features: **Adrenaline**, **Panic sprint**, **Low stamina sound**, and **Fake footsteps**.
@@ -82,6 +92,16 @@ _Avoid_: "hallucination event", "cutscene"
 Captures serious game errors and can file deduplicated reports for the developer; subject to player opt-in and config. Payload JSON via `ErrorReportJson` (ADR-0010, ADR-0015).
 _Implements:_ `ErrorReporterSystem`, `ErrorReportJson`
 _Avoid_: "telemetry" without noting opt-in/config
+
+**Error reporting prompt**:
+First-run IMGUI privacy disclosure before any error payload is sent; blocks enqueue until acknowledged. Existing installs that disabled reporting in cfg are unchanged.
+_Implements:_ `ErrorReportingPromptSystem`
+_Avoid_: conflating with **Error reporting** upload logic alone
+
+**Dread notifications**:
+Thread-safe transient corner toasts (`Info` / `Warn` / `Bad`) used by overlay, camp lure, snitch, and other systems for agent-visible status without chat spam.
+_Implements:_ `DreadNotificationSystem`
+_Avoid_: in-game chat messages for debug-only state
 
 **Test crash**:
 Intentional crash path used to verify **Error reporting** end-to-end (config-driven, not a gameplay feature).
@@ -259,12 +279,15 @@ Open conflicts only. Resolved terms live in **Language** above.
 |------|------|
 | Plugin entry, Harmony apply | `Plugin.cs` |
 | Config bindings | `Config/DreadConfig.cs` |
-| Runtime systems (flat) | `Systems/*.cs` (initializer, tension, audio, debug server, compat, etc.) |
+| Runtime systems (flat) | `Systems/*.cs` (initializer, tension, audio, notifications, lure, snitch, etc.) |
+| Notifications | `Systems/Notifications/` |
 | Harmony patches | `Systems/Patches/` |
 | Psychotic break | `Systems/PsychoticBreak/` |
 | Error reporting | `Systems/ErrorReporting/` (+ `ErrorReportJson.cs` at `Systems/` root) |
 | Debug overlay | `Systems/DebugOverlay/` |
-| OGG assets | `audio/` |
+| Remote assets (audio) | `Systems/AudioAssets/`, `audio/audio-manifest.json`, cache `audio-cache/v{VERSION}/` |
+| Remote assets (images) | Future (ASSET-1): same manifest/cache pattern, not implemented |
+| Authoring OGG (git + GitHub Release) | `audio/{category}/*.ogg` |
 | Architecture decisions | `docs/adr/` |
 | Agent orchestration hub | `docs/agents/README.md` |
 | Agent implementation guides | `docs/agents/guides/README.md` (index of all systems) |

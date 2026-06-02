@@ -28,11 +28,11 @@ Block reasons on `DreadRuntimeState.PsychoticBreakBlockReason` (overlay + `dread
 
 ## Enemy scan
 
-Uses shared **`EnemyScanCache`** (0.5s refresh, same pattern as tension proximity). Do not add a second static enemy list for psychotic break.
+Uses shared **`ProximityScan`** in `Systems/Core/` (0.5s refresh, same pattern as tension proximity). Do not add a second static enemy list for psychotic break.
 
 ## Audio clips
 
-Loaded from `audio/` via **`AudioClipLoader`** (shared cache with tension/ambient):
+Loaded via **`AudioAssetApi`** (`psychotic_break` category; `footsteps.ogg` resolves to `shared/`):
 
 - `scream_peak.ogg`, `scream_distant.ogg`, `scream_threat.ogg`
 - `footsteps.ogg` (circling steps during episode)

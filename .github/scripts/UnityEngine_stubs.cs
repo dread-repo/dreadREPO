@@ -52,10 +52,21 @@ namespace UnityEngine
             return false;
         }
     }
+    public class Rigidbody : Component
+    {
+        public bool isKinematic { get; set; }
+        public Vector3 velocity { get; set; }
+    }
     public class Object
     {
+        public string name { get; set; } = string.Empty;
+        public int GetInstanceID() => 0;
         public static T FindObjectOfType<T>() where T : Object => null;
         public static T[] FindObjectsOfType<T>() where T : Object => null;
+        public static Object? FindObjectOfType(System.Type type) => null;
+        public static Object[] FindObjectsOfType(System.Type type) => System.Array.Empty<Object>();
+        public static Object[] FindObjectsOfType(System.Type type, bool includeInactive) =>
+            FindObjectsOfType(type);
         public static void Destroy(Object obj, float t = 0f) { }
         public static void DontDestroyOnLoad(Object obj) { }
         public static implicit operator bool(Object exists) { return exists != null; }
@@ -81,6 +92,7 @@ namespace UnityEngine
         public float x, y, z;
         public Vector3 normalized => this;
         public float magnitude => 0f;
+        public float sqrMagnitude => 0f;
         public static Vector3 forward => new Vector3();
         public static Vector3 right => new Vector3();
         public static Vector3 zero => new Vector3();
@@ -119,7 +131,6 @@ namespace UnityEngine
         public delegate void PCMSetPositionCallback(int position);
 
         public float length { get; }
-        public string name { get; set; }
         public static AudioClip Create(string name, int lengthSamples, int channels, int frequency, bool stream) => null!;
         public static AudioClip Create(string name, int lengthSamples, int channels, int frequency, bool stream, PCMReaderCallback pcmreadercallback) => null!;
         public static AudioClip Create(string name, int lengthSamples, int channels, int frequency, bool stream, PCMReaderCallback pcmreadercallback, PCMSetPositionCallback pcmsetpositioncallback) => null!;
@@ -200,6 +211,13 @@ namespace UnityEngine
     }
     public enum TextureFormat { RGBA32 }
     public enum RenderMode { ScreenSpaceOverlay }
+    // Order must match real UnityEngine.TextAnchor: GUIStyle.alignment binds by value.
+    public enum TextAnchor
+    {
+        UpperLeft, UpperCenter, UpperRight,
+        MiddleLeft, MiddleCenter, MiddleRight,
+        LowerLeft, LowerCenter, LowerRight,
+    }
     public struct LayerMask
     {
         public static int GetMask(params string[] layerNames) => 0;
@@ -211,12 +229,20 @@ namespace UnityEngine
         public static void LogException(System.Exception exception) { }
     }
     public enum LogType { Error, Assert, Warning, Log, Exception }
+    public enum NetworkReachability
+    {
+        NotReachable,
+        ReachableViaCarrierDataNetwork,
+        ReachableViaLocalAreaNetwork,
+    }
+
     public static class Application
     {
         public static string dataPath { get; }
         public static string version { get; }
         public static string unityVersion { get; }
         public static RuntimePlatform platform { get; }
+        public static NetworkReachability internetReachability { get; }
         public delegate void LogCallback(string logString, string stackTrace, LogType type);
         public static event LogCallback logMessageReceived;
         public static event Action quitting;
@@ -301,6 +327,10 @@ namespace UnityEngine
     public static class Input
     {
         public static bool GetKeyDown(KeyCode key) => false;
+        public static bool GetMouseButton(int button) => false;
+        public static bool GetMouseButtonDown(int button) => false;
+        public static bool GetMouseButtonUp(int button) => false;
+        public static Vector3 mousePosition => new Vector3();
     }
 
     // Values must match real UnityEngine.KeyCode exactly: enum constants are inlined

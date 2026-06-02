@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Dread.Systems.AudioAssets;
 
 namespace Dread.Systems
 {
@@ -41,6 +42,11 @@ namespace Dread.Systems
         public static IReadOnlyList<SystemRegistration> Registrations { get; } =
         [
             new SystemRegistration(
+                "audio-assets",
+                typeof(AudioAssetSystem),
+                "DreadAudioAssetsHost",
+                SystemOrderGroup.Core),
+            new SystemRegistration(
                 "audio-dread",
                 typeof(AudioDreadSystem),
                 "DreadAudioHost",
@@ -71,6 +77,22 @@ namespace Dread.Systems
                 "DreadPsychoticBreakHost",
                 SystemOrderGroup.Core),
             new SystemRegistration(
+                "notifications",
+                typeof(DreadNotificationSystem),
+                "DreadNotificationHost",
+                SystemOrderGroup.Core),
+            new SystemRegistration(
+                "camp-lure",
+                typeof(CampLureSystem),
+                "DreadCampLureHost",
+                SystemOrderGroup.Core),
+            new SystemRegistration(
+                "snitch",
+                typeof(SnitchSystem),
+                "DreadSnitchHost",
+                SystemOrderGroup.Core),
+#if DREAD_DEBUG
+            new SystemRegistration(
                 "test-crash",
                 typeof(TestCrashSystem),
                 "DreadTestCrashHost",
@@ -85,6 +107,7 @@ namespace Dread.Systems
                 typeof(DebugOverlaySystem),
                 "DreadDebugOverlayHost",
                 SystemOrderGroup.Debug),
+#endif
         ];
     }
 }

@@ -9,21 +9,23 @@ Use for scoped bugs, docs, or single-file changes.
 ```
 ROADMAP / GitHub issue (ready-for-agent)
     -> CONTEXT.md + domain.md + relevant ADRs
-    -> feature branch (cursor/<name>-3dd3 for Cloud Agents)
+    -> feature branch off master (AGENTS.md: Spec Kit NNN-kebab, or fix/... / feat/...)
     -> implement (minimal diff, repo conventions)
-    -> Tier 0 verify (scripts/verify-dread.ps1)
+    -> meaningful git commits on the branch (not one giant commit at the end)
+    -> Debug build + Tier 0 verify (scripts/verify-dread.ps1)
     -> dotnet format (if C# touched)
-    -> commit + push + PR to master
+    -> push only when opening/updating PR or user asks; PR to master when complete
     -> CHANGELOG [Unreleased] if user-facing
 ```
 
-### Branch naming (Cloud Agents)
+### Branch naming
 
-Cloud Agent tasks use:
+| Situation | Branch |
+|-----------|--------|
+| Active Spec Kit plan (`.specify/feature.json`) | `NNN-kebab-name` matching `specs/NNN-.../` |
+| Other features / fixes | `feat/short-description` or `fix/short-description` (kebab-case) |
 
-`cursor/<short-description>-3dd3`
-
-Example: `cursor/improve-agent-orchestration-3dd3`
+Cloud Agents may still use `cursor/<short-description>-3dd3` when that is how the task was spawned; prefer Spec Kit naming when a plan is active.
 
 ### PR checklist
 
@@ -32,6 +34,7 @@ Example: `cursor/improve-agent-orchestration-3dd3`
 - [ ] Glossary terms from CONTEXT.md in description
 - [ ] No manual version edits in `manifest.json`, `Plugin.cs`, README version badges
 - [ ] Tier 0 verify passed (or failure documented with reason)
+- [ ] If agent-only surface added: `development-only-features.md` checklist completed; production build verified
 - [ ] `[Unreleased]` updated in CHANGELOG.md for notable changes
 
 ## Workflow B: Multi-subagent (Claude Code)
@@ -50,6 +53,7 @@ Issue + guide (optional: docs/agents/guides/*.md)
 
 - Read CONTEXT.md and domain.md before coding
 - Follow AGENTS.md build rules (stubs on Linux)
+- Agent-only code: [guides/development-only-features.md](guides/development-only-features.md) (`DREAD_DEBUG`, `Compile Remove`, config sections 8-9)
 - Return `DONE` or `DONE_WITH_CONCERNS` with git SHA
 
 **Reviewers** must:

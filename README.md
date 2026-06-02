@@ -1,7 +1,9 @@
 # Dread
 
+> **Agents:** start at [`docs/agents/README.md`](docs/agents/README.md) (orchestration, verify, implementation guides). This README is player- and contributor-oriented.
+
 > **Atmospheric horror overhaul for R.E.P.O.**  
-> Seven runtime systems that layer ambient dread, scarier monsters, a tension system that reads your proximity to danger in real time, a psychotic break episode when you are alone and scared, and automatic error reporting.
+> Nine core runtime systems layer ambient dread, scarier monsters, proximity tension, psychotic break episodes, error reporting (with a first-run privacy prompt), in-game notifications, camp lure, and snitch. Debug tooling (overlay, MCP TCP server, test crash) is development-only and excluded from Thunderstore releases.
 
 ![Version](https://img.shields.io/badge/version-1.6.1-crimson?style=flat-square)
 ![Status](https://img.shields.io/badge/status-release-brightgreen?style=flat-square)
@@ -29,7 +31,7 @@
 
 ## Overview
 
-Dread is a BepInEx plugin that transforms R.E.P.O. into a genuinely unsettling experience at the IL level. It uses **Harmony 2 runtime patching** to intercept enemy spawn, movement, and detection methods, while seven independent MonoBehaviour systems run on persistent game objects that survive scene transitions.
+Dread is a BepInEx plugin that transforms R.E.P.O. into a genuinely unsettling experience at the IL level. It uses **Harmony 2 runtime patching** to intercept enemy spawn, movement, and detection methods, while registered MonoBehaviour systems (see `Systems/DreadSystemRegistry.cs`) run on persistent hosts that survive scene transitions.
 
 Every feature is independently toggleable via `BepInEx/config/elytraking.dread.cfg`. Players without Dread can join modded lobbies: monster changes are host-authoritative, while audio and tension effects are client-local.
 
@@ -49,15 +51,19 @@ Plugin.Start() / deferred retry
             +-- AudioDreadSystem              # coroutine: weighted ambient sounds
             +-- MonsterOverhaulSystem         # scan loop + Harmony patches (Systems/Patches/)
             +-- TensionSystem                 # 0.5s proximity scan drives 4 features
-            +-- PsychoticBreakSystem          # Systems/PsychoticBreak/* episode state machine
             +-- ErrorReporterSystem           # Systems/ErrorReporting/* telemetry + consent
             +-- ErrorReportingPromptSystem    # first-run disclosure (ERR-2)
-            +-- TestCrashSystem               # config button to trigger intentional crash
-            +-- DebugOverlaySystem            # F10 HUD (Systems/DebugOverlay/)
-            +-- DebugServerSystem             # TCP debug server for AI agents (default off)
+            +-- PsychoticBreakSystem          # Systems/PsychoticBreak/* episode state machine
+            +-- DreadNotificationSystem       # corner toasts (Systems/Notifications/)
+            +-- CampLureSystem                # host anti-camping lure
+            +-- SnitchSystem                  # host snitch item POI
+            +-- (development builds only)
+                 +-- TestCrashSystem          # intentional crash for error-reporting QA
+                 +-- DebugOverlaySystem       # F10 HUD (Systems/DebugOverlay/)
+                 +-- DebugServerSystem        # TCP debug server for MCP/agents
 ```
 
-Runtime systems are registered in `DreadSystemRegistry` and spawned with per-system fail-safe isolation (ARCH-3). Audio loads from DLL-adjacent `audio/*.ogg` via **NVorbis** (primary) with optional `UnityWebRequest` when the Unity module is usable (`UnityWebRequestCompat`, `AudioClipLoader`). A failure in one system does not prevent others from starting.
+Runtime systems are registered in `DreadSystemRegistry` and spawned with per-system fail-safe isolation (ARCH-3). Thunderstore releases include the nine core rows only; debug hosts are compiled out of production `Dread.dll`. **Audio** downloads version-pinned OGG files from the matching [GitHub Release](https://github.com/grompen91-droid/dreadREPO/releases) on first run (into `audio-cache/v{version}/`), then decodes via **NVorbis** (`AudioAssetSystem`, `AudioClipLoader`). The Thunderstore package is DLL-only; features start progressively as each clip arrives. Debug builds can copy local `audio/` beside the plugin for offline testing. A failure in one system does not prevent others from starting.
 
 ---
 
@@ -223,18 +229,10 @@ CompatibilityMode = false
 ErrorReportingEnabled = true     # anonymous crash telemetry (see cfg description; first-run prompt on first level)
 ErrorReportingPromptShown = false   # internal: set by first-run prompt
 
-[8. Debug Overlay]
-DebugOverlayEnabled = false
+[8. Logging]
+LogLevel = Error                     # production default; Debug in development builds
 
-[9. Debug Server]
-DebugServerEnabled = false           # TCP debug server for AI agents (default off)
-DebugServerPort = 15432              # port, falls back to +1 if unavailable
-
-[10. Logging]
-LogLevel = Debug                     # None | Error | Debug | Verbose
-
-[11. Testing]
-Crash Game = false                   # turn ON in REPOConfig or cfg to test crash reporting (resets to off)
+*(Development builds also include sections 8-9 Debug Overlay/Server, 10. Logging, and 11. Testing / Crash Game.)*
 ```
 
 </details>
@@ -276,7 +274,9 @@ See **[docs/mod-compatibility.md](docs/mod-compatibility.md)** for the full matr
 - **Broken profiles**: set `CompatibilityMode = true` or `ErrorReportingEnabled = false` without uninstalling Dread.
 - **REPOLib**: not required (removed in v1.4.0).
 
-The `audio/` folder includes `door_creak.ogg` which is shipped but not currently loaded by any system. It is available for future ambient variants or custom sound replacement.
+All gameplay OGG files live under `audio/{category}/` and are listed in `audio/audio-manifest.json` for GitHub Release download (not shipped in the Thunderstore zip).
+
+**Offline / slow network:** ambient and tension features work with whatever clips are already cached; missing files stay queued until download succeeds. Pin parallel downloads in config (`1b. Audio Assets` > `MaxConcurrentDownloads`, 0 = auto).
 
 ---
 
@@ -402,7 +402,7 @@ Requires .NET SDK 4.8 targeting pack and a local R.E.P.O. installation (for `Ass
 
 ### Testing
 
-This mod has no test suite. All testing is done manually in-game. The seven-system architecture (independent MonoBehaviours on `DontDestroyOnLoad` hosts) makes each system testable in isolation by disabling the others via config.
+This mod has no test suite. All testing is done manually in-game. The nine core systems (independent MonoBehaviours on `DontDestroyOnLoad` hosts) are testable in isolation by disabling the others via config.
 
 ### MCP Server
 

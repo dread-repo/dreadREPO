@@ -80,7 +80,7 @@ Work top to bottom within each phase. Do not skip **Depends on** unless the issu
 | 12 | DBG-1 | P2 | [#163](https://github.com/grompen91-droid/dreadREPO/issues/163) | DBG-3 (soft) | Draggable panel after text renders reliably |
 | 13 | DBG-2 | P2 | [#164](https://github.com/grompen91-droid/dreadREPO/issues/164) | DBG-1, DBG-5 (soft) | Richer cfg once layout UX is settled |
 
-### Phase 5: Performance optimization
+### Phase 5: Performance optimization (PAUSED)
 
 | Order | ID | Priority | Issue | Depends on | Why |
 |-------|-----|----------|-------|------------|-----|
@@ -191,6 +191,9 @@ See also: `docs/repo-config-slider-labels-investigation.md`.
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
 | AUDIO-1 | P1 | **Pitch-aware playback + NVorbis EOF + stub UWR** | `AudioPlayUtil`; chunked NVorbis; `UnityWebRequestCompat`; shared clip cache safe in psychotic break | done | PR #203 |
+| AUDIO-5 | P1 | **Remote audio via GitHub Release** | `AudioAssetSystem`, embedded manifest, adaptive downloads, cache reconcile + prune | done | AUDIO-5 branch |
+| AUDIO-6 | P2 | **Dev BundleAudio profile** | MSBuild `BundleAudio=true` copies local `audio/` for offline dev | idea | (deferred) |
+| ASSET-1 | P3 | **Remote images (future)** | Reuse remote-assets pattern; manifest + cache | idea | (to file) |
 | AUDIO-2 | P2 | **Unit tests for `AudioPlayUtil`** | Golden cases: pitch 0.5 doubles wall-clock lifetime; edge pitch clamp | idea | (to file) |
 | AUDIO-3 | P2 | **NVorbis load performance** | Replace per-sample `List.Add` with block copy for large OGGs; handle partial final frame if needed | idea | (to file) |
 | AUDIO-4 | P2 | **`PlayPeakScream` DRY** | Use `AudioPlayUtil` for destroy timing (pitch fixed at 1.0 today) | done | PR #203 (`PlayPeakScream`) |

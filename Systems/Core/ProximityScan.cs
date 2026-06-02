@@ -1,18 +1,30 @@
-using Dread.Systems.Core;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-namespace Dread.Systems
+namespace Dread.Systems.Core
 {
     /// <summary>
-    /// Shared enemy list refreshed at a fixed interval to avoid repeated FindObjectsOfType scans.
+    /// Shared enemy list refreshed at a fixed interval (proximity scan for tension and related features).
     /// </summary>
-    internal static class EnemyScanCache
+    internal static class ProximityScan
     {
+        static ProximityScan()
+        {
+            SceneManager.sceneLoaded += (_, _) => Invalidate();
+        }
+
         private static EnemyHealth[] _enemies = System.Array.Empty<EnemyHealth>();
         private static float _nextRefresh = -1f;
         private const float RefreshInterval = 0.5f;
 
         public static int Count => _enemies.Length;
+
+        /// <summary>True when at least one valid enemy is in the scan cache.</summary>
+        public static bool HasEnemies()
+        {
+            RefreshIfNeeded();
+            return _enemies.Length > 0;
+        }
 
         public static EnemyHealth[] GetEnemies()
         {
