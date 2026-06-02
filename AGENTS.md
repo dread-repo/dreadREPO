@@ -104,13 +104,15 @@ Remote: `https://github.com/grompen91-droid/dreadREPO.git`, branch `master`.
 | Issue tracker (`gh` CLI) | `docs/agents/issue-tracker.md` |
 | Triage labels | `docs/agents/triage-labels.md` |
 | Domain + ADRs | `docs/agents/domain.md` + `CONTEXT.md` |
+| `Systems/` placement rules | `docs/agents/systems-folder-governance.md` |
+| Codebase quality reviews | `docs/reviews/README.md` |
 | Autonomous verify | `docs/agents/verify-dread.md` |
 | Subagent prompts | `.claude/implementer-prompt.md`, `.claude/spec-reviewer-prompt.md`, `.claude/code-quality-reviewer-prompt.md` |
 
 Backlog: `docs/ROADMAP.md`. Pick issues labeled `ready-for-agent` unless the task says otherwise.
 
 <!-- SPECKIT START -->
-**Active implementation plan (ERR-2):** [specs/004-err-2-default-on-prompt/plan.md](specs/004-err-2-default-on-prompt/plan.md) (branch `004-err-2-default-on-prompt`, issue [#172](https://github.com/grompen91-droid/dreadREPO/issues/172)).
+**Shipped specs (contracts):** ERR-2 [specs/004-err-2-default-on-prompt/](specs/004-err-2-default-on-prompt/), ERR-3 [specs/003-err-3-privacy-copy/](specs/003-err-3-privacy-copy/), ARCH-3 [specs/002-arch-3-extensible-core/](specs/002-arch-3-extensible-core/). **Next backlog:** [docs/ROADMAP.md](docs/ROADMAP.md) (e.g. UI-1, DBG-3 [#165](https://github.com/grompen91-droid/dreadREPO/issues/165)).
 <!-- SPECKIT END -->
 
 ## Cursor Cloud specific instructions
@@ -147,6 +149,3 @@ Output lands in `dread-mcp-server/dist/index.js`.
 - **Code analysis:** CI runs grep-based checks for null-forgiving operators, hardcoded Windows paths, trailing whitespace, tabs, lines >120 chars, and BOM markers. See `.github/workflows/ci.yml` `analyze` job.
 - **Format check:** `dotnet format --verify-no-changes --no-restore`
 
-### Known issue on master
-
-`ErrorReporterSystem.cs` uses `String.Contains(string, StringComparison)` which is not available in .NET Framework 4.8. This causes 5 CS1501 build errors. The CI also fails on this. This is a code issue, not an environment issue.

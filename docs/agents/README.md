@@ -1,6 +1,6 @@
 # Agent orchestration (Dread repo)
 
-Entry point for coding agents (Cursor, Claude Code, Cloud Agents, and similar). Human contributors can use the same map; start at [CONTRIBUTING.md](../../CONTRIBUTING.md) for PR conventions.
+Entry point for coding agents (Cursor, Claude Code, Cloud Agents, and similar). Human contributors can use the same map; see [orchestration.md](orchestration.md#pr-checklist) for PR conventions.
 
 ## Start here
 
@@ -10,7 +10,9 @@ Entry point for coding agents (Cursor, Claude Code, Cloud Agents, and similar). 
 | 2 | [domain.md](domain.md) | How to read ADRs, roadmap, and repo layout |
 | 3 | [docs/ROADMAP.md](../ROADMAP.md) | Backlog IDs, execution order, linked GitHub issues |
 | 4 | [orchestration.md](orchestration.md) | End-to-end workflows (pick work, implement, verify, ship) |
-| 5 | [AGENTS.md](../../AGENTS.md) | Build, release tags, changelog, Thunderstore rules |
+| 5 | [systems-folder-governance.md](systems-folder-governance.md) | Where to place new `Systems/` code (no new root loose files) |
+| 6 | [docs/reviews/README.md](../reviews/README.md) | Codebase quality reviews index and drift register |
+| 7 | [AGENTS.md](../../AGENTS.md) | Build, release tags, changelog, Thunderstore rules |
 
 ## File index
 
@@ -20,6 +22,8 @@ Entry point for coding agents (Cursor, Claude Code, Cloud Agents, and similar). 
 | [issue-tracker.md](issue-tracker.md) | `gh` CLI for issues (create, triage, comment, close) |
 | [triage-labels.md](triage-labels.md) | Label vocabulary (`ready-for-agent`, etc.) |
 | [domain.md](domain.md) | ADR consumption, debug overlay, REPOConfig compat |
+| [systems-folder-governance.md](systems-folder-governance.md) | `Systems/` placement rules, registry checklist, CI glob note |
+| [docs/reviews/README.md](../reviews/README.md) | Section reviews (01-09), brainstorm addenda, cross-cutting themes |
 | [verify-dread.md](verify-dread.md) | Autonomous verify runbook (Tier 0 to 3) |
 | [verify-dread-checklist.json](verify-dread-checklist.json) | Machine-readable verify steps |
 | [error-reporting-test-checklist.md](error-reporting-test-checklist.md) | Manual ERR-1 matrix (in-game + MCP) |

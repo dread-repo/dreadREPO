@@ -31,6 +31,9 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ### Added
 - **Docs:** Nine-section codebase quality reviews (`docs/reviews/01` through `09`) with feature brainstorm addenda, cross-cutting themes index, and `docs/agents/systems-folder-governance.md` placement rules for `Systems/`
 
+### Changed
+- **Docs:** Wire `systems-folder-governance.md` and `docs/reviews/README.md` into `AGENTS.md`, `docs/agents/README.md`, and guides index; remove stale ERR-2 SPECKIT block and obsolete `String.Contains` build note from `AGENTS.md`
+
 ### Fixed
 - **Error reporting:** Game-state capture for crash reports no longer calls compile-time `EnemyHealth.CurrentHealth` (fixes `get_CurrentHealth` MissingMethodException when third-party mods log errors, e.g. DeathMinimap after death); uses `Systems/Core/EnemyHealthCompat` and `EnemyScanCache`
 

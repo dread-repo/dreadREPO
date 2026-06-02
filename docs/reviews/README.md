@@ -2,7 +2,7 @@
 
 Structured reviews of the Dread mod repository for agents and maintainers. Each file follows a common shape: executive summary, file structure assessment, severitized issues, recommended prompts, and cross-references.
 
-**When to read this folder:** Before large refactors, when placing new code under `Systems/`, or when docs and code disagree. **Live rules for new code:** [systems-folder-governance.md](../agents/systems-folder-governance.md) (link from [agents/README.md](../agents/README.md) once wired).
+**When to read this folder:** Before large refactors, when placing new code under `Systems/`, or when docs and code disagree. **Live rules for new code:** [systems-folder-governance.md](../agents/systems-folder-governance.md) (linked from [agents/README.md](../agents/README.md) and [AGENTS.md](../../AGENTS.md)).
 
 **Drift register:** Consolidated doc-vs-code table in [09-documentation-review.md](09-documentation-review.md#drift-register). Section reviews below are the authoritative detail for their scope.
 
