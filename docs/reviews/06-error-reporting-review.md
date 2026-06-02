@@ -12,7 +12,7 @@ Boundaries vs other surfaces (see [03-notifications-review.md](03-notifications-
 
 Main risks: **main-thread blocking HTTP** (15s timeout per flush), **silent loss** when the pending queue is full or the component disables before consent/send, **unbounded `RecentHashes` growth**, **full-batch requeue** on ambiguous Worker errors (duplicate-issue risk), **scattered JSON/types at `Systems/` root**, and the **shared CI glob gap** for nested `Systems/**`. ADR-0010 still mentions `UnityWebRequest` for batch flush; production code uses `HttpWebRequest` per ADR-0015.
 
-**Review outcome:** ❌ **ISSUES** — pipeline is shippable and well-tested at the JSON boundary, but IMPORTANT reliability and boundary items should be tracked (especially sync POST on the game thread and queue/backpressure behavior).
+**Review outcome:** ❌ **ISSUES:** pipeline is shippable and well-tested at the JSON boundary, but IMPORTANT reliability and boundary items should be tracked (especially sync POST on the game thread and queue/backpressure behavior).
 
 ## File Structure Assessment
 

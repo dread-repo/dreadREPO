@@ -104,6 +104,8 @@ Remote: `https://github.com/grompen91-droid/dreadREPO.git`, branch `master`.
 | Issue tracker (`gh` CLI) | `docs/agents/issue-tracker.md` |
 | Triage labels | `docs/agents/triage-labels.md` |
 | Domain + ADRs | `docs/agents/domain.md` + `CONTEXT.md` |
+| Systems folder governance | `docs/agents/systems-folder-governance.md` |
+| Codebase quality reviews | `docs/reviews/README.md` |
 | Autonomous verify | `docs/agents/verify-dread.md` |
 | Subagent prompts | `.claude/implementer-prompt.md`, `.claude/spec-reviewer-prompt.md`, `.claude/code-quality-reviewer-prompt.md` |
 

@@ -65,11 +65,11 @@ Systems/
 
 | Question | Finding |
 |----------|---------|
-| Does a notification system exist? | **No** — `rg -i notif` on `*.cs` returns nothing in-game. |
-| Is error prompt a “notification”? | **No** — blocking modal with input lock; different UX and code path than toasts. |
-| Should notifications live inside UI? | **Yes, when built** — use `Systems/UI/Notifications/` with a small API (`EnqueueToast`, duration, severity). Domain systems (tension, break, errors) publish **events or calls** into that API; do not render from `ErrorReporting/`. |
+| Does a notification system exist? | **No**: `rg -i notif` on `*.cs` returns nothing in-game. |
+| Is error prompt a “notification”? | **No**: blocking modal with input lock; different UX and code path than toasts. |
+| Should notifications live inside UI? | **Yes, when built**: use `Systems/UI/Notifications/` with a small API (`EnqueueToast`, duration, severity). Domain systems (tension, break, errors) publish **events or calls** into that API; do not render from `ErrorReporting/`. |
 | Shared rendering? | Future toasts likely IMGUI or uGUI; either way consume **UI-1 theme** + `OverlayTextureUtil` for backgrounds. |
-| Coupling today | Only coupling is **shared patterns** (duplicate `MakeTexture`, similar colors) — not a notification module. |
+| Coupling today | Only coupling is **shared patterns** (duplicate `MakeTexture`, similar colors): not a notification module. |
 
 ## Issues
 
@@ -123,7 +123,7 @@ Systems/
 
 - **Location:** `Systems/ErrorReporting/ErrorReportingPromptSystem.cs`; registry id `error-reporting-prompt` in `SystemOrderGroup.Core`
 - **Category:** structure
-- **Description:** 436 lines of IMGUI layout, styles, cursor capture, and input lock — no HTTP, queue, or payload logic. Placing it in ErrorReporting invites future “notification” and upload code in the same folder. Registry groups it with core gameplay systems, not debug.
+- **Description:** 436 lines of IMGUI layout, styles, cursor capture, and input lock: no HTTP, queue, or payload logic. Placing it in ErrorReporting invites future “notification” and upload code in the same folder. Registry groups it with core gameplay systems, not debug.
 - **Suggested fix:** Move to `Systems/UI/ImGui/ErrorReportingPromptSystem.cs` (namespace can stay `Dread.Systems` initially). Keep `ErrorReportingConsent.cs` in ErrorReporting. Optional: `SystemOrderGroup.Ui` between Core and Debug.
 
 ### [SEVERITY: IMPORTANT] `OverlayTextureUtil` orphaned at `Systems/` root
@@ -216,9 +216,9 @@ Systems/
 - **`GUIContent` stub workaround:** `EmptyContent` instead of `GUIContent.none` avoids `MissingMethodException` on game Unity (documented in panel).
 - **PERF-2 config gate:** `enabled = false` when `DebugOverlayEnabled` is false; `GuardOverlayEnabled` logs regression if wiring breaks.
 - **`DreadRuntimeState` contract:** Gameplay systems publish; overlay and `get_runtime_state` consume without cross-system references (ADR-0016).
-- **Menu suppression:** `IsOverlayVisible()` uses `SemiFunc.MenuLevel()` — consistent with prompt activation rules.
+- **Menu suppression:** `IsOverlayVisible()` uses `SemiFunc.MenuLevel()`: consistent with prompt activation rules.
 - **Psychotic break overlay cleanup:** `CleanupOverlay` destroys root GO and vignette texture (contrast with IMGUI hosts).
-- **`OverlayTextureUtil` Proton guard:** Format iteration + safe `SupportsTextureFormat` try/catch — good shared primitive for UI-1.
+- **`OverlayTextureUtil` Proton guard:** Format iteration + safe `SupportsTextureFormat` try/catch: good shared primitive for UI-1.
 - **Debug server threading model:** Background accept + main-thread `Update` drain matches `ErrorReporterSystem` pattern (ADR-0013).
 - **Registry extensibility:** Adding overlay/prompt via `DreadSystemRegistry` avoids `Plugin.cs` spawn list edits (ADR-0016).
 

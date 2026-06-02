@@ -12,7 +12,7 @@ Documentation for agents is **strong in the center** (`docs/agents/README.md`, g
 
 **Section reviews 01-08** were not indexed until this pass; they should become the **drift register** for code vs docs. Cross-cutting themes: **CI analyze globs omit `Systems/**/*.cs`**, **half-finished `Systems/` root layout** (17 loose files; governance doc exists but is **unlinked** from `AGENTS.md` / `docs/agents/README.md`), **no in-game notification system** (03), **MCP protocol presentation bugs** (08).
 
-**Review outcome:** ❌ **ISSUES** — docs are usable for experienced contributors but **do not yet govern project structure** for agents without reading 8 review files. P1: wire [systems-folder-governance.md](../agents/systems-folder-governance.md) into the agent hub, refresh file maps, add [reviews/README.md](README.md), fix stale `AGENTS.md` blocks.
+**Review outcome:** ❌ **ISSUES:** docs are usable for experienced contributors but **do not yet govern project structure** for agents without reading 8 review files. P1: wire [systems-folder-governance.md](../agents/systems-folder-governance.md) into the agent hub, refresh file maps, add [reviews/README.md](README.md), fix stale `AGENTS.md` blocks.
 
 ## File Structure Assessment
 
@@ -60,7 +60,7 @@ Paths relative to repo root unless noted. **Freshness:** `current` = matches shi
 | `CONTEXT.md` | Glossary + file map | stale | Update file map (Core, Bootstrap targets, overlay shipped); fix debug overlay "in development" |
 | `AGENTS.md` | Build, release, agent entry | stale | Link governance + reviews; remove/fix SPECKIT ERR-2 block; remove stale CS1501 note if build clean |
 | `CHANGELOG.md` | Release notes | current | Agent edits `[Unreleased]` only |
-| `LICENSE`, `SECURITY.md` | Legal / disclosure | current | — |
+| `LICENSE`, `SECURITY.md` | Legal / disclosure | current | (none) |
 | `docs/ROADMAP.md` | Backlog + execution order | current | Mark ERR-2/ARCH-3 done (already); add DOCS-2 for doc governance if filed |
 | `docs/agents/README.md` | Agent orchestration hub | stale | Add governance, reviews index, fix CONTRIBUTING link |
 | `docs/agents/orchestration.md` | Workflows | current | Cross-link governance when adding systems |
@@ -68,12 +68,12 @@ Paths relative to repo root unless noted. **Freshness:** `current` = matches shi
 | `docs/agents/systems-folder-governance.md` | **Placement rules for `Systems/`** | current | **Link from AGENTS.md + agents/README** |
 | `docs/agents/guides/README.md` | Guide index | current | Add governance under "Orient in repo" |
 | `docs/agents/guides/*.md` (11) | Per-system implementation | mostly current | Patch `harmony-and-patches.md` paths per 04; `mod-architecture.md` new-system steps |
-| `docs/agents/verify-dread.md` | Verify tiers | current | — |
-| `docs/agents/verify-dread-checklist.json` | Machine checklist | current | — |
-| `docs/agents/error-reporting-test-checklist.md` | ERR-1 manual matrix | current | — |
-| `docs/agents/issue-tracker.md`, `triage-labels.md` | GitHub workflow | current | — |
-| `docs/agents/overlay-perf-checklist.md` | PERF-2 manual | current | — |
-| `docs/agents/archive/README.md` | Archive policy | current | — |
+| `docs/agents/verify-dread.md` | Verify tiers | current | (none) |
+| `docs/agents/verify-dread-checklist.json` | Machine checklist | current | (none) |
+| `docs/agents/error-reporting-test-checklist.md` | ERR-1 manual matrix | current | (none) |
+| `docs/agents/issue-tracker.md`, `triage-labels.md` | GitHub workflow | current | (none) |
+| `docs/agents/overlay-perf-checklist.md` | PERF-2 manual | current | (none) |
+| `docs/agents/archive/README.md` | Archive policy | current | (none) |
 | `docs/agents/archive/superpowers/**` | Old plans/specs | archive | Do not execute; keep for archaeology |
 | `docs/superpowers/README.md` | Redirect to guides/archive | redirect | No new files here |
 | `docs/adr/0001-0016*.md` | Architecture decisions | mostly current | Reconcile ADR-0010 flush transport vs ADR-0015; note duplicate `0007` filenames |
@@ -81,7 +81,7 @@ Paths relative to repo root unless noted. **Freshness:** `current` = matches shi
 | `docs/repo-config-slider-labels-investigation.md` | REPOConfig UI debug log | current | Reference until DBG-4 |
 | `docs/reviews/01-08-*.md` | Section code reviews | current | Use as drift source; indexed in `reviews/README.md` |
 | `docs/reviews/README.md` | Master review index | current | Maintain when adding section 10+ |
-| `docs/reviews/09-documentation-review.md` | This document | current | — |
+| `docs/reviews/09-documentation-review.md` | This document | current | (none) |
 | `specs/001-arch-2-reduce-reflection/` | ARCH-2 contracts | archive-ish | Contracts still valid for build profiles |
 | `specs/002-arch-3-extensible-core/` | Registry lifecycle | current | **Canonical** for new systems |
 | `specs/003-err-3-privacy-copy/` | ERR-3 copy contracts | current | Shipped |
@@ -129,8 +129,8 @@ Doc or review claim vs code/repo reality. Severity reflects **agent harm** (wron
 - **Category:** governance
 - **Description:** [systems-folder-governance.md](../agents/systems-folder-governance.md) defines golden rules (no new root loose files, registry-only spawn, patch/Core boundaries) but agents starting at `AGENTS.md` never see it. This directly matches the user concern that "project structure is not governed by rules for agents."
 - **Suggested fix:** Add rows to both files:
-  - `docs/agents/systems-folder-governance.md` — where to place new `Systems/` code
-  - `docs/reviews/README.md` — section review index + drift register pointer
+  - `docs/agents/systems-folder-governance.md`: where to place new `Systems/` code
+  - `docs/reviews/README.md`: section review index + drift register pointer
 
 ### [SEVERITY: IMPORTANT] `CONTEXT.md` file map and debug overlay status are stale
 
@@ -150,7 +150,7 @@ Doc or review claim vs code/repo reality. Severity reflects **agent harm** (wron
 
 - **Location:** `docs/agents/README.md` line 3
 - **Category:** dead-link
-- **Description:** "start at CONTRIBUTING.md" — file does not exist in repo (grep/find empty).
+- **Description:** "start at CONTRIBUTING.md": file does not exist in repo (grep/find empty).
 - **Suggested fix:** Add minimal `CONTRIBUTING.md` (PR title, roadmap ID, verify tier 0, link orchestration) or change link to `docs/agents/orchestration.md` PR section.
 
 ### [SEVERITY: IMPORTANT] `AGENTS.md` stale blocks mislead cloud agents
@@ -232,8 +232,8 @@ Target: any agent can answer "where does this go?" and "what do I read first?" i
 
 ```
 Read order (always):
-  1. AGENTS.md          — build, release, lint, links below
-  2. CONTEXT.md         — vocabulary (use in issues/PRs)
+  1. AGENTS.md         : build, release, lint, links below
+  2. CONTEXT.md        : vocabulary (use in issues/PRs)
   3. docs/agents/README.md
   4. docs/agents/systems-folder-governance.md   ← NEW required link
   5. docs/agents/domain.md + relevant docs/adr/

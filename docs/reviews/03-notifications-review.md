@@ -43,7 +43,7 @@ Systems/
 
 | Path | Role | Notification bucket? |
 |------|------|----------------------|
-| `Systems/LoggingService.cs` | Level-gated `Plugin.Logger` | **No** — operator/dev console |
+| `Systems/LoggingService.cs` | Level-gated `Plugin.Logger` | **No**: operator/dev console |
 | `Systems/ErrorReporting/ErrorReportingPromptSystem.cs` | One-time consent modal | **Modal**, not toast |
 | `Systems/ErrorReporting/ErrorReportingConsent.cs` | `IsReportingAllowed()` | Domain policy, not UI |
 | `Systems/ErrorReporting/ErrorReporterSystem.cs` | Telemetry pipeline | Logs outcomes via `LoggingService` only |
@@ -56,8 +56,8 @@ Systems/
 |----------------|--------|
 | `Systems/UI/Notifications/` (02-ui-review proposal) | **Not created** |
 | `INotificationPresenter` / `EnqueueToast` API | **Not created** |
-| ROADMAP **UI-1** unified IMGUI kit | `idea` — covers modal/overlay, not toasts explicitly |
-| ROADMAP notification/toast issue | **Missing** — recommend filing `NOTIF-1` after UI-1 |
+| ROADMAP **UI-1** unified IMGUI kit | `idea`: covers modal/overlay, not toasts explicitly |
+| ROADMAP notification/toast issue | **Missing**: recommend filing `NOTIF-1` after UI-1 |
 
 ### Registry (`DreadSystemRegistry.cs`)
 
@@ -76,7 +76,7 @@ Verified behavior in `ErrorReportingPromptSystem.cs`:
 - **Activation:** `TryActivatePrompt` on gameplay scenes when `ErrorReportingPromptShown` is false; suppressed on `SemiFunc.MenuLevel()` (matches psychotic break / overlay gates).
 - **Blocking:** `Update` locks local player input; `MaintainCursorForPrompt` unlocks cursor; `GUI.depth = 10000` stacks above debug overlay.
 - **Dismissal:** Buttons set `ErrorReportingEnabled` and `ErrorReportingPromptShown`; `ErrorReportingConsent` then allows enqueue/send.
-- **Not ephemeral:** No queue, duration, or non-blocking corner toast — by design per ERR-2 contract (`specs/004-err-2-default-on-prompt/contracts/first-run-prompt.md`).
+- **Not ephemeral:** No queue, duration, or non-blocking corner toast: by design per ERR-2 contract (`specs/004-err-2-default-on-prompt/contracts/first-run-prompt.md`).
 
 ### LoggingService vs BepInEx “notifications”
 
@@ -208,11 +208,11 @@ Today coupling is **pattern duplication** (IMGUI colors, `MakeTexture`, input lo
 | **Blocking modals** | `Systems/UI/ImGui/` | ERR-2 prompt, future confirmations |
 | **Operator logs** | `Systems/LoggingService.cs` | BepInEx only; never player toasts |
 
-**Do not** create top-level `Systems/Notifications/` parallel to `Systems/UI/` — that splits theme/shared code and repeats 02-ui-review’s “no `Systems/UI/` governance” problem in a second tree.
+**Do not** create top-level `Systems/Notifications/` parallel to `Systems/UI/`: that splits theme/shared code and repeats 02-ui-review’s “no `Systems/UI/` governance” problem in a second tree.
 
-**Do not** fold notifications into `ErrorReporting/` — telemetry upload failures are consumers of a notification API, not owners of it.
+**Do not** fold notifications into `ErrorReporting/`: telemetry upload failures are consumers of a notification API, not owners of it.
 
-**Debug overlay is not a notification system** — F10 HUD is persistent instrumentation (DBG-5). Toasts should not piggyback on `DebugOverlayPanel`.
+**Debug overlay is not a notification system**: F10 HUD is persistent instrumentation (DBG-5). Toasts should not piggyback on `DebugOverlayPanel`.
 
 ### Modal vs toast decision tree
 
@@ -312,4 +312,4 @@ Operator / support diagnosis?
 | NICE_TO_HAVE | 3 |
 | STYLE | 1 |
 
-**Top 3 concerns:** (1) **no notification system and no ROADMAP issue**, so future features may collide with ErrorReporting or duplicate IMGUI; (2) **channel confusion** between `LoggingService`, debug HUD, modal prompt, and future toasts; (3) **structural debt** — prompt registered as Core under `ErrorReporting/`, no `SystemOrderGroup.Ui`, same CI blind spot as other nested `Systems/**` files.
+**Top 3 concerns:** (1) **no notification system and no ROADMAP issue**, so future features may collide with ErrorReporting or duplicate IMGUI; (2) **channel confusion** between `LoggingService`, debug HUD, modal prompt, and future toasts; (3) **structural debt**: prompt registered as Core under `ErrorReporting/`, no `SystemOrderGroup.Ui`, same CI blind spot as other nested `Systems/**` files.

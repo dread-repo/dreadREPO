@@ -12,7 +12,7 @@ The MCP bridge is a **thin, stateless stdio adapter**: 11 tools map 1:1 to TCP n
 
 Main gaps are **protocol/doc drift**, **presentation bugs in MCP `text` formatters**, and **missing enforcement** of ADR-0013's 4096-byte request limit on the C# side. The TypeScript package has **no unit or integration tests**; correctness is only implied by `npm run build` and manual Tier 1 MCP use. **`dread-mcp-server/` at repo root is the right place** (local dev bridge); `workers/` remains for deployed Cloudflare code (ADR-0010), not MCP.
 
-**Review outcome:** ❌ **ISSUES** — bridge is usable and well-documented for agents, but fix IMPORTANT protocol/presentation mismatches and add lightweight MCP tests before treating Tier 1 verify as fully trustworthy.
+**Review outcome:** ❌ **ISSUES:** bridge is usable and well-documented for agents, but fix IMPORTANT protocol/presentation mismatches and add lightweight MCP tests before treating Tier 1 verify as fully trustworthy.
 
 ## File Structure Assessment
 
@@ -281,4 +281,4 @@ See [07-systems-loose-files-review.md](07-systems-loose-files-review.md) for `De
 
 ## Review outcome
 
-❌ **ISSUES** — MCP bridge and agent docs are production-quality for onboarding; fix IMPORTANT formatter bugs and request-size enforcement, then add minimal TCP/MCP tests so Tier 1 verify is regression-safe.
+❌ **ISSUES:** MCP bridge and agent docs are production-quality for onboarding; fix IMPORTANT formatter bugs and request-size enforcement, then add minimal TCP/MCP tests so Tier 1 verify is regression-safe.

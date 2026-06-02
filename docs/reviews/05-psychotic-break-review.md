@@ -10,7 +10,7 @@
 
 Main risks: **lifecycle cleanup gaps** (forced tumble/input not released on `OnDestroy`; `DoStumble` coroutine can outlive scene changes), **`PlayerTumbleCompat` global forced flag** (documented in Core review), **GC from `FindObjectsOfType<PlayerController>`** on solo checks, **ADR-0011 drift** vs shipped audio names and hide conditions, and the **shared CI analyze glob gap** for nested `Systems/**` (same as prior reviews). No Harmony in this folder; reflection for overlay UI and input lock is intentional per `reflection-inventory.md`.
 
-**Review outcome:** ❌ **ISSUES** — acceptable feature quality for shipping, but IMPORTANT cleanup and doc sync items should be tracked before treating the subsystem as “refactored done.”
+**Review outcome:** ❌ **ISSUES:** acceptable feature quality for shipping, but IMPORTANT cleanup and doc sync items should be tracked before treating the subsystem as “refactored done.”
 
 ## File Structure Assessment
 
@@ -25,7 +25,7 @@ Main risks: **lifecycle cleanup gaps** (forced tumble/input not released on `OnD
 | `PsychoticBreakPlayerLockdown.cs` | Flashlight, input, tumble lock | 90 |
 | `PsychoticBreakAudio.cs` | Clip load, footsteps, screams, phantoms | 138 |
 
-**Keep psychotic break out of `TensionSystem`** — ADR-0011 and `psychotic-break.md` are correct; tension stays proximity/stamina; break is a separate episode state machine.
+**Keep psychotic break out of `TensionSystem`**: ADR-0011 and `psychotic-break.md` are correct; tension stays proximity/stamina; break is a separate episode state machine.
 
 **Related but outside folder:**
 
@@ -98,7 +98,7 @@ stateDiagram-v2
 | `AudioClipLoader` | `LoadAudioClips` coroutine; shared cache (ADR-0007, AUDIO-1) |
 | `AudioPlayUtil` | Destroy timing for one-shot screams/phantoms |
 | `OverlayTextureUtil` | Vignette texture only |
-| `TensionSystem` | **No direct calls** — parallel client-local systems |
+| `TensionSystem` | **No direct calls**: parallel client-local systems |
 | `DebugOverlayPanel` | Reads `PsychoticBreak*` runtime fields |
 | `DebugServerSystem` | `force_psychotic_break`, `get_runtime_state`, health check `psychotic_break_clips` |
 
@@ -235,15 +235,15 @@ stateDiagram-v2
 
 ## Positive Patterns
 
-- **ARCH-1 partial split** — Trigger, episode, overlay, lockdown, and audio are navigable without a 1k-line monolith.
-- **Shared `EnemyScanCache`** — No duplicate `FindObjectsOfType<EnemyHealth>` list; obeys `psychotic-break.md` agent rule.
-- **AUDIO-1 safe clip usage** — Episode cleanup destroys `AudioSource` hosts, not cached `AudioClip` assets from `AudioClipLoader`.
-- **Runtime state contract** — `PublishRuntimeState()` feeds debug overlay and MCP with block reasons and threat seconds (well-named for tooling).
-- **Compatibility mode** — Mid-episode `CompatibilityMode` check ends episode immediately (`UpdateInternal` lines 144-148).
-- **Stub-safe overlay** — Reflection-based uGUI matches `psychotic-break-overlay-ui` **keep** in reflection inventory; `OverlayTextureUtil` for Proton-safe vignette.
-- **TypeInitializationException guard** — Disables component after init failure instead of spamming errors (stub/game mismatch).
-- **Scene hygiene** — `OnSceneLoaded` resets match flag on menu, invalidates enemy cache, cleans overlay/footstep sources.
-- **Hide condition evolution** — `IsHidingVulnerable` documents tumble-as-hide for REPO builds (guide + compat, ahead of stale ADR).
+- **ARCH-1 partial split**: Trigger, episode, overlay, lockdown, and audio are navigable without a 1k-line monolith.
+- **Shared `EnemyScanCache`**: No duplicate `FindObjectsOfType<EnemyHealth>` list; obeys `psychotic-break.md` agent rule.
+- **AUDIO-1 safe clip usage**: Episode cleanup destroys `AudioSource` hosts, not cached `AudioClip` assets from `AudioClipLoader`.
+- **Runtime state contract**: `PublishRuntimeState()` feeds debug overlay and MCP with block reasons and threat seconds (well-named for tooling).
+- **Compatibility mode**: Mid-episode `CompatibilityMode` check ends episode immediately (`UpdateInternal` lines 144-148).
+- **Stub-safe overlay**: Reflection-based uGUI matches `psychotic-break-overlay-ui` **keep** in reflection inventory; `OverlayTextureUtil` for Proton-safe vignette.
+- **TypeInitializationException guard**: Disables component after init failure instead of spamming errors (stub/game mismatch).
+- **Scene hygiene**: `OnSceneLoaded` resets match flag on menu, invalidates enemy cache, cleans overlay/footstep sources.
+- **Hide condition evolution**: `IsHidingVulnerable` documents tumble-as-hide for REPO builds (guide + compat, ahead of stale ADR).
 
 ## Recommended Agent Prompts
 

@@ -12,7 +12,7 @@ ARCH-1 split the largest god files into subfolders, but **17 files remain at `Sy
 
 **Live code, messy map:** registry/initializer/runtime state belong together; audio/tension/monster belong in feature folders; `DebugServerSystem` (~1k lines) should move under `Debug/` and likely split; error JSON/types should sit with `ErrorReporting/`; `FlashlightStateTracker` belongs with psychotic break; `OverlayTextureUtil` belongs in UI shared (per [02-ui-review.md](02-ui-review.md)).
 
-**Review outcome:** ❌ **ISSUES** — no ship-blocking bugs in the loose files alone, but **IMPORTANT** maintainability and performance debt (duplicate `FindObjectsOfType`, dead API, 1k-line debug server, incomplete ARCH-1). Agent governance and a phased folder map should be treated as **P1** follow-up to ARCH-1.
+**Review outcome:** ❌ **ISSUES:** no ship-blocking bugs in the loose files alone, but **IMPORTANT** maintainability and performance debt (duplicate `FindObjectsOfType`, dead API, 1k-line debug server, incomplete ARCH-1). Agent governance and a phased folder map should be treated as **P1** follow-up to ARCH-1.
 
 ## File Structure Assessment
 
@@ -91,7 +91,7 @@ Concrete placement rules for contributors and agents: **[docs/agents/systems-fol
 
 | Symbol / file | Evidence | Disposition |
 |---------------|----------|-------------|
-| `EnemyScanCache.NearestDistance` | `grep` — definition only in `EnemyScanCache.cs:23` | **Remove** or wire `TensionSystem.FindNearestEnemyDist` to use it |
+| `EnemyScanCache.NearestDistance` | `grep`: definition only in `EnemyScanCache.cs:23` | **Remove** or wire `TensionSystem.FindNearestEnemyDist` to use it |
 | `EnemyScanCache` itself | Callers: `PsychoticBreakTrigger`, `PsychoticBreakSystem`, `ErrorReportPayloadCapture` | **Keep** |
 | `FlashlightStateTracker` | Callers: `PsychoticBreakPlayerLockdown` only | **Keep**, move folder |
 | `OverlayTextureUtil` | Caller: `PsychoticBreakOverlay.CreateVignette` | **Keep**, move folder |
@@ -119,7 +119,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | `DreadSystemInitializer` only |
 | **Folder** | `Bootstrap/` |
-| **Quality** | Clear ARCH-3 manifest; eight systems, Core then Debug. **No `IsEnabled` predicates** — debug hosts always spawn (self-disable in `Start` where applicable). `test-crash` always registered (acceptable for debug). |
+| **Quality** | Clear ARCH-3 manifest; eight systems, Core then Debug. **No `IsEnabled` predicates**: debug hosts always spawn (self-disable in `Start` where applicable). `test-crash` always registered (acceptable for debug). |
 
 ### `DreadSystemInitializer.cs` (108 lines)
 
@@ -135,7 +135,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | `TensionSystem`, `AudioDreadSystem`, `PsychoticBreakSystem`, `DebugOverlayPanel`, `DebugServerSystem` (`get_runtime_state`) |
 | **Folder** | `Runtime/` |
-| **Quality** | Good ADR-0016 contract. Writers use `internal set`; public getters — intentional for MCP JSON. `DreadPatchCount` written in `DebugOverlaySystem` only. |
+| **Quality** | Good ADR-0016 contract. Writers use `internal set`; public getters: intentional for MCP JSON. `DreadPatchCount` written in `DebugOverlaySystem` only. |
 
 ### `LoggingService.cs` (102 lines)
 
@@ -143,7 +143,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | Widespread (Plugin, Config, all systems, patches, Core) |
 | **Folder** | `Infrastructure/` |
-| **Quality** | `LogWarning` requires `LogLevel.Debug` (lines 68-71), same threshold as `LogInfo` — warnings hidden when level is `Error` only. Large ASCII art at boot (operator preference). |
+| **Quality** | `LogWarning` requires `LogLevel.Debug` (lines 68-71), same threshold as `LogInfo`: warnings hidden when level is `Error` only. Large ASCII art at boot (operator preference). |
 
 ### `AudioClipLoader.cs` (194 lines)
 
@@ -151,7 +151,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | `AudioDreadSystem`, `TensionSystem`, `PsychoticBreakAudio`; `UnityWebRequestCompat` from Core |
 | **Folder** | `Audio/` |
-| **Quality** | NVorbis-first + UWR fallback matches ADR. In-memory cache never evicts (scene load clears via `TensionSystem.OnSceneLoaded`). `ToFileUri` Linux `Z:` prefix hack (lines 100-101). `GetDownloadHandlerError` reflection for stub builds — used, not dead. |
+| **Quality** | NVorbis-first + UWR fallback matches ADR. In-memory cache never evicts (scene load clears via `TensionSystem.OnSceneLoaded`). `ToFileUri` Linux `Z:` prefix hack (lines 100-101). `GetDownloadHandlerError` reflection for stub builds: used, not dead. |
 
 ### `AudioDreadSystem.cs` (151 lines)
 
@@ -167,7 +167,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | `AudioDreadSystem`, `TensionSystem`, `PsychoticBreakAudio` |
 | **Folder** | `Audio/` |
-| **Quality** | Small, correct pitch-aware lifetime (AUDIO-1). `internal` — good. |
+| **Quality** | Small, correct pitch-aware lifetime (AUDIO-1). `internal`: good. |
 
 ### `MonsterOverhaulSystem.cs` (86 lines)
 
@@ -175,7 +175,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | Registry `monster-overhaul` |
 | **Folder** | `Audio/` (or `Audio/Monster/`) |
-| **Quality** | **`FindObjectsOfType<EnemyHealth>()` every 4s** (line 46) bypasses `EnemyScanCache`. `IsSourcePlaying` reflection on `AudioSource` (lines 58-68). `DreadAudioTweaked` marker in same file — fine until split. `public` class vs `internal` registry types — inconsistent. |
+| **Quality** | **`FindObjectsOfType<EnemyHealth>()` every 4s** (line 46) bypasses `EnemyScanCache`. `IsSourcePlaying` reflection on `AudioSource` (lines 58-68). `DreadAudioTweaked` marker in same file: fine until split. `public` class vs `internal` registry types: inconsistent. |
 
 ### `TensionSystem.cs` (318 lines)
 
@@ -191,7 +191,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | `PsychoticBreakTrigger`, `PsychoticBreakSystem.Invalidate`, `ErrorReportPayloadCapture` |
 | **Folder** | `Scan/` |
-| **Quality** | Single `FindObjectsOfType` per 0.5s with in-place trim — good pattern. **`NearestDistance` unused.** Does not filter by alive (compat valid filter only). |
+| **Quality** | Single `FindObjectsOfType` per 0.5s with in-place trim: good pattern. **`NearestDistance` unused.** Does not filter by alive (compat valid filter only). |
 
 ### `DebugServerSystem.cs` (1014 lines)
 
@@ -199,7 +199,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | Registry `debug-server`; MCP/dread-mcp-server (ADR-0013) |
 | **Folder** | `Debug/` (+ future split) |
-| **Quality** | Background thread accepts TCP; commands run on main thread via queue — correct Unity pattern. **`CaptureState` duplicates enemy scan** (line 408) and player HP via reflection (lines 413-414) instead of Core + cache. Duplicates Harmony patch counting vs overlay (`GetDreadPatchCount`). Large surface: config R/W, verify, psychotic break force, test crash. Many empty catches on shutdown/network. |
+| **Quality** | Background thread accepts TCP; commands run on main thread via queue: correct Unity pattern. **`CaptureState` duplicates enemy scan** (line 408) and player HP via reflection (lines 413-414) instead of Core + cache. Duplicates Harmony patch counting vs overlay (`GetDreadPatchCount`). Large surface: config R/W, verify, psychotic break force, test crash. Many empty catches on shutdown/network. |
 
 ### `TestCrashSystem.cs` (117 lines)
 
@@ -207,7 +207,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | Registry; `DreadConfig.TestCrashButton`; `DebugServerSystem.trigger_test_crash`; `ErrorReportLogQueue` filters stack |
 | **Folder** | `Debug/` |
-| **Quality** | Deferred crash on main thread; sync report coroutine before `Kill()` (ADR-0012). `FindObjectOfType<ErrorReporterSystem>()` — acceptable for test harness. |
+| **Quality** | Deferred crash on main thread; sync report coroutine before `Kill()` (ADR-0012). `FindObjectOfType<ErrorReporterSystem>()`: acceptable for test harness. |
 
 ### `ErrorReportTypes.cs` / `ErrorReportJson.cs`
 
@@ -215,7 +215,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | `ErrorReporterSystem`, `ErrorReportUploader`, `tests/Dread.ErrorReportJson.Tests` |
 | **Folder** | `ErrorReporting/` (see [06-error-reporting-review.md](06-error-reporting-review.md)) |
-| **Quality** | Manual JSON avoids `JsonUtility` array bug (ADR-0015). Escaping is thorough. Types shared with test project — keep `internal` + InternalsVisibleTo or move tests namespace together. |
+| **Quality** | Manual JSON avoids `JsonUtility` array bug (ADR-0015). Escaping is thorough. Types shared with test project: keep `internal` + InternalsVisibleTo or move tests namespace together. |
 
 ### `OverlayTextureUtil.cs` (90 lines)
 
@@ -223,7 +223,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | `PsychoticBreakOverlay` only |
 | **Folder** | `UI/Shared/` per [02-ui-review.md](02-ui-review.md) |
-| **Quality** | Proton-safe format probing — good. Not used by error prompt (duplicate `MakeTexture` there). |
+| **Quality** | Proton-safe format probing: good. Not used by error prompt (duplicate `MakeTexture` there). |
 
 ### `FlashlightStateTracker.cs` (9 lines)
 
@@ -231,7 +231,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 |--|--|
 | **Callers** | `PsychoticBreakPlayerLockdown` add/get component |
 | **Folder** | `PsychoticBreak/` |
-| **Quality** | Minimal marker; `public` type in global Systems namespace — move reduces confusion. |
+| **Quality** | Minimal marker; `public` type in global Systems namespace: move reduces confusion. |
 
 ## Issues
 
@@ -336,7 +336,7 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 | Doc | Relevance |
 |-----|-----------|
 | [systems-folder-governance.md](../agents/systems-folder-governance.md) | Agent placement rules (new) |
-| [domain.md](../agents/domain.md) | ARCH-1 flat map — needs update after moves |
+| [domain.md](../agents/domain.md) | ARCH-1 flat map: needs update after moves |
 | [ADR-0016](../adr/0016-arch-3-extension-model.md) | Registry, `DreadRuntimeState`, boot order |
 | [ADR-0013](../adr/0013-debug-server.md) | Debug TCP server |
 | [02-ui-review.md](02-ui-review.md) | `OverlayTextureUtil` → `UI/Shared` |
@@ -363,4 +363,4 @@ No loose file is **entirely** unreferenced. The only confirmed dead **method** i
 
 ## Review outcome
 
-❌ **ISSUES** — consolidate enemy scans, delete or wire dead `NearestDistance`, execute proposed folder map with CI glob fix, and adopt [systems-folder-governance.md](../agents/systems-folder-governance.md) for agent workflows.
+❌ **ISSUES:** consolidate enemy scans, delete or wire dead `NearestDistance`, execute proposed folder map with CI glob fix, and adopt [systems-folder-governance.md](../agents/systems-folder-governance.md) for agent workflows.
