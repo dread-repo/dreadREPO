@@ -31,7 +31,7 @@ Current-state reference for working in the Dread codebase. These replace the old
 
 | You need to… | Start here |
 |--------------|------------|
-| Orient in repo | [mod-architecture.md](mod-architecture.md) + [ADR-0016](../../adr/0016-arch-3-extension-model.md) |
+| Orient in repo | [mod-architecture.md](mod-architecture.md) + [systems-folder-governance.md](../systems-folder-governance.md) + [ADR-0016](../../adr/0016-arch-3-extension-model.md) |
 | Add a runtime system | [mod-architecture.md](mod-architecture.md) + [system-lifecycle contract](../../../specs/002-arch-3-extensible-core/contracts/system-lifecycle.md) |
 | Change gameplay near enemies | [tension-and-proximity.md](tension-and-proximity.md) or [monster-overhaul.md](monster-overhaul.md) |
 | Camp lure / snitch / run phase gate | [camp-lure-and-snitch.md](camp-lure-and-snitch.md) |

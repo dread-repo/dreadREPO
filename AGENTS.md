@@ -134,6 +134,8 @@ Debug builds must ship **local OGG** next to the plugin (or in a Debug `build.ps
 | Domain + ADRs | [docs/agents/domain.md](docs/agents/domain.md) + [CONTEXT.md](CONTEXT.md) |
 | Autonomous verify | [docs/agents/verify-dread.md](docs/agents/verify-dread.md) |
 | Remote / audio assets | [docs/agents/guides/remote-assets.md](docs/agents/guides/remote-assets.md) |
+| Systems folder governance | [docs/agents/systems-folder-governance.md](docs/agents/systems-folder-governance.md) |
+| Codebase quality reviews | [docs/reviews/README.md](docs/reviews/README.md) |
 | Subagent prompts | `.claude/implementer-prompt.md`, `.claude/spec-reviewer-prompt.md`, `.claude/code-quality-reviewer-prompt.md` |
 
 Backlog: [docs/ROADMAP.md](docs/ROADMAP.md). Prefer issues labeled `ready-for-agent`.
