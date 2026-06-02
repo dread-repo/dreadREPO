@@ -28,6 +28,9 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Docs:** Nine-section codebase quality reviews (`docs/reviews/01` through `09`) with feature brainstorm addenda, cross-cutting themes index, and `docs/agents/systems-folder-governance.md` placement rules for `Systems/`
+
 ### Fixed
 - **Error reporting:** Game-state capture for crash reports no longer calls compile-time `EnemyHealth.CurrentHealth` (fixes `get_CurrentHealth` MissingMethodException when third-party mods log errors, e.g. DeathMinimap after death); uses `Systems/Core/EnemyHealthCompat` and `EnemyScanCache`
 
