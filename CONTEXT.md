@@ -56,7 +56,12 @@ _Avoid_: treating **In-level** and **Run** as synonyms; prefer **In-level** for 
 
 ### Runtime systems
 
-Seven systems start from the plugin entry on typical builds (see **File map**). Each lives on its own **System host**.
+**Ten core systems** register in `DreadSystemRegistry` on every production build; **three debug systems** register only in development builds (`#if DREAD_DEBUG`). See `Systems/DreadSystemRegistry.cs` and [mod-architecture.md](docs/agents/guides/mod-architecture.md). Each lives on its own **System host**.
+
+**Audio assets**:
+Downloads version-pinned OGG from the matching GitHub Release into `audio-cache/v{VERSION}/`; embedded manifest in the DLL. Feature systems request clips via `AudioAssetApi` (ADR-0017).
+_Implements:_ `AudioAssetSystem`
+_Avoid_: "bundled audio" for Thunderstore installs; duplicating HTTP or cache logic outside `Systems/AudioAssets/`
 
 **Audio Dread**:
 During a **Run**, plays rare weighted 3D ambient horror sounds around the player; frequency and volume follow config.
@@ -93,6 +98,16 @@ Captures serious game errors and can file deduplicated reports for the developer
 _Implements:_ `ErrorReporterSystem`, `ErrorReportJson`
 _Avoid_: "telemetry" without noting opt-in/config
 
+**Error reporting prompt**:
+First-run IMGUI privacy disclosure before any error payload is sent; blocks enqueue until acknowledged. Existing installs that disabled reporting in cfg are unchanged.
+_Implements:_ `ErrorReportingPromptSystem`
+_Avoid_: conflating with **Error reporting** upload logic alone
+
+**Dread notifications**:
+Thread-safe transient corner toasts (`Info` / `Warn` / `Bad`) used by overlay, camp lure, snitch, and other systems for agent-visible status without chat spam.
+_Implements:_ `DreadNotificationSystem`
+_Avoid_: in-game chat messages for debug-only state
+
 **Test crash**:
 Intentional crash path used to verify **Error reporting** end-to-end (config-driven, not a gameplay feature).
 _Implements:_ `TestCrashSystem`
@@ -103,8 +118,8 @@ Exposes a localhost JSON line protocol so tools (including the MCP bridge) can r
 _Implements:_ `DebugServerSystem`
 _Avoid_: in-game console, BepInEx log tailing, **Debug overlay**
 
-**Debug overlay** (in development):
-In-game IMGUI HUD for live mod state (tension, patches, config) while playing. Tracked under DBG roadmap issues; not wired on all branches yet.
+**Debug overlay** (development builds only):
+In-game IMGUI HUD for live mod state (tension, patches, config) while playing. Compiled only when `DREAD_DEBUG` is defined; excluded from Thunderstore `Dread.dll`.
 _Avoid_: **Debug server** (TCP/MCP is out-of-process); calling it "the debug mod"
 
 ### Tension and proximity
@@ -212,9 +227,9 @@ _Avoid_: assuming REPOConfig ships Dread defaults; blaming Dread keys for missin
 Ambient sound pick uses a weight table: common events (scraping, footsteps) vs rare (whisper). Used by **Audio Dread**.
 _Avoid_: uniform random ambient pick
 
-**Bundled audio**:
-OGG files shipped with the mod, loaded through a shared loader reused by multiple systems.
-_Avoid_: duplicating load logic per system; "missing asset" without checking game path / Proton path issues
+**Remote audio cache**:
+On-disk OGG under `{pluginDir}/audio-cache/v{VERSION}/{category}/` after download or debug import. `AudioClipLoader` decodes from cache paths only.
+_Avoid_: expecting OGG inside the Thunderstore zip; "missing asset" without checking cache folder, GitHub Release reachability, or Proton path issues
 
 ### Agent debugging and telemetry
 
@@ -269,12 +284,15 @@ Open conflicts only. Resolved terms live in **Language** above.
 |------|------|
 | Plugin entry, Harmony apply | `Plugin.cs` |
 | Config bindings | `Config/DreadConfig.cs` |
-| Runtime systems (flat) | `Systems/*.cs` (initializer, tension, audio, debug server, compat, etc.) |
+| Runtime systems (flat) | `Systems/*.cs` (initializer, tension, audio, notifications, lure, snitch, etc.) |
+| Notifications | `Systems/Notifications/` |
 | Harmony patches | `Systems/Patches/` |
 | Psychotic break | `Systems/PsychoticBreak/` |
 | Error reporting | `Systems/ErrorReporting/` (+ `ErrorReportJson.cs` at `Systems/` root) |
 | Debug overlay | `Systems/DebugOverlay/` |
-| OGG assets | `audio/` |
+| Remote assets (audio) | `Systems/AudioAssets/`, `audio/audio-manifest.json`, cache `audio-cache/v{VERSION}/` |
+| Remote assets (images) | Future (ASSET-1): same manifest/cache pattern, not implemented |
+| Authoring OGG (git + GitHub Release) | `audio/{category}/*.ogg` |
 | Architecture decisions | `docs/adr/` |
 | Agent orchestration hub | `docs/agents/README.md` |
 | Agent implementation guides | `docs/agents/guides/README.md` (index of all systems) |

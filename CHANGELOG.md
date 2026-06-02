@@ -5,30 +5,10 @@ All notable changes to **Dread** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning follows [Semantic Versioning](https://semver.org/).
 
-## [1.5.2] - 2026-05-22
-
-![Status](https://img.shields.io/badge/status-development-yellow?style=flat-square)
-
-### Changed
-- CI pipeline: 4-job architecture (relevance, build, analyze, summary) per spec v1.2
-- CI pipeline: relevance hard gate skips build/analyze on non-project PRs
-- CI pipeline: summary table prints all job results and exits 1 on failure
-- CI pipeline: MSBuild log uploaded as artifact on build failure
-- CI pipeline: anti-pattern and format checks fail the build (hard gates)
-- CD pipeline: version-specific release tags (`vX.Y.Z` instead of reusing `vmajor`/`vminor`/`vpatch`)
-- CD pipeline: idempotency check prevents duplicate releases
-- CD pipeline: divergence guard prevents master branch desync on concurrent pushes
-- CD pipeline: release step runs before post-release issue creation
-- CD pipeline: migrated build to `ubuntu-latest` with NuGet and stubs caching
-- CD pipeline: added Thunderstore auto-publish via `tcli`
-- CD pipeline: `THUNDERSTORE_README.md` support in package zip
-
----
-
-
 ## [Unreleased]
 
 ### Added
+- **Docs:** Nine-section codebase quality reviews (`docs/reviews/01` through `09`) with feature brainstorm addenda, cross-cutting themes index, and `docs/agents/systems-folder-governance.md` placement rules for `Systems/`
 - **Snitch System:** one random item per run is secretly the snitch; the first player to pick it up triggers a loud 3D bang (`snitch_bang.ogg`) and draws all enemies to that position for `SnitchPOIDurationSeconds` (default 3 min, re-issued every 30 s via `EnemyLureCompat`). Host only; disabled under Compatibility mode. Config under `2. Monster Overhaul` (`SnitchEnabled`, `SnitchPOIDurationSeconds`). Debug overlay shows `Snitch` row with POI countdown. New `ItemRosterCompat` reflection seam enumerates item GameObjects by type name.
 - **Camp Lure (anti-camping):** host-side `CampLureSystem` draws enemies toward a player who stays far from danger too long, escalating with camp time until danger arrives. Works in solo. Config under `2. Monster Overhaul` (`LureEnabled`, `LureSafeDistance`, `LureCampSeconds` for how soon it triggers, `LureEscalateSeconds` for how fast it ramps); disabled under Compatibility mode. Silent in normal play; debug overlay shows a `Lure` row and toasts. New `PlayerRosterCompat` / `EnemyLureCompat` reflection seams; `Object.FindObjectsOfType(Type)`, `Object.name`, `Object.GetInstanceID` added to the stub.
 - **UI (Slate HUD S2):** debug overlay recolored to the monochrome R.E.P.O. palette (void black, brushed steel, soft white); solid steel left rail; section labels (Performance / Mod State / System) with tick marks; monochrome status colors
@@ -36,8 +16,21 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **UI:** `DreadNotificationSystem` transient corner toasts; thread-safe `Info` / `Warn` / `Bad` API; severity carried by rail color (no icons); slide in, hold, self-dismiss with a life bar
 - **UI:** `DreadWidgets` reusable monochrome widgets (determinate loading bar, indeterminate marquee, value slider); overlay "Kit" button reveals an in-game demo of the loading bar, slider, and toasts
 - **Stubs:** `GUI.HorizontalSlider` (plain and styled) and `GUIStyle.fixedWidth` / `fixedHeight` added to the IMGUIModule stub
+- **AUDIO-5:** Remote audio asset system (`AudioAssetSystem`): embedded `audio-manifest.json`, GitHub Release downloads, versioned `audio-cache/`, cross-version import, automatic prune of old caches, adaptive parallel downloads (speed + CPU), `AudioAssetApi` for features
+- Config section `1b. Audio Assets` (`MaxConcurrentDownloads`, `ShowFirstRunNotice`, `KeepOtherCaches`)
+- CD: per-file audio upload to GitHub Releases (`upload-audio-release-assets.ps1`); Thunderstore zip no longer includes OGG files
 
 ### Changed
+- **Docs:** `docs/ROADMAP.md` backlog from codebase quality reviews 01-09 (Phase 7 execution order; CI-1, CORE-*, MCP-*, ARCH-1b, PATCH-*, PB-*, ERR-5-10, UI-2-5, NOTIF-2); mark AUDIO-5, DOCS-2, NOTIF-0, ERR-2b shipped
+- **Docs:** follow-up: clear `.specify/feature.json` pin; refresh `.specify/README.md`; ADR-0006 superseded by 0017; reconcile `docs/reviews/09-documentation-review.md` freshness; `domain.md` ARCH-1 map
+- **Docs:** post-014 pass: ten core registry systems (`AudioAssetSystem`), remote audio install notes (README, THUNDERSTORE), project tree, extension-registry, ADR-0016/0007 agent notes; SPECKIT block notes 014 merged on `master`
+- Audio reorganized under `audio/{ambient_dread,tension,psychotic_break,shared,monster}/` with release asset names `category__file.ogg`
+- `AudioDreadSystem`, `TensionSystem`, `PsychoticBreakSystem`, and `SnitchSystem` use `AudioAssetApi` (progressive load) instead of bundled `audio/` folder; `door_creak.ogg` added to ambient manifest
+- `AudioClipLoader` is decode-only (NVorbis from `audio-cache/`); bundled `LoadClip` removed so features cannot bypass remote assets
+- `AudioManifestJson` parses embedded manifest (`files[]`); Unity `JsonUtility` is not used for manifest load
+- Audio cache paths reject `..` and rooted manifest segments; first-run download notice marker is written only after the version cache is complete
+- CI runs `tests/Dread.AudioManifestJson.Tests`; Debug `DeployToProfile` / `DeployToLol` copy `audio/` only when `DREAD_DEBUG` is defined
+- **Docs:** agent documentation sync (pre-014): registry counts, extension-registry, and ADR-0016 (superseded by post-014 pass for `AudioAssetSystem`); removed stale ErrorReporter build note from AGENTS.md; CONTRIBUTING verify command; CHANGELOG section order; superpowers archive banners; `dread-mcp-server/README.md`; [ui-notifications.md](docs/agents/guides/ui-notifications.md)
 - **Build:** CD and Thunderstore releases compile a production `Dread.dll` that excludes debug overlay, TCP debug server, and test-crash tooling (`DREAD_DEBUG` profile). Production config renumbers **Logging** to section **8** (sections 8-9 and 11 exist only in development builds). Use `dotnet build -c Debug` or `build.ps1 -DebugBuild` for MCP/agent workflows. CI/CD runs `.github/scripts/verify-production-dll.sh` on Release artifacts.
 - **Docs:** [development-only-features.md](docs/agents/guides/development-only-features.md) agent checklist for `#if DREAD_DEBUG`, `Compile Remove`, config, and registry when adding MCP/overlay tooling.
 - **Core:** `ProximityScan` in `Systems/Core/` replaces `EnemyScanCache`; tension, monster audio, debug server, psychotic break, and error reporting share one scan seam (ADR-0008 proximity pattern consolidated)
@@ -51,15 +44,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Snitch:** pickup detection no longer treats spawn-time parent as a pickup (fixes instant bang on level load)
 - **Camp Lure:** new `LureCooldownSeconds` config (default 60s) prevents instant re-lure after contact; no lure when zero enemies in scan
 - **Snitch:** explicit `failed` arm state; 2s pickup grace period; arm logs at Verbose only; removed temporary agent debug instrumentation
-
-### Added
 - **Error reporting:** Auto-reported issues now include a length-capped **Console Log** section (recent Unity console output from the session plus a tail of `BepInEx/LogOutput.log`) so triage has full context around the failure
 
 ### Fixed
 - **Error reporter Worker:** GitHub dedupe no longer requires `label:auto-reported` on existing issues (labels were not always applied, so duplicate issues like #230/#231 with the same hash could be created). Search uses `repo` + `hash` only; labels are applied via a follow-up API call; optional KV namespace `DEDUP_KV` caches hash to issue number for reliable dedupe before Search indexing catches up
 - **Error reporting:** Production exceptions and errors flush on the next frame via synchronous HTTP POST instead of waiting up to 5 minutes; pending logs and buffered reports drain with a sync POST on application quit or disable (so real errors are not lost when exiting soon after a crash)
 - **Error reporting:** Game-state capture uses `PlayerControllerCompat` for player HP/stamina (avoids direct `Health` access when dead); per-field try/catch around snapshot sections so one failed capture does not block the batch
-- **Error reporting:** Game-state capture for crash reports no longer calls compile-time `EnemyHealth.CurrentHealth` (fixes `get_CurrentHealth` MissingMethodException when third-party mods log errors, e.g. DeathMinimap after death); uses `Systems/Core/EnemyHealthCompat` and `EnemyScanCache`
+- **Error reporting:** Game-state capture for crash reports no longer calls compile-time `EnemyHealth.CurrentHealth` (fixes `get_CurrentHealth` MissingMethodException when third-party mods log errors, e.g. DeathMinimap after death); uses `Systems/Core/EnemyHealthCompat` and `ProximityScan`
 - **Snitch:** arm timer no longer resets on additive scene loads during level generation; arm attempt also runs after `SemiFunc.OnLevelGenDone` ([#222](https://github.com/grompen91-droid/dreadREPO/issues/222))
 - **Snitch:** `ItemRosterCompat` validates resolved types as `Component`, scans `Assembly-CSharp` when `TypeByName` fails, and includes inactive valuables in `FindObjectsOfType`
 - **Snitch / Camp Lure:** `GameplayContext.IsRun()` now matches tension and psychotic break (`SemiFunc.MenuLevel()` only); fixes systems staying disarmed while the active Unity scene is still named Main
@@ -127,6 +118,26 @@ GitHub backlog: issues #163-#166, #169, and new rows in [docs/ROADMAP.md](docs/R
 ![Status](https://img.shields.io/badge/status-development-yellow?style=flat-square)
 
 > **Note:** Accidental patch publish on Thunderstore during a mis-tagged release. Use **v1.6.0** (minor) for the canonical package and release notes.
+
+---
+
+## [1.5.2] - 2026-05-22
+
+![Status](https://img.shields.io/badge/status-development-yellow?style=flat-square)
+
+### Changed
+- CI pipeline: 4-job architecture (relevance, build, analyze, summary) per spec v1.2
+- CI pipeline: relevance hard gate skips build/analyze on non-project PRs
+- CI pipeline: summary table prints all job results and exits 1 on failure
+- CI pipeline: MSBuild log uploaded as artifact on build failure
+- CI pipeline: anti-pattern and format checks fail the build (hard gates)
+- CD pipeline: version-specific release tags (`vX.Y.Z` instead of reusing `vmajor`/`vminor`/`vpatch`)
+- CD pipeline: idempotency check prevents duplicate releases
+- CD pipeline: divergence guard prevents master branch desync on concurrent pushes
+- CD pipeline: release step runs before post-release issue creation
+- CD pipeline: migrated build to `ubuntu-latest` with NuGet and stubs caching
+- CD pipeline: added Thunderstore auto-publish via `tcli`
+- CD pipeline: `THUNDERSTORE_README.md` support in package zip
 
 ---
 

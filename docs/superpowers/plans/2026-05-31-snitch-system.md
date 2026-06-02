@@ -1,5 +1,7 @@
 # Snitch System Implementation Plan
 
+> **ARCHIVED — DO NOT EXECUTE.** Snitch is shipped. Use [docs/agents/guides/camp-lure-and-snitch.md](../../agents/guides/camp-lure-and-snitch.md) and `Systems/SnitchSystem.cs`. Audio: `AudioAssetApi.RequestClip` (`monster` / `snitch_bang.ogg`), not `AudioClipLoader.LoadClip`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** One random item per run is secretly the snitch; the first player to pick it up plays a 3D bang and turns the pickup position into a 3-minute enemy POI.

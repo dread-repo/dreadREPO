@@ -1,6 +1,6 @@
 # Agent orchestration (Dread repo)
 
-Entry point for coding agents (Cursor, Claude Code, Cloud Agents, and similar). Human contributors can use the same map; start at [CONTRIBUTING.md](../../CONTRIBUTING.md) for PR conventions.
+Entry point for coding agents (Cursor, Claude Code, Cloud Agents, and similar). Human contributors can use the same map; start at [orchestration.md](orchestration.md) for PR conventions.
 
 ## Start here
 
@@ -10,7 +10,8 @@ Entry point for coding agents (Cursor, Claude Code, Cloud Agents, and similar). 
 | 2 | [domain.md](domain.md) | How to read ADRs, roadmap, and repo layout |
 | 3 | [docs/ROADMAP.md](../ROADMAP.md) | Backlog IDs, execution order, linked GitHub issues |
 | 4 | [orchestration.md](orchestration.md) | End-to-end workflows (pick work, implement, verify, ship) |
-| 5 | [AGENTS.md](../../AGENTS.md) | Build, release tags, changelog, Thunderstore rules |
+| 5 | [systems-folder-governance.md](systems-folder-governance.md) | Where to place new `Systems/` code (no root loose files) |
+| 6 | [AGENTS.md](../../AGENTS.md) | Build, version control (commit per change, PR from branch), release tags, changelog |
 
 ## File index
 
@@ -20,12 +21,14 @@ Entry point for coding agents (Cursor, Claude Code, Cloud Agents, and similar). 
 | [issue-tracker.md](issue-tracker.md) | `gh` CLI for issues (create, triage, comment, close) |
 | [triage-labels.md](triage-labels.md) | Label vocabulary (`ready-for-agent`, etc.) |
 | [domain.md](domain.md) | ADR consumption, debug overlay, REPOConfig compat |
+| [systems-folder-governance.md](systems-folder-governance.md) | Placement rules for new `Systems/` code |
+| [../reviews/README.md](../reviews/README.md) | Codebase quality reviews index and drift register |
 | [verify-dread.md](verify-dread.md) | Autonomous verify runbook (Tier 0 to 3) |
 | [verify-dread-checklist.json](verify-dread-checklist.json) | Machine-readable verify steps |
 | [error-reporting-test-checklist.md](error-reporting-test-checklist.md) | Manual ERR-1 matrix (in-game + MCP) |
 | [../../AGENTS.md](../../AGENTS.md) | Build stubs, CI lint, version bump policy |
 | [../../.cursor/mcp.json](../../.cursor/mcp.json) | MCP stdio config for `dread` debug tools |
-| [../../dread-mcp-server/](../../dread-mcp-server/) | TypeScript MCP bridge (build before Tier 1) |
+| [../../dread-mcp-server/README.md](../../dread-mcp-server/README.md) | MCP bridge build, env, tools (build before Tier 1) |
 | [../../.claude/](../../.claude/) | Subagent prompt templates (implementer + reviewers) |
 | [guides/](guides/README.md) | Full implementation guide set (all runtime systems + tooling) |
 | [guides/development-only-features.md](guides/development-only-features.md) | How to gate agent/MCP features out of production builds |

@@ -1,7 +1,7 @@
 # ADR-0007: Centralize OGG Loading via AudioClipLoader
 
 **Date:** 2026-05-22
-**Status:** Accepted (updated 2026-05-22 to match implementation)
+**Status:** Accepted (updated 2026-05-22 to match implementation; 2026-06-01 doc note: API unchanged on `master`)
 
 ---
 
@@ -47,6 +47,12 @@ public static IEnumerator LoadClip(string fileName, Action<AudioClip?> onLoaded)
 - Callers shrink from 20-30 lines to 6-11 lines each.
 - Unused imports (`System.IO`, `System.Reflection`, `UnityEngine.Networking`) removed from both caller files.
 - Cache lifetime matches AppDomain lifetime. Cache is cleared on every scene load, incurring a one-time reload of audio at the start of each round. With only 6 small OGG files (~500 KB each), this reload cost is negligible.
+
+---
+
+## Agent note (2026-06, AUDIO-5)
+
+Gameplay features load clips through **`AudioAssetApi.RequestClip`** after `AudioAssetSystem` fills `audio-cache/` (ADR-0017). **`AudioClipLoader`** is **decode-only** (`TryDecodeFromDisk`); do not call removed bundled `LoadClip` from feature code (Tier 0 verify enforces this). For adding sounds, see [remote-assets.md](../agents/guides/remote-assets.md) and [audio-dread-and-loading.md](../agents/guides/audio-dread-and-loading.md).
 
 ---
 
