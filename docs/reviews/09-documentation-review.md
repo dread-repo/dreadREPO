@@ -145,12 +145,11 @@ Doc or review claim vs code/repo reality. Severity reflects **agent harm** (wron
 
 ### [SEVERITY: CRITICAL] Agent hub does not point to structure governance
 
+- **Status:** **Resolved** (2026-06-03). Linked from `AGENTS.md` and `docs/agents/README.md` (#242).
 - **Location:** `AGENTS.md` agent table; `docs/agents/README.md` file index
 - **Category:** governance
-- **Description:** [systems-folder-governance.md](../agents/systems-folder-governance.md) defines golden rules (no new root loose files, registry-only spawn, patch/Core boundaries) but agents starting at `AGENTS.md` never see it. This directly matches the user concern that "project structure is not governed by rules for agents."
-- **Suggested fix:** Add rows to both files:
-  - `docs/agents/systems-folder-governance.md`: where to place new `Systems/` code
-  - `docs/reviews/README.md`: section review index + drift register pointer
+- **Description:** Was: governance doc not linked from hub.
+- **Suggested fix:** (done) `systems-folder-governance.md` + `docs/reviews/README.md` in hub tables.
 
 ### [SEVERITY: IMPORTANT] `CONTEXT.md` file map and debug overlay status are stale
 
