@@ -14,6 +14,11 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// UnityEngine also defines a Logger type, so an unqualified Logger is ambiguous
+// once UnityEngine.TextRenderingModule/CoreModule are in scope. This server hooks
+// BepInEx's log pipeline, so bind the name to BepInEx's Logger.
+using Logger = BepInEx.Logging.Logger;
+
 namespace Dread.Systems
 {
     public class DebugServerSystem : MonoBehaviour

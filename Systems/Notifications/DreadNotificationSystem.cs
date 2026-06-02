@@ -46,9 +46,11 @@ namespace Dread.Systems
         private static readonly Color ColPanel = new(0.063f, 0.067f, 0.078f, 0.96f);
         private static readonly Color ColTitle = new(0.91f, 0.92f, 0.93f);
         private static readonly Color ColMessage = new(0.52f, 0.53f, 0.57f);
-        private static readonly Color ColRailInfo = new(0.74f, 0.75f, 0.77f);  // steel
-        private static readonly Color ColRailWarn = new(0.85f, 0.79f, 0.65f);  // warm gray
-        private static readonly Color ColRailBad = new(0.84f, 0.70f, 0.68f);   // rosy gray
+        // Severity reads at a glance but stays desaturated enough for the Slate
+        // HUD: cool steel info, amber warn, muted red bad (#C2C4C9/#D8B45A/#C9605A).
+        private static readonly Color ColRailInfo = new(0.761f, 0.769f, 0.788f); // cool steel
+        private static readonly Color ColRailWarn = new(0.847f, 0.706f, 0.353f); // amber
+        private static readonly Color ColRailBad = new(0.788f, 0.376f, 0.353f);  // muted red
 
         private static readonly GUIContent EmptyContent = new();
         private static readonly GUIContent ScratchContent = new();
@@ -203,10 +205,13 @@ namespace Dread.Systems
             _railWarnTex = MakeTexture(ColRailWarn);
             _railBadTex = MakeTexture(ColRailBad);
 
-            _panelStyle = new GUIStyle(GUI.skin.box);
+            // Zero the inherited 9-slice border so the 1px life bar stays a flat
+            // line as it shrinks toward zero width instead of bloating into a
+            // square (see DebugOverlayStyles for the full rationale).
+            _panelStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
             _panelStyle.normal.background = _panelTex;
 
-            _railStyle = new GUIStyle(GUI.skin.box);
+            _railStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
             _railStyle.normal.background = _railInfoTex;
 
             _titleStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = false };

@@ -49,10 +49,16 @@ namespace Dread.Systems
             _sepTex = MakeTexture(new Color(0.85f, 0.86f, 0.88f, 0.18f));
             _railTex = MakeTexture(ColRail);
 
-            _boxStyle = new GUIStyle(GUI.skin.box);
+            // Zero the inherited 9-slice border on every solid-fill box style.
+            // GUI.skin.box ships a ~6px border; when a rect is small in BOTH
+            // dimensions (the 9x1 section tick) the corner slices can't fit and
+            // Unity renders the full border region, so the thin dash bloats into
+            // a chunky square. A zero border blits the 1x1 texture flat at any
+            // size, keeping ticks, rails, and separators crisp.
+            _boxStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
             _boxStyle.normal.background = _bgTex;
 
-            _railStyle = new GUIStyle(GUI.skin.box);
+            _railStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
             _railStyle.normal.background = _railTex;
 
             // MiddleLeft vertically centers each label in its row box so glyphs
@@ -96,7 +102,7 @@ namespace Dread.Systems
             { fontSize = 11, wordWrap = false, alignment = TextAnchor.MiddleCenter };
             _midStyle.normal.textColor = ColValue;
 
-            _sepStyle = new GUIStyle(GUI.skin.box);
+            _sepStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
             _sepStyle.normal.background = _sepTex;
 
             _buttonTex = MakeTexture(ColButton);
