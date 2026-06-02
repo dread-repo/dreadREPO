@@ -27,9 +27,12 @@ namespace Dread.Systems
         private float _dragOffsetY;
 
         // Component-kit demo (toggled by the footer "Kit" button) so the loading
-        // bar, slider, and toast widgets can be verified in-game.
+        // bar, slider, and toast widgets can be verified in-game. Persisted.
         private bool _kitDemo;
         private float _kitSlider = 0.5f;
+
+        // Panel background opacity (cfg-driven, DBG-2). Read at style creation.
+        private float _panelOpacity = 0.9f;
 
         // Cached empty content. Avoids GUIContent.none, which the build resolves
         // against a stub property getter (get_none) that does not exist in the
@@ -141,7 +144,10 @@ namespace Dread.Systems
 
             float kitW = 36f * z;
             if (GUI.Button(new Rect(x + innerW - resetW - kitW - gap, y, kitW, btnH), "Kit", _buttonStyle!))
+            {
                 _kitDemo = !_kitDemo;
+                SaveLayout();
+            }
         }
 
         // Demo block below the panel: exercises the reusable loading bar, slider,
@@ -245,6 +251,17 @@ namespace Dread.Systems
             _zoom = Mathf.Clamp(DreadConfig.DebugOverlayZoom.Value, 0.6f, 1.6f);
             _panelX = DreadConfig.DebugOverlayPanelX.Value;
             _panelY = DreadConfig.DebugOverlayPanelY.Value;
+            _panelOpacity = Mathf.Clamp(DreadConfig.DebugOverlayOpacity.Value, 0.3f, 1f);
+            _kitDemo = DreadConfig.DebugOverlayShowKitDemo.Value;
+
+            // Forgiving: a position saved at a larger resolution can leave the panel
+            // fully off-screen and unreachable. Pull it back into view once the
+            // screen size is known.
+            if (Screen.width > 0 && Screen.height > 0)
+            {
+                _panelX = Mathf.Clamp(_panelX, 0f, Mathf.Max(0f, Screen.width - 60f));
+                _panelY = Mathf.Clamp(_panelY, 0f, Mathf.Max(0f, Screen.height - 30f));
+            }
 
             _collapsed.Clear();
             string saved = DreadConfig.DebugOverlayCollapsedSections.Value;
@@ -267,6 +284,7 @@ namespace Dread.Systems
             DreadConfig.DebugOverlayPanelX.Value = _panelX;
             DreadConfig.DebugOverlayPanelY.Value = _panelY;
             DreadConfig.DebugOverlayCollapsedSections.Value = string.Join(",", _collapsed);
+            DreadConfig.DebugOverlayShowKitDemo.Value = _kitDemo;
             DreadConfig.SaveToDisk();
         }
 

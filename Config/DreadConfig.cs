@@ -57,6 +57,8 @@ namespace Dread.Config
         public static ConfigEntry<float> DebugOverlayPanelX = null!;
         public static ConfigEntry<float> DebugOverlayPanelY = null!;
         public static ConfigEntry<string> DebugOverlayCollapsedSections = null!;
+        public static ConfigEntry<float> DebugOverlayOpacity = null!;
+        public static ConfigEntry<bool> DebugOverlayShowKitDemo = null!;
         public static ConfigEntry<bool> DebugServerEnabled = null!;
         public static ConfigEntry<int> DebugServerPort = null!;
         public static ConfigEntry<bool> TestCrashButton = null!;
@@ -223,6 +225,20 @@ namespace Dread.Config
                 string.Empty,
                 "Internal: comma-separated list of debug HUD sections folded shut. Set in-game by "
                     + "clicking a section header (F9 mouse mode); persists across launches.");
+            DebugOverlayOpacity = cfg.Bind(
+                DreadConfigSections.DebugOverlay,
+                "Opacity",
+                0.9f,
+                new ConfigDescription(
+                    "Background opacity of the debug HUD panel. Lower it to see more of the game "
+                        + "behind the HUD. Clamped to a readable range.",
+                    new AcceptableValueRange<float>(0.3f, 1.0f)));
+            DebugOverlayShowKitDemo = cfg.Bind(
+                DreadConfigSections.DebugOverlay,
+                "ShowKitDemo",
+                false,
+                "Show the component-kit demo block (loading bar, slider, toast triggers) below the "
+                    + "HUD. Toggled in-game by the footer \"Kit\" button; persists across launches.");
 
             DebugServerEnabled = cfg.Bind(
                 DreadConfigSections.DebugServer,

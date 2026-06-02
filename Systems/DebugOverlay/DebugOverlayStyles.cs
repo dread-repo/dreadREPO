@@ -47,7 +47,9 @@ namespace Dread.Systems
             if (_boxStyle != null)
                 return;
 
-            _bgTex = DreadGui.SolidTexture(DreadTheme.PanelBg);
+            // Panel fill uses the configured opacity (DBG-2) over the theme's RGB.
+            var bg = DreadTheme.PanelBg;
+            _bgTex = DreadGui.SolidTexture(new Color(bg.r, bg.g, bg.b, _panelOpacity));
             _sepTex = DreadGui.SolidTexture(DreadTheme.Separator);
             _railTex = DreadGui.SolidTexture(ColRail);
 
