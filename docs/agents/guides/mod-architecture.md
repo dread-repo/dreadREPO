@@ -44,8 +44,8 @@ Entry: `Plugin.cs` (Harmony + config only). Registry: `Systems/DreadSystemRegist
 | `error-reporting-prompt` | `ErrorReportingPromptSystem` | `DreadErrorReportingPromptHost` | First-run privacy prompt before telemetry sends |
 | `psychotic-break` | `PsychoticBreakSystem` | `DreadPsychoticBreakHost` | Client-local episodes |
 | `notifications` | `DreadNotificationSystem` | `DreadNotificationHost` | Transient corner toasts (overlay, lure, snitch, etc.) |
-| `camp-lure` | `CampLureSystem` | `DreadCampLureHost` | Host anti-camping lure during active **run** |
-| `snitch` | `SnitchSystem` | `DreadSnitchHost` | Host snitch item bang + enemy POI during active **run** |
+| `camp-lure` | `CampLureSystem` | `DreadCampLureHost` | Host anti-camping lure during **extraction level** (`AllowsHostMonsterFeatures`) |
+| `snitch` | `SnitchSystem` | `DreadSnitchHost` | Host snitch item bang + enemy POI during **extraction level** |
 
 ### Debug (development builds only, `#if DREAD_DEBUG`)
 

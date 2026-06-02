@@ -284,7 +284,7 @@ Open conflicts only. Resolved terms live in **Language** above.
 |------|------|
 | Plugin entry, Harmony apply | `Plugin.cs` |
 | Config bindings | `Config/DreadConfig.cs` |
-| Runtime systems (flat) | `Systems/*.cs` (initializer, tension, audio, notifications, lure, snitch, etc.) |
+| Runtime systems | `Systems/DreadSystemRegistry.cs`, `DreadSystemInitializer.cs`; hosts at `Systems/*.cs` and subfolders (`AudioAssets/`, lure, snitch, tension, etc.) |
 | Notifications | `Systems/Notifications/` |
 | Harmony patches | `Systems/Patches/` |
 | Psychotic break | `Systems/PsychoticBreak/` |
