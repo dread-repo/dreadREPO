@@ -47,13 +47,16 @@ Large systems are split under `Systems/` subfolders; type names and `Dread.Syste
 
 | Area | Path |
 |------|------|
+| Core compat | `Systems/Core/` (`ProximityScan`, `GameplayContext`, `HarmonyPatchCompat`, etc.) |
+| Remote audio | `Systems/AudioAssets/` (`AudioAssetSystem`, manifest, cache, downloader) |
 | Harmony patches | `Systems/Patches/*.cs` |
 | Psychotic break | `Systems/PsychoticBreak/PsychoticBreakSystem.cs` (+ Trigger, Episode, Overlay, PlayerLockdown, Audio partials) |
 | Error reporting | `Systems/ErrorReporting/ErrorReporterSystem.cs` (+ LogQueue, PayloadCapture, Uploader) |
 | Error JSON/types | `Systems/ErrorReportJson.cs`, `Systems/ErrorReportTypes.cs` |
+| Notifications | `Systems/Notifications/DreadNotificationSystem.cs` |
 | Debug overlay | `Systems/DebugOverlay/DebugOverlaySystem.cs` (+ Panel, Styles partials) |
 | Monster audio loop | `Systems/MonsterOverhaulSystem.cs` |
-| Other systems | `Systems/*.cs` (flat) |
+| Root loose files | `Systems/*.cs` (registry, tension, audio dread, lure, snitch, etc.; see [systems-folder-governance.md](systems-folder-governance.md)) |
 
 ## Use the glossary's vocabulary
 

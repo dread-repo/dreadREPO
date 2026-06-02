@@ -1,18 +1,35 @@
 # Code Review: Project documentation (docs, specs, CONTEXT, agent hub)
 
 **Reviewed:** 2026-06-02  
-**Scope:** All agent-facing and contributor documentation: `README.md`, `THUNDERSTORE_README.md`, `CONTEXT.md`, `AGENTS.md`, `docs/**`, `specs/**`, `spec/`, `.claude/`, `.github/` doc references, and consistency with code after reviews [01](01-core-review.md) through [08](08-dread-mcp-server-review.md).  
+**Reconciled:** 2026-06-03 (post-`master` doc passes #235, #244; AUDIO-5 #237; reviews #242)  
+**Scope:** All agent-facing and contributor documentation: `README.md`, `THUNDERSTORE_README.md`, `CONTEXT.md`, `AGENTS.md`, `docs/**`, `specs/**`, `spec/`, `.specify/`, `.claude/`, `.github/` doc references, and consistency with code after reviews [01](01-core-review.md) through [08](08-dread-mcp-server-review.md).  
 **Not in scope:** Line-by-line re-review of C#/TS implementation (covered in section reviews 01-08).
+
+## Reconciliation (2026-06-03)
+
+Doc-only fixes on `master` addressed many P0/P1 items from this review:
+
+| Item | Status |
+|------|--------|
+| Governance + reviews linked from `AGENTS.md` / `docs/agents/README.md` | **Resolved** (#242) |
+| Ten core systems + `AudioAssetSystem`; remote `audio-cache` (README, THUNDERSTORE, CONTEXT, mod-architecture) | **Resolved** (#237, #244) |
+| SPECKIT / known-issue stale blocks in `AGENTS.md` | **Resolved** (#235, #244) |
+| `mod-architecture` new-system step vs governance | **Resolved** (#244) |
+| `CONTRIBUTING.md` exists; verify command fixed | **Resolved** (#235) |
+| `dread-mcp-server/README.md` | **Resolved** (#235) |
+| `.specify/feature.json` cleared after 014 merge; `.specify/README.md` updated | **Resolved** (follow-up) |
+| ADR-0006 marked superseded by ADR-0017 | **Resolved** (follow-up) |
+| `domain.md` ARCH-1 map (`Core/`, `AudioAssets/`, notifications) | **Resolved** (follow-up) |
+
+**Still open (code or section reviews):** CI analyze glob (D-01), MCP protocol drift (D-13 to D-15), root loose `Systems/*.cs` migration (D-06, 07-review), section review 03 still predates `DreadNotificationSystem` (update 03 separately).
 
 ## Executive Summary
 
-Documentation for agents is **strong in the center** (`docs/agents/README.md`, guides, verify runbooks, ADRs, active `specs/`) but **weak at the edges**: no single **structure governance** entry in `AGENTS.md`, **file maps lag ARCH-1/3** (`CONTEXT.md`, `domain.md`, `README.md` project tree), and **stale operator text** (ERR-2 still "active" in `AGENTS.md`, build failure note for `String.Contains` that no longer appears in tree, missing `CONTRIBUTING.md` linked from agent hub).
+Documentation for agents is **strong at the hub** (`docs/agents/README.md`, guides including `remote-assets.md`, governance, verify runbooks, ADRs 0016/0017, shipped `specs/`). **Remaining gaps** are mostly **code drift** (CI globs, MCP JSON shape, `Systems/` folder migration) tracked in the drift register below and in reviews 01-08, not missing hub links.
 
-**Bloat is contained but duplicated:** `docs/agents/archive/superpowers/` (~10 historical plans/specs) plus redirect stubs at `docs/superpowers/README.md` and `docs/agents/archive/README.md`. Safe to keep for archaeology; agents need louder "do not execute" signals at the hub.
+**Bloat is contained:** `docs/agents/archive/superpowers/` and `docs/superpowers/` redirects stay for archaeology; hub and archive banners say do not execute.
 
-**Section reviews 01-08** were not indexed until this pass; they should become the **drift register** for code vs docs. Cross-cutting themes: **CI analyze globs omit `Systems/**/*.cs`**, **half-finished `Systems/` root layout** (17 loose files; governance doc exists but is **unlinked** from `AGENTS.md` / `docs/agents/README.md`), **no in-game notification system** (03), **MCP protocol presentation bugs** (08).
-
-**Review outcome:** ❌ **ISSUES:** docs are usable for experienced contributors but **do not yet govern project structure** for agents without reading 8 review files. P1: wire [systems-folder-governance.md](../agents/systems-folder-governance.md) into the agent hub, refresh file maps, add [reviews/README.md](README.md), fix stale `AGENTS.md` blocks.
+**Review outcome (2026-06-03):** Hub and registry docs are **current for AUDIO-5 and ARCH-3**. Use this file as the **doc drift register**; use section reviews for **implementation** drift. Re-run a full doc inventory after the next major feature merge.
 
 ## File Structure Assessment
 
@@ -20,9 +37,9 @@ Documentation for agents is **strong in the center** (`docs/agents/README.md`, g
 
 | Layer | Role | Quality |
 |-------|------|---------|
-| `CONTEXT.md` | Domain glossary + file map | Strong vocabulary; map stale on `Systems/` |
-| `docs/agents/README.md` | Orchestration entry | Clear 5-step path; missing governance + reviews |
-| `docs/agents/guides/` | Shipped patterns per system | 11 guides; aligned with ARCH-3 |
+| `CONTEXT.md` | Domain glossary + file map | Strong vocabulary; map includes AudioAssets (2026-06) |
+| `docs/agents/README.md` | Orchestration entry | Governance + reviews linked (#242) |
+| `docs/agents/guides/` | Shipped patterns per system | 12+ guides incl. `remote-assets.md`, `ui-notifications.md` |
 | `docs/adr/` | Decisions | 17 ADRs; two `0007-*` filenames (numbering collision) |
 | `specs/00N-*` | Speckit contracts for shipped work | 4 feature folders; keep as contract archive |
 | `docs/agents/verify-dread.md` + checklist JSON | Tier 0-3 verify | Actionable; matches `scripts/verify-dread.ps1` |
@@ -32,18 +49,18 @@ Documentation for agents is **strong in the center** (`docs/agents/README.md`, g
 
 | Concern | Finding |
 |---------|---------|
-| Structure not governed for agents | `systems-folder-governance.md` written 2026-06-02 but **not** in `AGENTS.md` table or `docs/agents/README.md` file index |
+| Structure not governed for agents | **Resolved:** governance linked from hub (#242); `mod-architecture` points to governance (#244) |
 | Dead files / bloat | Archive superpowers are dead for execution but not deleted; `docs/superpowers/` is redirect-only; acceptable if hub warns |
-| Docs should guide agents on conventions | `mod-architecture.md` step "Create `Systems/YourSystem.cs`" **contradicts** governance rule #1 (no new root loose files) |
+| Docs should guide agents on conventions | **Resolved** in `mod-architecture.md` (#244); 07-review migration still open in code |
 
 ### `.specify` / `spec/` / `CONTEXT-MAP.md`
 
 | Path | Status |
 |------|--------|
-| `.specify/` | **Absent** (no Speckit template tree in repo) |
+| `.specify/` | Present (Spec Kit templates, scripts, `feature.json`; empty pin = no active feature) |
 | `CONTEXT-MAP.md` | **Absent** (single-context repo; OK per `domain.md`) |
 | `spec/` | Two CI process notes only (`spec-process-cicd-*.md`); not linked from agent hub |
-| `specs/` | Canonical Speckit output (`001` ARCH-2, `002` ARCH-3, `003` ERR-3, `004` ERR-2) |
+| `specs/` | Shipped contracts (`001` ARCH-2, `002` ARCH-3, `003` ERR-3, `004` ERR-2, `006` lure/snitch, `012` strip debug, `014` remote audio, etc.) |
 
 ### Recommended top-level doc layout (agents)
 
@@ -55,19 +72,19 @@ Paths relative to repo root unless noted. **Freshness:** `current` = matches shi
 
 | Path | Purpose | Freshness | Action |
 |------|---------|-----------|--------|
-| `README.md` | Player + dev overview, boot diagram, project tree | stale | Add `Systems/Core/`, fix loose-file list; remove `HarmonyPatchCompat` from tree line |
-| `THUNDERSTORE_README.md` | Package listing copy | current | Keep synced by CD only |
-| `CONTEXT.md` | Glossary + file map | stale | Update file map (Core, Bootstrap targets, overlay shipped); fix debug overlay "in development" |
-| `AGENTS.md` | Build, release, agent entry | stale | Link governance + reviews; remove/fix SPECKIT ERR-2 block; remove stale CS1501 note if build clean |
+| `README.md` | Player + dev overview, boot diagram, project tree | current | AUDIO-5 tree + `audio-cache` install (#244); revisit when 07-review moves land |
+| `THUNDERSTORE_README.md` | Package listing copy | current | First-run audio note (#244); CD sync only |
+| `CONTEXT.md` | Glossary + file map | current | Ten core + audio assets; overlay dev-only (#244) |
+| `AGENTS.md` | Build, release, agent entry | current | Governance, remote audio, SPECKIT 014 merged note (#235/#244) |
 | `CHANGELOG.md` | Release notes | current | Agent edits `[Unreleased]` only |
 | `LICENSE`, `SECURITY.md` | Legal / disclosure | current | (none) |
 | `docs/ROADMAP.md` | Backlog + execution order | current | Mark ERR-2/ARCH-3 done (already); add DOCS-2 for doc governance if filed |
-| `docs/agents/README.md` | Agent orchestration hub | stale | Add governance, reviews index, fix CONTRIBUTING link |
+| `docs/agents/README.md` | Agent orchestration hub | current | Governance + reviews (#242) |
 | `docs/agents/orchestration.md` | Workflows | current | Cross-link governance when adding systems |
-| `docs/agents/domain.md` | ADR consumption, ARCH-1 map | stale | Add `Systems/Core/` row; stop implying flat root is finished |
-| `docs/agents/systems-folder-governance.md` | **Placement rules for `Systems/`** | current | **Link from AGENTS.md + agents/README** |
-| `docs/agents/guides/README.md` | Guide index | current | Add governance under "Orient in repo" |
-| `docs/agents/guides/*.md` (11) | Per-system implementation | mostly current | Patch `harmony-and-patches.md` paths per 04; `mod-architecture.md` new-system steps |
+| `docs/agents/domain.md` | ADR consumption, ARCH-1 map | current | Core, AudioAssets, notifications (#244 follow-up) |
+| `docs/agents/systems-folder-governance.md` | **Placement rules for `Systems/`** | current | Linked from hub |
+| `docs/agents/guides/README.md` | Guide index | current | `remote-assets.md`, governance in orient row |
+| `docs/agents/guides/*.md` | Per-system implementation | mostly current | `harmony-and-patches.md` paths per 04-review still optional |
 | `docs/agents/verify-dread.md` | Verify tiers | current | (none) |
 | `docs/agents/verify-dread-checklist.json` | Machine checklist | current | (none) |
 | `docs/agents/error-reporting-test-checklist.md` | ERR-1 manual matrix | current | (none) |
@@ -76,7 +93,7 @@ Paths relative to repo root unless noted. **Freshness:** `current` = matches shi
 | `docs/agents/archive/README.md` | Archive policy | current | (none) |
 | `docs/agents/archive/superpowers/**` | Old plans/specs | archive | Do not execute; keep for archaeology |
 | `docs/superpowers/README.md` | Redirect to guides/archive | redirect | No new files here |
-| `docs/adr/0001-0016*.md` | Architecture decisions | mostly current | Reconcile ADR-0010 flush transport vs ADR-0015; note duplicate `0007` filenames |
+| `docs/adr/0001-0017*.md` | Architecture decisions | mostly current | ADR-0006 superseded by 0017; duplicate `0007-*` filenames remain |
 | `docs/mod-compatibility.md` | Player mod compat | current | Linked from guides |
 | `docs/repo-config-slider-labels-investigation.md` | REPOConfig UI debug log | current | Reference until DBG-4 |
 | `docs/reviews/01-08-*.md` | Section code reviews | current | Use as drift source; indexed in `reviews/README.md` |
@@ -88,38 +105,41 @@ Paths relative to repo root unless noted. **Freshness:** `current` = matches shi
 | `specs/004-err-2-default-on-prompt/` | ERR-2 + core-enemy-health | current | Shipped; AGENTS SPECKIT block should point to ROADMAP next item |
 | `spec/spec-process-cicd-*.md` | CI/CD process notes | stale? | Link from `.github/workflows` or move under `docs/` |
 | `.claude/*-prompt.md` | Subagent templates | current | Listed in agents/README |
-| `dread-mcp-server/` (no README in tree) | MCP bridge | gap | Optional short `dread-mcp-server/README.md` pointing to `debug-tooling.md` |
-| `CONTRIBUTING.md` | PR conventions (cited by agents/README) | **missing** | Create or retarget link to GitHub default / orchestration.md |
+| `dread-mcp-server/README.md` | MCP bridge | current | Points to `debug-tooling.md` (#235) |
+| `CONTRIBUTING.md` | PR conventions | current | Linked from agents/README |
+| `.specify/feature.json` | Active Spec Kit pin | current | Empty after 014 merge; set when starting next feature |
 
 ## Drift register
 
 Doc or review claim vs code/repo reality. Severity reflects **agent harm** (wrong file placement, wrong verify expectation), not player impact.
 
-| ID | Source | Doc / claim | Reality (code or tree) | Sev |
-|----|--------|-------------|-------------------------|-----|
-| D-01 | 01,07, governance | CI analyze covers `Systems/**` per AGENTS intent | `ci.yml` greps only `Systems/*.cs` (root) | IMPORTANT |
-| D-02 | 01, domain, CONTEXT | ARCH-1 map includes Core | `domain.md` / `CONTEXT.md` omit `Systems/Core/` | IMPORTANT |
-| D-03 | CONTEXT | Debug overlay "in development" / not on all branches | `DebugOverlaySystem` registered; `Systems/DebugOverlay/` exists | IMPORTANT |
-| D-04 | CONTEXT | "Shared enemy cache" retired; each system own scan | `EnemyScanCache` at `Systems/` root; ADR-0008 | NICE_TO_HAVE |
-| D-05 | README, CONTEXT | Project map lists compat at root | `HarmonyPatchCompat` in `Systems/Core/` | NICE_TO_HAVE |
-| D-06 | README, CONTEXT, domain | "Other systems: `Systems/*.cs`" | 17 root `.cs` files + subfolders (07 inventory) | IMPORTANT |
-| D-07 | mod-architecture | "Create `Systems/YourSystem.cs`" | Governance: no new root loose files | IMPORTANT |
-| D-08 | agents/README | `CONTRIBUTING.md` for PR conventions | File **not in repository** | IMPORTANT |
-| D-09 | AGENTS.md | Active plan ERR-2 `specs/004-...` | ERR-2 shipped per ROADMAP (#208) | NICE_TO_HAVE |
-| D-10 | AGENTS.md | `ErrorReporterSystem` `Contains(..., StringComparison)` breaks build | No match in `ErrorReporting/` on this tree | IMPORTANT |
-| D-11 | 06, ADR-0010 | Batch upload via `UnityWebRequest` | `HttpWebRequest` per ADR-0015 | NICE_TO_HAVE |
-| D-12 | 03 | Future notifications in `ErrorReporting/` | No notification system; consent is modal only | IMPORTANT |
-| D-13 | 08, ADR-0013 | Max request 4096 bytes enforced | `MaxMessageBytes` not checked on read | IMPORTANT |
-| D-14 | 08 | MCP `dread_get_logs` text uses camelCase | Unity JSON PascalCase `Level`, `Message` | IMPORTANT |
-| D-15 | 08 | MCP `dread_get_patches` text schema | C# uses `prefixes` counts not `patchTypes` | IMPORTANT |
-| D-16 | 01 | `PlayerControllerCompat.GetStamina` used | Dead API; error capture uses `player.stamina` | NICE_TO_HAVE |
-| D-17 | 01 | `HarmonyPatchCompat.IsMasterClient` fail-closed | Fails open on reflection error | IMPORTANT |
-| D-18 | 04 | `harmony-and-patches.md` paths / Apply throws | Log-and-return; verify file paths | NICE_TO_HAVE |
-| D-19 | 05, ADR-0011 | Audio names shadow_scream / phantom_footsteps | Shipped `scream_*`, `footsteps.ogg` (CONTEXT historical table OK) | NICE_TO_HAVE |
-| D-20 | 02 | `Systems/UI/` exists | Not created; UI split across DebugOverlay, ErrorReporting prompt, PsychoticBreak overlay | NICE_TO_HAVE |
-| D-21 | 07 | Error JSON at root should move | `ErrorReportJson.cs`, `ErrorReportTypes.cs` still at `Systems/` root | NICE_TO_HAVE |
-| D-22 | 08 | `dist/index.js` committed | In `.gitignore`; build required (git status may show local dist) | STYLE |
-| D-23 | docs/adr | Single ADR number 0007 | Two files: `0007-audio-clip-loader`, `0007-ci-pipeline-optimization` | NICE_TO_HAVE |
+| ID | Source | Doc / claim | Reality (code or tree) | Sev | Status |
+|----|--------|-------------|-------------------------|-----|--------|
+| D-01 | 01,07, governance | CI analyze covers `Systems/**` per AGENTS intent | `ci.yml` greps only `Systems/*.cs` (root) | IMPORTANT | open |
+| D-02 | 01, domain, CONTEXT | ARCH-1 map includes Core | `domain.md` lists `Systems/Core/` | IMPORTANT | resolved |
+| D-03 | CONTEXT | Debug overlay "in development" | Dev-build only; glossary updated | IMPORTANT | resolved |
+| D-04 | CONTEXT | "Shared enemy cache" retired | `ProximityScan` in `Systems/Core/` | NICE_TO_HAVE | resolved |
+| D-05 | README, CONTEXT | Project map lists compat at root | README tree updated (#244) | NICE_TO_HAVE | resolved |
+| D-06 | README, CONTEXT, domain | Root loose `Systems/*.cs` | Still true; governance + 07-review | IMPORTANT | open |
+| D-07 | mod-architecture | New system at root | Governance link in step 1 | IMPORTANT | resolved |
+| D-08 | agents/README | `CONTRIBUTING.md` missing | File exists | IMPORTANT | resolved |
+| D-09 | AGENTS.md | Active plan ERR-2 | SPECKIT notes 014 merged | NICE_TO_HAVE | resolved |
+| D-10 | AGENTS.md | CS1501 `Contains` known issue | Removed from AGENTS | IMPORTANT | resolved |
+| D-11 | 06, ADR-0010 | Batch upload via `UnityWebRequest` | `HttpWebRequest` per ADR-0015 | NICE_TO_HAVE | open |
+| D-12 | 03 | No notification system | `DreadNotificationSystem` shipped | IMPORTANT | resolved (update 03-review) |
+| D-13 | 08, ADR-0013 | Max request 4096 bytes enforced | `MaxMessageBytes` not checked on read | IMPORTANT | open |
+| D-14 | 08 | MCP `dread_get_logs` text uses camelCase | Unity JSON PascalCase `Level`, `Message` | IMPORTANT | open |
+| D-15 | 08 | MCP `dread_get_patches` text schema | C# uses `prefixes` counts not `patchTypes` | IMPORTANT | open |
+| D-16 | 01 | `PlayerControllerCompat.GetStamina` used | Dead API; error capture uses `player.stamina` | NICE_TO_HAVE | open |
+| D-17 | 01 | `HarmonyPatchCompat.IsMasterClient` fail-closed | Fails open on reflection error | IMPORTANT | open |
+| D-18 | 04 | `harmony-and-patches.md` paths / Apply throws | Log-and-return; verify file paths | NICE_TO_HAVE | open |
+| D-19 | 05, ADR-0011 | Audio names shadow_scream / phantom_footsteps | Shipped `scream_*`, `footsteps.ogg` (CONTEXT historical table OK) | NICE_TO_HAVE | resolved |
+| D-20 | 02 | `Systems/UI/` exists | Not created; UI split across DebugOverlay, ErrorReporting prompt, PsychoticBreak overlay | NICE_TO_HAVE | open |
+| D-21 | 07 | Error JSON at root should move | `ErrorReportJson.cs`, `ErrorReportTypes.cs` still at `Systems/` root | NICE_TO_HAVE | open |
+| D-22 | 08 | `dist/index.js` committed | In `.gitignore`; build required (git status may show local dist) | STYLE | open |
+| D-23 | docs/adr | Single ADR number 0007 | Two files: `0007-audio-clip-loader`, `0007-ci-pipeline-optimization` | NICE_TO_HAVE | open |
+| D-24 | AUDIO-5 | Bundled `audio/` in Thunderstore zip | DLL-only + GitHub Release OGG | IMPORTANT | resolved |
+| D-25 | registry | Nine core systems in docs | Ten core (`AudioAssetSystem`) | IMPORTANT | resolved (#244) |
 
 ## Issues
 

@@ -20,7 +20,7 @@ Structured reviews of the Dread mod repository for agents and maintainers. Each 
 | 06 | [06-error-reporting-review.md](06-error-reporting-review.md) | Telemetry pipeline sound; sync HTTP on main thread; JSON/types at `Systems/` root. |
 | 07 | [07-systems-loose-files-review.md](07-systems-loose-files-review.md) | 17 root `Systems/*.cs` files; duplicate scans; governance doc + phased folder map. |
 | 08 | [08-dread-mcp-server-review.md](08-dread-mcp-server-review.md) | MCP bridge usable; protocol/presentation bugs; no TS tests; `MaxMessageBytes` not enforced. |
-| 09 | [09-documentation-review.md](09-documentation-review.md) | Docs hub strong; governance unlinked; CONTEXT/README/AGENTS stale; this index + drift register. |
+| 09 | [09-documentation-review.md](09-documentation-review.md) | Doc hub + AUDIO-5 aligned (2026-06-03); drift register; code/MCP items still open in 01-08. |
 
 ---
 
