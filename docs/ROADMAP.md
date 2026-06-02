@@ -85,15 +85,15 @@ Work top to bottom within each phase. Do not skip **Depends on** unless the issu
 | 7 | ERR-3 | P1 | [#173](https://github.com/grompen91-droid/dreadREPO/issues/173) | ERR-1 | done (#207) |
 | 8 | ERR-2 | P1 | [#172](https://github.com/grompen91-droid/dreadREPO/issues/172) | ERR-1, ERR-3 | done (#208) |
 
-### Phase 4: Player-facing UI and debug overlay polish (active)
+### Phase 4: Player-facing UI and debug overlay polish (FINISHED)
 
-| Order | ID | Priority | Issue | Depends on | Why |
-|-------|-----|----------|-------|------------|-----|
-| 9 | UI-1 | P2 | (to file) | ARCH-3 (soft) | Shared Dread UI kit (theme, modal, scroll body, buttons, cursor/input capture) as a reusable `MonoBehaviour` component so prompts, F10 overlay, and future panels do not each reimplement IMGUI layout |
-| 10 | DBG-5 | P2 | (to file) | PERF-2, UI-1 (soft) | Extensible panel API: register overlay sections/rows without editing `DebugOverlaySystem`; build on UI-1 primitives where possible |
-| 11 | DBG-3 | P2 | [#165](https://github.com/grompen91-droid/dreadREPO/issues/165) | PERF-2, UI-1 (soft) | Font/legibility (user feedback: labels look odd vs toggles) |
-| 12 | DBG-1 | P2 | [#163](https://github.com/grompen91-droid/dreadREPO/issues/163) | DBG-3 (soft) | Draggable panel after text renders reliably |
-| 13 | DBG-2 | P2 | [#164](https://github.com/grompen91-droid/dreadREPO/issues/164) | DBG-1, DBG-5 (soft) | Richer cfg once layout UX is settled |
+| Order | ID | Priority | Issue | Depends on | Status |
+|-------|-----|----------|-------|------------|--------|
+| 9 | UI-1 | P2 | (shipped) | ARCH-3 (soft) | done (PR #247) |
+| 10 | DBG-5 | P2 | (shipped) | PERF-2, UI-1 (soft) | done (PR #249) |
+| 11 | DBG-3 | P2 | [#165](https://github.com/grompen91-droid/dreadREPO/issues/165) | PERF-2, UI-1 (soft) | done (PR #248) |
+| 12 | DBG-1 | P2 | [#163](https://github.com/grompen91-droid/dreadREPO/issues/163) | DBG-3 (soft) | done (draggable + persist shipped) |
+| 13 | DBG-2 | P2 | [#164](https://github.com/grompen91-droid/dreadREPO/issues/164) | DBG-1, DBG-5 (soft) | done (PR #250) |
 
 ### Phase 5: Performance optimization (PAUSED)
 
@@ -101,11 +101,15 @@ Work top to bottom within each phase. Do not skip **Depends on** unless the issu
 |-------|-----|----------|-------|------------|-----|
 | 14 | PERF-1 | P2 | [#169](https://github.com/grompen91-droid/dreadREPO/issues/169) | ARCH-1, PERF-2 | Profile stable codebase; avoid optimizing files about to move |
 
+> **PERF-1 status:** intentionally not started. It is a measurement-driven pass (overlay, tension, audio, Harmony) that needs an in-game Unity profiler session; guessing at optimizations without a capture risks churn for no gain. PERF-2 (zero cost when the overlay is hidden) already shipped. Pick PERF-1 up with a real profile capture once Phase 7 structural moves (UI-2/UI-3 folder moves) settle.
+
 ### Phase 6: Upstream / cleanup
 
 | Order | ID | Priority | Issue | Depends on | Why |
 |-------|-----|----------|-------|------------|-----|
 | 15 | DBG-4 | P3 | [#166](https://github.com/grompen91-droid/dreadREPO/issues/166) | REPOConfig or MenuLib fix | Remove temporary slider compat; **blocked** on upstream |
+
+> **DBG-4 status:** blocked on upstream. `RepoConfigSliderLabelCompat` cannot be removed until REPOConfig/MenuLib emits slider descriptions (or matches the toggle layout) upstream. Removing it now regresses slider labels for everyone running REPOConfig, so the compat stays until the upstream fix lands. Nothing to implement here.
 
 ### Phase 7: Code quality (from `docs/reviews/` 01-09)
 
@@ -180,7 +184,7 @@ flowchart TD
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| UI-1 | P2 | **Unified Dread UI kit** | Component-driven in-game UI module shared across features: REPO-style theme (dark panel, accent typography), modal overlay with cursor unlock and gameplay input lock, scrollable body with correct `CalcHeight` line layout, and standard action buttons. First consumers: error-reporting first-run prompt and F10 debug overlay; later panels plug in without copy-pasting IMGUI math. Design as internal `MonoBehaviour` + small API surface first; optional registration hooks for other Dread systems when ARCH-3 patterns settle. | idea | (to file) |
+| UI-1 | P2 | **Unified Dread UI kit** | Shipped as `Systems/UI`: `DreadTheme` (Slate palette), `DreadGui` (shared `EmptyContent`, Proton-safe `SolidTexture`, `FlatBox`/`Label`/`Button` builders), `DreadInputCapture` (cursor + player input lock). Overlay, widgets, toasts, and error prompt migrated onto it. Theme/helpers/input-capture delivered; a full modal+scroll component can extend it later (UI-2/UI-3). | done | PR #247 |
 
 ---
 
@@ -188,11 +192,11 @@ flowchart TD
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| DBG-1 | P2 | **Refine debug panel UX** | Draggable panel, resize/snap, clearer layout | idea | [#163](https://github.com/grompen91-droid/dreadREPO/issues/163) |
-| DBG-2 | P2 | **Richer overlay configuration** | Forgiving defaults; cfg/REPOConfig layout | idea | [#164](https://github.com/grompen91-droid/dreadREPO/issues/164) |
-| DBG-3 | P2 | **Font fixes** | Proton/Linux font fallback and sizing | idea | [#165](https://github.com/grompen91-droid/dreadREPO/issues/165) |
+| DBG-1 | P2 | **Refine debug panel UX** | Draggable panel (header grab, screen-clamp, persisted X/Y) shipped; F9 interactive mouse mode. Resize/snap not pursued. | done | [#163](https://github.com/grompen91-droid/dreadREPO/issues/163) |
+| DBG-2 | P2 | **Richer overlay configuration** | Background opacity, persisted kit-demo toggle, forgiving on-screen position clamp on load. | done | PR #250 ([#164](https://github.com/grompen91-droid/dreadREPO/issues/164)) |
+| DBG-3 | P2 | **Font fixes** | `DreadFont` dynamic OS-font fallback chain (Proton/Linux); `TextRenderingModule` referenced in all builds. | done | PR #248 ([#165](https://github.com/grompen91-droid/dreadREPO/issues/165)) |
 | DBG-4 | P3 | **REPOConfig slider labels (upstream)** | Remove `RepoConfigSliderLabelCompat` after REPOConfig/MenuLib pass descriptions or match toggle layout. Optional Dread polish (left align) only if compat stays; pivot/alignment experiments reverted 2026-05-30 | blocked | [#166](https://github.com/grompen91-droid/dreadREPO/issues/166) |
-| DBG-5 | P2 | **Extensible overlay panel API** | Make it trivial for other features to add overlay content without editing `DebugOverlaySystem`: a data-driven section/row registry (e.g. `IOverlayPanel` / `RegisterSection`) supporting read-only rows and interactive controls (toggles/sliders) so settings and future systems plug in. Decouples row data from rendering. | idea | (to file) |
+| DBG-5 | P2 | **Extensible overlay panel API** | `DebugOverlayRegistry` + `IOverlaySection` / `IOverlayRowSink` (semantic `OverlayStatus`); features add foldable, persisted sections without editing `DebugOverlaySystem`. Interactive controls (toggles/sliders) can extend the sink later. | done | PR #249 |
 
 See also: `docs/repo-config-slider-labels-investigation.md`.
 
