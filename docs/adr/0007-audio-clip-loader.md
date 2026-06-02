@@ -50,9 +50,9 @@ public static IEnumerator LoadClip(string fileName, Action<AudioClip?> onLoaded)
 
 ---
 
-## Agent note (2026-06)
+## Agent note (2026-06, AUDIO-5)
 
-`AudioClipLoader.LoadClip` / `LoadClips` remain the supported API for bundled `audio/*.ogg` on `master`. Do not resurrect removed `EnemyScanCache` or per-system duplicate loaders. Snitch and ambient systems load through this helper. For adding clips, see [docs/agents/guides/audio-dread-and-loading.md](../agents/guides/audio-dread-and-loading.md).
+Gameplay features load clips through **`AudioAssetApi.RequestClip`** after `AudioAssetSystem` fills `audio-cache/` (ADR-0017). **`AudioClipLoader`** is **decode-only** (`TryDecodeFromDisk`); do not call removed bundled `LoadClip` from feature code (Tier 0 verify enforces this). For adding sounds, see [remote-assets.md](../agents/guides/remote-assets.md) and [audio-dread-and-loading.md](../agents/guides/audio-dread-and-loading.md).
 
 ---
 

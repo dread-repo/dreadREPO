@@ -12,6 +12,7 @@ Current-state reference for working in the Dread codebase. These replace the old
 |-------|--------|
 | [mod-architecture.md](mod-architecture.md) | Plugin boot, system hosts, netcode, adding systems |
 | [reflection-inventory.md](reflection-inventory.md) | ARCH-2: reflection sites, stub/full, hot paths |
+| [remote-assets.md](remote-assets.md) | Audio cache, GitHub Release, manifest, `AudioAssetApi` (ADR-0017) |
 | [audio-dread-and-loading.md](audio-dread-and-loading.md) | Ambient audio, OGG loading, NVorbis, weights |
 | [monster-overhaul.md](monster-overhaul.md) | Monster audio loop, aggression patches |
 | [camp-lure-and-snitch.md](camp-lure-and-snitch.md) | Camp lure, snitch, gameplay phase gate (links `specs/006`) |
@@ -37,7 +38,7 @@ Current-state reference for working in the Dread codebase. These replace the old
 | Camp lure / snitch / run phase gate | [camp-lure-and-snitch.md](camp-lure-and-snitch.md) |
 | Corner toasts / HUD widgets | [ui-notifications.md](ui-notifications.md) |
 | Patch game methods | [harmony-and-patches.md](harmony-and-patches.md) |
-| Add sounds | [audio-dread-and-loading.md](audio-dread-and-loading.md) |
+| Add sounds / remote audio | [remote-assets.md](remote-assets.md) + [audio-dread-and-loading.md](audio-dread-and-loading.md) |
 | Psychotic break behavior | [psychotic-break.md](psychotic-break.md) |
 | Crashes / GitHub auto-issues | [error-reporting.md](error-reporting.md) |
 | Agent verify / MCP | [debug-tooling.md](debug-tooling.md) + [verify-dread.md](../verify-dread.md) |

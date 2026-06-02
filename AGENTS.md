@@ -141,7 +141,7 @@ Debug builds must ship **local OGG** next to the plugin (or in a Debug `build.ps
 Backlog: [docs/ROADMAP.md](docs/ROADMAP.md). Prefer issues labeled `ready-for-agent`.
 
 <!-- SPECKIT START -->
-**Active plan:** [specs/014-remote-audio-assets/plan.md](specs/014-remote-audio-assets/plan.md) on branch **`014-remote-audio-assets`**. Quickstart: [specs/014-remote-audio-assets/quickstart.md](specs/014-remote-audio-assets/quickstart.md).
+**No active Spec Kit plan on `master`.** `014-remote-audio-assets` is merged (see [specs/014-remote-audio-assets/plan.md](specs/014-remote-audio-assets/plan.md), [quickstart.md](specs/014-remote-audio-assets/quickstart.md)). Repoint [`.specify/feature.json`](.specify/feature.json) when starting the next feature.
 <!-- SPECKIT END -->
 
 ---

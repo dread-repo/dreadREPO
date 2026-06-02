@@ -1,13 +1,15 @@
 # ADR-0006: Load Audio via UnityWebRequestMultimedia
 
 **Date:** 2026-05-21
-**Status:** Accepted
+**Status:** Superseded for gameplay audio (2026-06, AUDIO-5)
+
+> **Superseded by:** [ADR-0017: Remote audio asset delivery](0017-remote-audio-asset-delivery.md). Production loads OGG from `audio-cache/` after GitHub Release download; `AudioClipLoader` decodes from disk. UWR loading from a DLL-adjacent `audio/` folder applied only to the pre-AUDIO-5 bundled layout. Keep this ADR for historical context on why UWR was chosen over `Resources.Load()`.
 
 ---
 
 ## Context
 
-Dread ships 5 OGG audio files in a `audio/` folder next to the DLL. The mod needs to load these at runtime and play them as 3D spatialized clips. Several loading strategies were available.
+Dread shipped 5 OGG audio files in a `audio/` folder next to the DLL (pre-AUDIO-5). The mod needs to load these at runtime and play them as 3D spatialized clips. Several loading strategies were available.
 
 ---
 

@@ -23,7 +23,7 @@ Do not implement in AUDIO-5. When added, reuse: manifest schema version, version
 
 | Task | Action |
 |------|--------|
-| Add sound | Place OGG under `audio/{category}/`, update `audio-manifest.json`, run `validate-audio-manifest.ps1` |
-| Release | CD `upload-audio-release-assets.ps1` runs on GitHub Release |
+| Add sound | Place OGG under `audio/{category}/`, update `audio/audio-manifest.json`, run `pwsh -NoProfile .github/scripts/validate-audio-manifest.ps1` |
+| Release | CD runs `.github/scripts/upload-audio-release-assets.ps1` on GitHub Release (assets named `category__file.ogg`) |
 | Local test without network | Seed `audio-cache/v{VERSION}/` mirroring manifest paths (see smoke-test workflow) |
 | Debug offline audio | `dotnet build -c Debug` with `DeployToProfile`: copies `audio/**` beside plugin; `#if DREAD_DEBUG` imports into cache |
