@@ -325,6 +325,15 @@ namespace UnityEngine
         }
     }
 
+    // Dynamic font. Real Unity puts Font in UnityEngine.TextRenderingModule; the
+    // stub keeps it here so CI compile resolves it (the shipped DLL is built
+    // against the real game assemblies and binds Font to TextRenderingModule).
+    public class Font
+    {
+        public static Font CreateDynamicFontFromOSFont(string[] fontNames, int size) => new Font();
+        public static Font CreateDynamicFontFromOSFont(string fontName, int size) => new Font();
+    }
+
     // IMGUI types (GUI, GUIStyle, GUIContent, GUISkin, GUIStyleState) moved to
     // UnityEngine.IMGUIModule_stubs.cs to mirror real Unity, where they live in
     // UnityEngine.IMGUIModule.dll. Keep them out of this assembly.
