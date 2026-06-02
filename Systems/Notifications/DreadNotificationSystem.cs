@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dread.Systems.UI;
 using UnityEngine;
 
 namespace Dread.Systems
@@ -52,7 +53,6 @@ namespace Dread.Systems
         private static readonly Color ColRailWarn = new(0.847f, 0.706f, 0.353f); // amber
         private static readonly Color ColRailBad = new(0.788f, 0.376f, 0.353f);  // muted red
 
-        private static readonly GUIContent EmptyContent = new();
         private static readonly GUIContent ScratchContent = new();
 
         private Texture2D? _panelTex;
@@ -144,11 +144,11 @@ namespace Dread.Systems
                 y -= height;
                 var box = new Rect(x, y, ToastWidth, height);
 
-                GUI.Box(box, EmptyContent, _panelStyle!);
+                GUI.Box(box, DreadGui.EmptyContent, _panelStyle!);
 
                 // Severity is carried entirely by the rail color (no icons).
                 _railStyle!.normal.background = RailTex(t.Kind);
-                GUI.Box(new Rect(box.x, box.y, RailWidth, height), EmptyContent, _railStyle);
+                GUI.Box(new Rect(box.x, box.y, RailWidth, height), DreadGui.EmptyContent, _railStyle);
 
                 float tx = box.x + RailWidth + PadX;
                 float ty = box.y + PadY;
@@ -162,7 +162,7 @@ namespace Dread.Systems
                 _railStyle.normal.background = _railInfoTex;
                 GUI.Box(
                     new Rect(box.x + RailWidth, box.y + height - 1f, (box.width - RailWidth) * life, 1f),
-                    EmptyContent, _railStyle);
+                    DreadGui.EmptyContent, _railStyle);
 
                 y -= Gap;
             }
@@ -200,33 +200,19 @@ namespace Dread.Systems
             if (_panelStyle != null)
                 return;
 
-            _panelTex = MakeTexture(ColPanel);
-            _railInfoTex = MakeTexture(ColRailInfo);
-            _railWarnTex = MakeTexture(ColRailWarn);
-            _railBadTex = MakeTexture(ColRailBad);
+            _panelTex = DreadGui.SolidTexture(ColPanel);
+            _railInfoTex = DreadGui.SolidTexture(ColRailInfo);
+            _railWarnTex = DreadGui.SolidTexture(ColRailWarn);
+            _railBadTex = DreadGui.SolidTexture(ColRailBad);
 
-            // Zero the inherited 9-slice border so the 1px life bar stays a flat
-            // line as it shrinks toward zero width instead of bloating into a
-            // square (see DebugOverlayStyles for the full rationale).
-            _panelStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
-            _panelStyle.normal.background = _panelTex;
+            // FlatBox zeroes the inherited 9-slice border so the 1px life bar stays
+            // a flat line as it shrinks toward zero width instead of bloating into a
+            // square. See DreadGui.FlatBox for the full rationale.
+            _panelStyle = DreadGui.FlatBox(_panelTex);
+            _railStyle = DreadGui.FlatBox(_railInfoTex);
 
-            _railStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
-            _railStyle.normal.background = _railInfoTex;
-
-            _titleStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = false };
-            _titleStyle.normal.textColor = ColTitle;
-
-            _messageStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = true };
-            _messageStyle.normal.textColor = ColMessage;
-        }
-
-        private static Texture2D MakeTexture(Color color)
-        {
-            var tex = new Texture2D(1, 1);
-            tex.SetPixel(0, 0, color);
-            tex.Apply();
-            return tex;
+            _titleStyle = DreadGui.Label(12, ColTitle, TextAnchor.UpperLeft);
+            _messageStyle = DreadGui.Label(12, ColMessage, TextAnchor.UpperLeft, wordWrap: true);
         }
 
         private struct Pending

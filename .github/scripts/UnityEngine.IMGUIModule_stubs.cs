@@ -29,6 +29,7 @@ namespace UnityEngine
         public TextAnchor alignment { get; set; }
         public float fixedWidth { get; set; }
         public float fixedHeight { get; set; }
+        public RectOffset border { get; set; } = new RectOffset();
         public GUIStyle() { }
         public GUIStyle(GUIStyle other) { }
 

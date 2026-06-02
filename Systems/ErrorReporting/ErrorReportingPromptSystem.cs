@@ -1,6 +1,7 @@
 using System;
 using Dread.Config;
 using Dread.Systems.Core;
+using Dread.Systems.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -43,12 +44,10 @@ namespace Dread.Systems
         private static readonly Color ColButtonPrimary = new(0.28f, 0.16f, 0.12f, 1f);
         private static readonly Color ColButtonPrimaryHover = new(0.38f, 0.22f, 0.16f, 1f);
 
+        private readonly DreadInputCapture _capture = new();
+
         private PromptState _state = PromptState.Pending;
         private Vector2 _scrollPosition;
-        private bool _cursorCaptured;
-        private CursorLockMode _savedLockState;
-        private bool _savedCursorVisible;
-        private bool _inputLocked;
         private bool _layoutReady;
         private float _windowHeight = MinWindowHeight;
         private float _summaryHeight;
@@ -148,13 +147,10 @@ namespace Dread.Systems
             if (_state != PromptState.Visible)
                 return;
 
-            MaintainCursorForPrompt();
-
-            if (!_inputLocked)
-            {
-                LockLocalPlayerInput();
-                _inputLocked = true;
-            }
+            if (!_capture.Active)
+                _capture.Capture();
+            else
+                _capture.Maintain();
         }
 
         private void OnGUI()
@@ -266,111 +262,36 @@ namespace Dread.Systems
             _layoutReady = true;
         }
 
-        private void MaintainCursorForPrompt()
-        {
-            if (!_cursorCaptured)
-            {
-                _savedLockState = Cursor.lockState;
-                _savedCursorVisible = Cursor.visible;
-                _cursorCaptured = true;
-            }
+        private void MaintainCursorForPrompt() => _capture.Maintain();
 
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-
-        private void ReleasePromptCapture()
-        {
-            if (_cursorCaptured)
-            {
-                Cursor.lockState = _savedLockState;
-                Cursor.visible = _savedCursorVisible;
-                _cursorCaptured = false;
-            }
-
-            if (_inputLocked)
-            {
-                UnlockLocalPlayerInput();
-                _inputLocked = false;
-            }
-        }
-
-        private static void LockLocalPlayerInput()
-        {
-            var pc = PlayerController.instance;
-            if ((object)pc == null)
-                return;
-
-            PlayerInputLockCompat.SetLocked(pc, locked: true);
-        }
-
-        private static void UnlockLocalPlayerInput()
-        {
-            var pc = PlayerController.instance;
-            if ((object)pc == null)
-                return;
-
-            PlayerInputLockCompat.SetLocked(pc, locked: false);
-        }
+        private void ReleasePromptCapture() => _capture.Release();
 
         private void EnsureStyles()
         {
             if (_panelStyle != null)
                 return;
 
-            _overlayTex = MakeTexture(ColOverlay);
-            _panelTex = MakeTexture(ColPanel);
-            _buttonTex = MakeTexture(ColButton);
-            _buttonHoverTex = MakeTexture(ColButtonHover);
-            _buttonPrimaryTex = MakeTexture(ColButtonPrimary);
-            _buttonPrimaryHoverTex = MakeTexture(ColButtonPrimaryHover);
+            _overlayTex = DreadGui.SolidTexture(ColOverlay);
+            _panelTex = DreadGui.SolidTexture(ColPanel);
+            _buttonTex = DreadGui.SolidTexture(ColButton);
+            _buttonHoverTex = DreadGui.SolidTexture(ColButtonHover);
+            _buttonPrimaryTex = DreadGui.SolidTexture(ColButtonPrimary);
+            _buttonPrimaryHoverTex = DreadGui.SolidTexture(ColButtonPrimaryHover);
 
-            _overlayStyle = new GUIStyle(GUI.skin.box);
-            _overlayStyle.normal.background = _overlayTex;
+            _overlayStyle = DreadGui.FlatBox(_overlayTex);
+            _panelStyle = DreadGui.FlatBox(_panelTex);
 
-            _panelStyle = new GUIStyle(GUI.skin.box);
-            _panelStyle.normal.background = _panelTex;
+            // UpperLeft preserves the original GUI.skin.label default so the wrapped
+            // brand/body blocks keep top-anchored within their measured rects.
+            _brandStyle = DreadGui.Label(22, ColAccent, TextAnchor.UpperLeft);
+            _subtitleStyle = DreadGui.Label(12, ColDim, TextAnchor.UpperLeft, wordWrap: true);
+            _askStyle = DreadGui.Label(12, ColBody, TextAnchor.UpperLeft, wordWrap: true);
+            _sectionStyle = DreadGui.Label(15, ColAccent, TextAnchor.UpperLeft);
+            _bodyStyle = DreadGui.Label(13, ColBody, TextAnchor.UpperLeft, wordWrap: true);
+            _hintStyle = DreadGui.Label(11, ColDim, TextAnchor.UpperLeft, wordWrap: true);
 
-            _brandStyle = new GUIStyle(GUI.skin.label) { fontSize = 22, wordWrap = false };
-            _brandStyle.normal.textColor = ColAccent;
-
-            _subtitleStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = true };
-            _subtitleStyle.normal.textColor = ColDim;
-
-            _askStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = true };
-            _askStyle.normal.textColor = ColBody;
-
-            _sectionStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, wordWrap = false };
-            _sectionStyle.normal.textColor = ColAccent;
-
-            _bodyStyle = new GUIStyle(GUI.skin.label) { fontSize = 13, wordWrap = true };
-            _bodyStyle.normal.textColor = ColBody;
-
-            _hintStyle = new GUIStyle(GUI.skin.label) { fontSize = 11, wordWrap = true };
-            _hintStyle.normal.textColor = ColDim;
-
-            _buttonStyle = BuildButtonStyle(_buttonTex!, _buttonHoverTex!, ColBody);
-            _buttonPrimaryStyle = BuildButtonStyle(_buttonPrimaryTex!, _buttonPrimaryHoverTex!, ColAccent);
-        }
-
-        private static GUIStyle BuildButtonStyle(Texture2D normal, Texture2D hover, Color textColor)
-        {
-            var style = new GUIStyle(GUI.skin.button) { fontSize = 13 };
-            style.normal.background = normal;
-            style.hover.background = hover;
-            style.active.background = hover;
-            style.normal.textColor = textColor;
-            style.hover.textColor = textColor;
-            style.active.textColor = textColor;
-            return style;
-        }
-
-        private static Texture2D MakeTexture(Color color)
-        {
-            var tex = new Texture2D(1, 1);
-            tex.SetPixel(0, 0, color);
-            tex.Apply();
-            return tex;
+            _buttonStyle = DreadGui.Button(13, _buttonTex!, _buttonHoverTex!, ColBody);
+            _buttonPrimaryStyle = DreadGui.Button(13, _buttonPrimaryTex!, _buttonPrimaryHoverTex!, ColAccent);
         }
 
         private void OnPromptChoice(bool keepReporting)

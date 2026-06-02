@@ -11,11 +11,6 @@ namespace Dread.Systems.UI
     /// </summary>
     public static class DreadWidgets
     {
-        private static readonly Color ColTrack = new(0.20f, 0.21f, 0.24f, 0.85f);
-        private static readonly Color ColSteel = new(0.74f, 0.75f, 0.77f);
-
-        private static readonly GUIContent EmptyContent = new();
-
         private const float TrackH = 4f;
         private const float ThumbSize = 11f;
 
@@ -31,16 +26,16 @@ namespace Dread.Systems.UI
         {
             Ensure();
             float p = Mathf.Clamp01(progress);
-            GUI.Box(rect, EmptyContent, _trackStyle!);
+            GUI.Box(rect, DreadGui.EmptyContent, _trackStyle!);
             if (p > 0f)
-                GUI.Box(new Rect(rect.x, rect.y, rect.width * p, rect.height), EmptyContent, _fillStyle!);
+                GUI.Box(new Rect(rect.x, rect.y, rect.width * p, rect.height), DreadGui.EmptyContent, _fillStyle!);
         }
 
         /// <summary>Indeterminate marquee: a steel chunk sweeping left to right.</summary>
         public static void LoadingMarquee(Rect rect)
         {
             Ensure();
-            GUI.Box(rect, EmptyContent, _trackStyle!);
+            GUI.Box(rect, DreadGui.EmptyContent, _trackStyle!);
 
             float chunk = rect.width * 0.32f;
             float span = rect.width + chunk;
@@ -52,7 +47,7 @@ namespace Dread.Systems.UI
             float right = Mathf.Min(left + chunk, rect.x + rect.width);
             float w = right - clampedLeft;
             if (w > 0f)
-                GUI.Box(new Rect(clampedLeft, rect.y, w, rect.height), EmptyContent, _fillStyle!);
+                GUI.Box(new Rect(clampedLeft, rect.y, w, rect.height), DreadGui.EmptyContent, _fillStyle!);
         }
 
         /// <summary>
@@ -68,12 +63,12 @@ namespace Dread.Systems.UI
             float mid = rect.y + rect.height * 0.5f;
 
             var track = new Rect(rect.x, mid - TrackH * 0.5f, rect.width, TrackH);
-            GUI.Box(track, EmptyContent, _trackStyle!);
+            GUI.Box(track, DreadGui.EmptyContent, _trackStyle!);
             if (t > 0f)
-                GUI.Box(new Rect(track.x, track.y, track.width * t, TrackH), EmptyContent, _fillStyle!);
+                GUI.Box(new Rect(track.x, track.y, track.width * t, TrackH), DreadGui.EmptyContent, _fillStyle!);
 
             float tx = rect.x + (rect.width - ThumbSize) * t;
-            GUI.Box(new Rect(tx, mid - ThumbSize * 0.5f, ThumbSize, ThumbSize), EmptyContent, _fillStyle!);
+            GUI.Box(new Rect(tx, mid - ThumbSize * 0.5f, ThumbSize, ThumbSize), DreadGui.EmptyContent, _fillStyle!);
 
             // Invisible native slider on top owns the drag; our boxes are the visuals.
             return GUI.HorizontalSlider(rect, value, min, max, _ghostStyle!, _ghostThumb!);
@@ -84,30 +79,19 @@ namespace Dread.Systems.UI
             if (_trackStyle != null)
                 return;
 
-            _trackTex = MakeTexture(ColTrack);
-            _steelTex = MakeTexture(ColSteel);
+            _trackTex = DreadGui.SolidTexture(DreadTheme.Track);
+            _steelTex = DreadGui.SolidTexture(DreadTheme.Rail);
 
-            // Zero the inherited 9-slice border: the fill shrinks to a sliver at
-            // low values, and GUI.skin.box's ~6px border would bloat that sliver
-            // into a square (see DebugOverlayStyles for the full rationale).
-            _trackStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
-            _trackStyle.normal.background = _trackTex;
-
-            _fillStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
-            _fillStyle.normal.background = _steelTex;
+            // FlatBox zeroes the inherited 9-slice border: the fill shrinks to a
+            // sliver at low values, and GUI.skin.box's ~6px border would bloat that
+            // sliver into a square. See DreadGui.FlatBox for the full rationale.
+            _trackStyle = DreadGui.FlatBox(_trackTex);
+            _fillStyle = DreadGui.FlatBox(_steelTex);
 
             // Transparent styles: the native slider stays invisible (no background)
             // while still handling clicks and drags over the full rect.
             _ghostStyle = new GUIStyle();
             _ghostThumb = new GUIStyle { fixedWidth = ThumbSize };
-        }
-
-        private static Texture2D MakeTexture(Color color)
-        {
-            var tex = new Texture2D(1, 1);
-            tex.SetPixel(0, 0, color);
-            tex.Apply();
-            return tex;
         }
     }
 }
