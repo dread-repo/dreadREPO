@@ -66,6 +66,7 @@ namespace Dread.Systems.UI
                 wordWrap = wordWrap,
             };
             style.normal.textColor = color;
+            DreadFont.Apply(style);
             return style;
         }
 
@@ -82,6 +83,7 @@ namespace Dread.Systems.UI
             style.normal.textColor = text;
             style.hover.textColor = text;
             style.active.textColor = text;
+            DreadFont.Apply(style);
             return style;
         }
     }

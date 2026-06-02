@@ -155,6 +155,9 @@ $emptyAssemblies = @(
     'UnityEngine.ImageConversionModule',
 
     'UnityEngine.AIModule',
+    # Font/TextAnchor are defined in the UnityEngine stub for CI compile, so this
+    # assembly only needs to exist to satisfy the project reference.
+    'UnityEngine.TextRenderingModule',
     'PhotonUnityNetworking',
     'Photon3Unity3D'
 )

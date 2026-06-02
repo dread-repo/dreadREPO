@@ -89,6 +89,12 @@
       <HintPath>$(GameDir)\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- TextAnchor + Font live here. Referenced in every build because the shared
+         UI kit (DreadGui labels, DreadFont) uses them in non-debug code. -->
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(GameDir)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
 
     <!-- Game assembly -->
     <Reference Include="Assembly-CSharp">
@@ -106,15 +112,10 @@
   </ItemGroup>
 
   <!-- Debug-only Unity modules. Referenced solely by the debug-gated files:
-       TextRenderingModule (TextAnchor in the overlay styles), InputLegacyModule
-       (Input for interactive F9 mode), and JSONSerializeModule (JsonUtility in
-       the TCP debug server). Excluded from production so the shipped DLL keeps
-       its minimal surface, matching the debug-strip Compile Remove above. -->
+       InputLegacyModule (Input for interactive F9 mode) and JSONSerializeModule
+       (JsonUtility in the TCP debug server). Excluded from production so the
+       shipped DLL keeps its minimal surface, matching the debug-strip above. -->
   <ItemGroup Condition="'$(DreadDebug)' == 'true'">
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>$(GameDir)\UnityEngine.TextRenderingModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>$(GameDir)\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>false</Private>

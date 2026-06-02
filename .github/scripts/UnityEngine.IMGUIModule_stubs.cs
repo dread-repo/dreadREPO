@@ -30,6 +30,7 @@ namespace UnityEngine
         public float fixedWidth { get; set; }
         public float fixedHeight { get; set; }
         public RectOffset border { get; set; } = new RectOffset();
+        public Font? font { get; set; }
         public GUIStyle() { }
         public GUIStyle(GUIStyle other) { }
 
@@ -48,6 +49,7 @@ namespace UnityEngine
 
     public class GUISkin
     {
+        public Font? font { get; set; }
         public GUIStyle box { get; } = new GUIStyle();
         public GUIStyle label { get; } = new GUIStyle();
         public GUIStyle button { get; } = new GUIStyle();
