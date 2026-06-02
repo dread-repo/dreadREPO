@@ -21,6 +21,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - CD: per-file audio upload to GitHub Releases (`upload-audio-release-assets.ps1`); Thunderstore zip no longer includes OGG files
 
 ### Changed
+- **Docs:** `docs/ROADMAP.md` backlog from codebase quality reviews 01-09 (Phase 7 execution order; CI-1, CORE-*, MCP-*, ARCH-1b, PATCH-*, PB-*, ERR-5-10, UI-2-5, NOTIF-2); mark AUDIO-5, DOCS-2, NOTIF-0, ERR-2b shipped
 - **Docs:** follow-up: clear `.specify/feature.json` pin; refresh `.specify/README.md`; ADR-0006 superseded by 0017; reconcile `docs/reviews/09-documentation-review.md` freshness; `domain.md` ARCH-1 map
 - **Docs:** post-014 pass: ten core registry systems (`AudioAssetSystem`), remote audio install notes (README, THUNDERSTORE), project tree, extension-registry, ADR-0016/0007 agent notes; SPECKIT block notes 014 merged on `master`
 - Audio reorganized under `audio/{ambient_dread,tension,psychotic_break,shared,monster}/` with release asset names `category__file.ogg`

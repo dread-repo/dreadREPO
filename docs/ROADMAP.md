@@ -2,6 +2,8 @@
 
 Planned work tracked as GitHub issues. See `docs/agents/issue-tracker.md` for CLI conventions.
 
+**Codebase quality reviews:** Section audits live under [`docs/reviews/`](reviews/README.md) (01-09; **exclude** `*-brainstorm.md` for backlog). Consolidated doc drift: [09-documentation-review.md](reviews/09-documentation-review.md#drift-register). New IDs below cite review numbers (e.g. `review 08`).
+
 **Status key:** `idea` = not started, `in-progress` = active branch, `blocked` = needs upstream or design decision, `done` = shipped (close issue + update CHANGELOG).
 
 **Priority key:**
@@ -33,6 +35,19 @@ Work top to bottom within each phase. Do not skip **Depends on** unless the issu
 | ERR-2 | **Default-on + first-run prompt** | PR [#208](https://github.com/grompen91-droid/dreadREPO/pull/208) |
 | DEV-1 | **Repo hygiene** | GPL-3.0 `LICENSE`, `SECURITY.md`, Dependabot, CodeQL on stubs. PR [#194](https://github.com/grompen91-droid/dreadREPO/pull/194) |
 | DEV-2 | **Toolchain deps** | Vitest 4 + `cloudflareTest()` (#200); Zod 4 + TS 6 MCP (#195, #198); GitHub Actions v6/v7 (#196). Dependabot #197/#199 closed (Vitest 4 required config migration) |
+| AUDIO-5 | **Remote audio (GitHub Release + cache)** | `AudioAssetSystem`, `AudioAssetApi`, DLL-only Thunderstore; ADR-0017 | PR [#237](https://github.com/grompen91-droid/dreadREPO/pull/237) |
+| DOCS-2 | **Agent structure governance + review index** | `systems-folder-governance.md`, `docs/reviews/README.md`, hub links | PR [#242](https://github.com/grompen91-droid/dreadREPO/pull/242) |
+| NOTIF-0 | **Corner toasts (`DreadNotificationSystem`)** | Slate HUD S2; thread-safe `Info`/`Warn`/`Bad`; see [ui-notifications.md](agents/guides/ui-notifications.md) | CHANGELOG `[Unreleased]` |
+| ERR-2b | **Error payload enemy/player compat** | `EnemyHealthCompat` + `ProximityScan` in capture (no `get_CurrentHealth`) | CHANGELOG `[Unreleased]` fix |
+
+### 2026-06 merge log (reference)
+
+| PR | Summary |
+|----|---------|
+| [#237](https://github.com/grompen91-droid/dreadREPO/pull/237) | AUDIO-5 remote audio assets |
+| [#242](https://github.com/grompen91-droid/dreadREPO/pull/242) | Codebase quality reviews 01-09 + `systems-folder-governance.md` |
+| [#235](https://github.com/grompen91-droid/dreadREPO/pull/235) | Agent documentation sync (registry counts, CONTRIBUTING verify) |
+| [#244](https://github.com/grompen91-droid/dreadREPO/pull/244) | Post-014 doc pass (ten systems, `audio-cache` install notes) |
 
 ### 2026-05-29 merge log (reference)
 
@@ -91,6 +106,37 @@ Work top to bottom within each phase. Do not skip **Depends on** unless the issu
 | Order | ID | Priority | Issue | Depends on | Why |
 |-------|-----|----------|-------|------------|-----|
 | 15 | DBG-4 | P3 | [#166](https://github.com/grompen91-droid/dreadREPO/issues/166) | REPOConfig or MenuLib fix | Remove temporary slider compat; **blocked** on upstream |
+
+### Phase 7: Code quality (from `docs/reviews/` 01-09)
+
+Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + roadmap ID.
+
+| Order | ID | Priority | Review | Depends on | Why |
+|-------|-----|----------|--------|------------|-----|
+| 16 | CI-1 | **P0** | 01, 03, 04, 05, 06, 07 | None | `ci.yml` analyze greps only `Systems/*.cs`; nested paths skip lint gates |
+| 17 | MCP-1 | **P0** | 08 | CI-1 (soft) | MCP `dread_get_logs` / `dread_get_patches` text formatters wrong vs Unity JSON |
+| 18 | MCP-2 | P1 | 08 | None | Enforce `MaxMessageBytes` on TCP read (ADR-0013) |
+| 19 | CORE-2 | P1 | 01, 04 | None | `HarmonyPatchCompat.IsMasterClient()` fails open on reflection errors |
+| 20 | CORE-1 | P1 | 01, 05 | None | `PlayerTumbleCompat` forced tumble is global, not per-player |
+| 21 | ARCH-1b | P1 | 07, 09 | ARCH-1 | Finish folder map: move root loose files per [systems-folder-governance.md](agents/systems-folder-governance.md) |
+| 22 | ERR-8 | P1 | 06, 07 | ARCH-1b (soft) | Move `ErrorReportJson.cs` + `ErrorReportTypes.cs` under `ErrorReporting/` |
+| 23 | PATCH-1 | P1 | 04 | None | `Plugin.OnDestroy` (or unload) calls Harmony `Remove` on all patch classes |
+| 24 | PB-1 | P1 | 05 | CORE-1 (soft) | Psychotic break `OnDestroy`/scene: restore control, stop stumble coroutine |
+| 25 | MCP-3 | P1 | 08 | MCP-1 | Vitest suite for `dread-mcp-server`; optional hook in `verify-dread.ps1` |
+| 26 | ERR-4 | P2 | 06 | ERR-1 | Non-blocking batch flush (already on ROADMAP; review 06 confirms main-thread hitch) |
+| 27 | ERR-5 | P2 | 06 | None | `PendingLogs` backpressure when queue full |
+| 28 | CORE-3 | P2 | 01, 06 | None | Error capture player stats via `PlayerControllerCompat` |
+| 29 | UI-2 | P2 | 02 | UI-1 (soft) | `DreadImGuiTheme` + migrate overlay/prompt styles (UI-1 foundation) |
+| 30 | UI-3 | P2 | 02 | UI-2 (soft) | Move `OverlayTextureUtil` + prompt to `Systems/UI/`; `DebugServer` to `Systems/Debug/` |
+| 31 | PATCH-2 | P2 | 04 | PATCH-1 (soft) | Foreign-patch skip parity on player/debug patches |
+| 32 | PB-2 | P2 | 05 | None | Refresh ADR-0011 + `psychotic-break.md` vs shipped audio/trigger names |
+| 33 | MCP-4 | P2 | 08 | None | CI: `npm ci && npm run build` for `dread-mcp-server` on relevant PRs |
+| 34 | DEV-3 | P2 | 08 | MCP-3 (soft) | Same as MCP-4 if folded into one issue |
+| 35 | NOTIF-2 | P2 | 03 | UI-3 (soft) | Separate telemetry consent from toast host; optional `SystemOrderGroup.Ui` (toasts **shipped** as NOTIF-0) |
+| 36 | DBG-6 | P2 | 02 | PERF-2 | Gate overlay FPS sampling when F10 hidden |
+| 37 | DOCS-3 | P3 | 09 | None | Renumber duplicate ADR `0007-*` filenames or add disambiguation index |
+| 38 | ERR-6 | P3 | 06 | None | Prune `RecentHashes` in error reporter |
+| 39 | ERR-7 | P3 | 06 | ERR-4 (soft) | Narrow Worker batch requeue on partial success |
 
 ```mermaid
 flowchart TD
@@ -156,7 +202,8 @@ See also: `docs/repo-config-slider-labels-investigation.md`.
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| ARCH-1 | P0 | **Refactor into manageable files** | Split large systems; thin `Plugin` / `DreadSystemInitializer` | done | [#167](https://github.com/grompen91-droid/dreadREPO/issues/167) |
+| ARCH-1 | P0 | **Refactor into manageable files** | Phase 1 split (`Patches/`, `PsychoticBreak/`, etc.); **follow-up:** ARCH-1b per review 07 | done | [#167](https://github.com/grompen91-droid/dreadREPO/issues/167) |
+| ARCH-1b | P1 | **Complete `Systems/` folder map** | Move remaining root loose files per [systems-folder-governance.md](agents/systems-folder-governance.md); update `domain.md` | idea | (to file; review 07) |
 | ARCH-4 | P3 | **External mod API + feature modules** | Optional cfg feature packs; documented BepInEx soft-dependency API; semver + ADR; after ARCH-3 | idea | (to file) |
 | ARCH-2 | P1 | **Reduce DLL / reflection surface** | Compile-time refs; document stub vs full build | done | [#168](https://github.com/grompen91-droid/dreadREPO/issues/168) |
 | ARCH-3 | P0 | **Extensibility + hardened core** | Extension points, fail-safe init, compat patterns | done | [#175](https://github.com/grompen91-droid/dreadREPO/issues/175) (`specs/002-arch-3-extensible-core/`) |
@@ -178,11 +225,17 @@ See also: `docs/repo-config-slider-labels-investigation.md`.
 |----|----------|------|-------|--------|-------|
 | ERR-1 | P0 | **Test error reporting end-to-end** | TestCrash, MCP, real exceptions (ADR-0010, ADR-0012, ADR-0015); checklist in `docs/agents/error-reporting-test-checklist.md` | done | [#171](https://github.com/grompen91-droid/dreadREPO/issues/171) |
 | ERR-2 | P1 | **Default on + first-run prompt** | Default `ErrorReportingEnabled` true; `ErrorReportingPromptSystem` + consent gate | done | [#172](https://github.com/grompen91-droid/dreadREPO/issues/172) (PR #208) |
-| ERR-2b | P1 | **Core error capture fix** | `Systems/Core/` + `EnemyHealthCompat` for report payloads (no `get_CurrentHealth`) | in review | PR #213 (`004-err-2-default-on-prompt`) |
+| ERR-2b | P1 | **Core error capture fix** | `EnemyHealthCompat` + `ProximityScan` in payloads (no direct `CurrentHealth`) | done | CHANGELOG `[Unreleased]`; was PR #213 |
+| ERR-5 | P2 | **Log queue backpressure** | Warn or ring-buffer when `PendingLogs` full | idea | (to file; review 06) |
+| ERR-6 | P2 | **Prune `RecentHashes`** | Prevent unbounded growth in error reporter | idea | (to file; review 06) |
+| ERR-7 | P2 | **Safer Worker batch requeue** | Do not requeue full batch after partial GitHub success | idea | (to file; review 06) |
+| ERR-8 | P1 | **Colocate error JSON types** | Move `ErrorReportJson.cs` / `ErrorReportTypes.cs` into `ErrorReporting/` | idea | (to file; review 06, 07) |
+| ERR-9 | P2 | **ADR transport wording sync** | ADR-0010/0012 diagrams match ADR-0015 `HttpWebRequest` | idea | (to file; review 06) |
+| ERR-10 | P3 | **Shared input-lock helper** | DRY ERR-2 prompt + psychotic break lockdown reflection | idea | (to file; review 06) |
 | ERR-3 | P1 | **Privacy copy** | Canonical disclosure + cfg description; ERR-2 uses same strings | done | [#173](https://github.com/grompen91-droid/dreadREPO/issues/173) (PR #207, `specs/003-err-3-privacy-copy/`) |
 | ERR-4 | P2 | **Non-blocking batch flush** | `SendBatch` uses sync `HttpWebRequest` on main thread (up to 15s). Prefer `UnityWebRequest` when `UnityWebRequestCompat.IsUsable`, else background thread. Narrow `ShouldIgnoreUnityLog` if we need non-UWR `BadImageFormatException` reports | idea | (to file) |
 
-**Current behavior:** `ErrorReportingEnabled` defaults to **true** for new cfg. First gameplay level shows one-time prompt; no upload until acknowledged. Upgrades keep saved `false`. Batch flush: `ErrorReportUploader.TryPostPayloadSync` (ADR-0015). Core capture fix pending in PR #213.
+**Current behavior:** `ErrorReportingEnabled` defaults to **true** for new cfg. First gameplay level shows one-time prompt; no upload until acknowledged. Upgrades keep saved `false`. Batch flush: `ErrorReportUploader.TryPostPayloadSync` (ADR-0015). Payload capture uses Core compat (ERR-2b done on `master`).
 
 ---
 
@@ -191,7 +244,7 @@ See also: `docs/repo-config-slider-labels-investigation.md`.
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
 | AUDIO-1 | P1 | **Pitch-aware playback + NVorbis EOF + stub UWR** | `AudioPlayUtil`; chunked NVorbis; `UnityWebRequestCompat`; shared clip cache safe in psychotic break | done | PR #203 |
-| AUDIO-5 | P1 | **Remote audio via GitHub Release** | `AudioAssetSystem`, embedded manifest, adaptive downloads, cache reconcile + prune | done | AUDIO-5 branch |
+| AUDIO-5 | P1 | **Remote audio via GitHub Release** | `AudioAssetSystem`, embedded manifest, adaptive downloads, cache reconcile + prune | done | PR [#237](https://github.com/grompen91-droid/dreadREPO/pull/237) |
 | AUDIO-6 | P2 | **Dev BundleAudio profile** | MSBuild `BundleAudio=true` copies local `audio/` for offline dev | idea | (deferred) |
 | ASSET-1 | P3 | **Remote images (future)** | Reuse remote-assets pattern; manifest + cache | idea | (to file) |
 | AUDIO-2 | P2 | **Unit tests for `AudioPlayUtil`** | Golden cases: pitch 0.5 doubles wall-clock lifetime; edge pitch clamp | idea | (to file) |
@@ -207,14 +260,94 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
 | DOCS-1 | P1 | **Add root `CONTEXT.md`** | Glossary + bounded context for agents | done | [#174](https://github.com/grompen91-droid/dreadREPO/issues/174) |
+| DOCS-2 | P1 | **Structure governance + review index** | `systems-folder-governance.md`, `docs/reviews/`, hub links | done | PR [#242](https://github.com/grompen91-droid/dreadREPO/pull/242) |
+| DOCS-3 | P3 | **ADR-0007 filename collision** | Two files share `0007` prefix; renumber or index | idea | (to file; review 09) |
+
+---
+
+## CI and tooling
+
+| ID | Priority | Item | Notes | Status | Issue |
+|----|----------|------|-------|--------|-------|
+| CI-1 | **P0** | **Analyze nested `Systems/**`** | Extend `ci.yml` (and local grep) to `Systems/**/*.cs` | idea | (to file; reviews 01-07) |
+| DEV-3 | P2 | **MCP package in CI** | `npm ci && npm run build` in `dread-mcp-server` on PRs touching MCP | idea | (to file; review 08) |
+
+---
+
+## Core compat (`Systems/Core/`)
+
+| ID | Priority | Item | Notes | Status | Issue |
+|----|----------|------|-------|--------|-------|
+| CORE-1 | P1 | **Per-player forced tumble** | `PlayerTumbleCompat` instance state, not static bool | idea | (to file; review 01, 05) |
+| CORE-2 | P1 | **Fail-closed master client** | `HarmonyPatchCompat.IsMasterClient()` false on probe failure | idea | (to file; review 01, 04) |
+| CORE-3 | P2 | **Error capture uses compat** | Wire `ErrorReportPayloadCapture` HP/stamina via `PlayerControllerCompat` | idea | (to file; review 01, 06) |
+| CORE-4 | P3 | **Remove or wire `GetStamina`** | Dead API on `PlayerControllerCompat` | idea | (to file; review 01) |
+
+---
+
+## Harmony patches
+
+| ID | Priority | Item | Notes | Status | Issue |
+|----|----------|------|-------|--------|-------|
+| PATCH-1 | P1 | **Harmony teardown on unload** | `Plugin.OnDestroy` removes all Dread patches | idea | (to file; review 04) |
+| PATCH-2 | P2 | **Foreign-patch skip parity** | Extend skip to player/debug patches or document enemy-only | idea | (to file; review 04) |
+| PATCH-3 | P3 | **Patch multiplier constants** | Named constants for aggression/investigate/crouch | idea | (to file; review 04) |
+
+---
+
+## MCP bridge (`dread-mcp-server/`)
+
+| ID | Priority | Item | Notes | Status | Issue |
+|----|----------|------|-------|--------|-------|
+| MCP-1 | **P0** | **Fix log/patch text formatters** | Match Unity JSON (`Level`, `Message`; patch `prefixes`) | idea | (to file; review 08) |
+| MCP-2 | P1 | **Enforce `MaxMessageBytes`** | Reject oversized TCP lines before enqueue | idea | (to file; review 08) |
+| MCP-3 | P1 | **MCP vitest suite** | Fixture TCP responses; `npm test` | idea | (to file; review 08) |
+| MCP-4 | P2 | **MCP CI build step** | Same scope as DEV-3 | idea | (to file; review 08) |
+
+---
+
+## Psychotic break
+
+| ID | Priority | Item | Notes | Status | Issue |
+|----|----------|------|-------|--------|-------|
+| PB-1 | P1 | **Episode lifecycle cleanup** | `OnDestroy`/scene: restore control, release tumble, stop stumble | idea | (to file; review 05) |
+| PB-2 | P2 | **ADR-0011 + guide refresh** | Audio names, hiding, partial layout | idea | (to file; review 05) |
+| PB-3 | P2 | **Trigger predicate DRY** | Merge `GetTriggerBlockReason` and `CanTrigger` | idea | (to file; review 05) |
+| PB-4 | P3 | **Solo scan performance** | Replace periodic `FindObjectsOfType` for player count | idea | (to file; review 05) |
+
+---
+
+## Notifications and player messaging
+
+| ID | Priority | Item | Notes | Status | Issue |
+|----|----------|------|-------|--------|-------|
+| NOTIF-0 | P2 | **Corner toasts (shipped)** | `DreadNotificationSystem` + `DreadWidgets`; guide: [ui-notifications.md](agents/guides/ui-notifications.md) | done | CHANGELOG `[Unreleased]` |
+| NOTIF-2 | P2 | **Consent vs toast boundaries** | Do not reuse `ErrorReportingConsent` for UI; optional `SystemOrderGroup.Ui` after UI-3 | idea | (to file; review 03) |
+
+Note: review 03 predates NOTIF-0; backlog focuses on **structure** (prompt under `ErrorReporting/` vs `Systems/UI/`), not building toasts from scratch.
+
+---
+
+## UI kit and overlay (extends Phase 4)
+
+| ID | Priority | Item | Notes | Status | Issue |
+|----|----------|------|-------|--------|-------|
+| UI-2 | P2 | **UI-1 theme foundation** | `DreadImGuiTheme` + shared `ImGuiTexture` from `OverlayTextureUtil` | idea | (to file; review 02) |
+| UI-3 | P2 | **UI folder moves** | `Systems/UI/Shared`, `ImGui/`, `Debug/` per governance | idea | (to file; review 02, 07) |
+| UI-4 | P2 | **IMGUI texture lifecycle** | Destroy helper textures in overlay/prompt `OnDestroy` | idea | (to file; review 02) |
+| UI-5 | P2 | **Harmony patch count DRY** | `HarmonyPatchCompat.CountPatchesOwnedBy` for overlay + server | idea | (to file; review 02) |
+| DBG-6 | P2 | **Overlay FPS when hidden** | Gate `SampleFrameStats` when F10 closed (PERF-2 follow-up) | idea | (to file; review 02) |
 
 ---
 
 ## How to use this file
 
 1. Pick the next row from **Execution order** (lowest order number not `done`).
-2. Work the linked GitHub issue; reference roadmap ID in PR body (`ARCH-1`, etc.).
-3. When shipped: close issue, update `CHANGELOG.md` `[Unreleased]`, mark `done` here.
-4. Agents: start at [`docs/agents/README.md`](agents/README.md), then [`CONTEXT.md`](../CONTEXT.md), [`docs/agents/domain.md`](agents/domain.md), and [`docs/agents/orchestration.md`](agents/orchestration.md) before implementing.
+2. For quality fixes, prefer **Phase 7** after Phase 4 unless a DBG/UI issue is explicitly assigned.
+3. Work the linked GitHub issue; reference roadmap ID and review number in PR body (`CI-1`, `review 08`, etc.).
+4. When shipped: close issue, update `CHANGELOG.md` `[Unreleased]`, mark `done` here.
+5. Agents: start at [`docs/agents/README.md`](agents/README.md), then [`CONTEXT.md`](../CONTEXT.md), [`docs/agents/domain.md`](agents/domain.md), [`docs/agents/systems-folder-governance.md`](agents/systems-folder-governance.md), and [`docs/agents/orchestration.md`](agents/orchestration.md) before implementing.
 
-**Suggested first three issues for a new contributor:** #165 (DBG-3 fonts), #169 (PERF-1), #163 (DBG-1 draggable panel). File UI-1 on GitHub before starting overlay extensibility work.
+**Suggested first issues for a new contributor:** CI-1 (review 01), MCP-1 (review 08), #165 (DBG-3 fonts). **Suggested agent starter (structure):** ARCH-1b after reading review 07 + governance doc.
+
+**Do not execute** tasks from `docs/agents/archive/superpowers/` or stale `docs/superpowers/plans/`; use guides under `docs/agents/guides/`.
