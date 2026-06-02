@@ -176,6 +176,35 @@ cd dread-mcp-server && npm install && npm run build
 
 ---
 
+## Cursor Cloud specific instructions
+
+**Scope:** Linux VM without R.E.P.O. installed. Tier 0 (`scripts/verify-dread.ps1`) is the default dev loop; Tier 1+ needs a Windows game session with a Debug build and `debugServer.enabled=true`.
+
+**Toolchain:** Install .NET SDK 8 and 10 (mod build uses 8; `tests/Dread.*.Tests` use 10) and PowerShell 7 (`pwsh`). Ensure `dotnet` is on `PATH` (for example `export PATH="$HOME/.dotnet:$PATH"` in `~/.bashrc`). Node.js 20+ for `dread-mcp-server` and `workers/error-reporter`.
+
+**Stubs:** Committed under `.github/stubs/refs/`. Regenerate only when stub sources change or DLLs are missing: `pwsh -NoProfile .github/scripts/gen-stubs.ps1` (downloads BepInEx on first run; slow).
+
+**Build / verify / format** (project root, stubs):
+
+```bash
+export PATH="$HOME/.dotnet:$PATH"
+dotnet build Dread.csproj -c Debug \
+  -p:GameDir=.github/stubs/refs -p:BepInExDir=.github/stubs/refs \
+  -p:DeployToDist=false -p:DeployToProfile=false
+pwsh -NoProfile ./scripts/verify-dread.ps1
+dotnet format --verify-no-changes --no-restore
+```
+
+**MCP package:** `cd dread-mcp-server && npm ci && npm run build`. If `tsc` is not found, run `./node_modules/.bin/tsc` or fix `PATH` so `npm run` sees `node_modules/.bin`. The server is stdio-only; Cursor starts it via `.cursor/mcp.json`. It connects to the in-game debug TCP server (not runnable in cloud without the game).
+
+**JSON tests:** `dotnet test tests/Dread.ErrorReportJson.Tests/...` and `tests/Dread.AudioManifestJson.Tests/...`.
+
+**Error reporter worker (optional):** `cd workers/error-reporter && npm ci && npm test`.
+
+**Cannot run in cloud:** R.E.P.O. + BepInEx, Tier 1 MCP live tools (`dread_ping`, etc.), in-game audio playback, ERR-1 manual crash matrix.
+
+---
+
 ## Thunderstore package (release / packaging)
 
 Every upload zip root must include:
