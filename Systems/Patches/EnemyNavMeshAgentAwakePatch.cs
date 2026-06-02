@@ -12,12 +12,18 @@ namespace Dread.Systems
     {
         private static MethodInfo? _original;
 
+        // EnemyNavMeshAgent.Agent flipped from public to internal in newer REPO
+        // builds, so a direct __instance.Agent no longer compiles across versions.
+        // Resolve the field by reflection (works for public or internal) and cache it.
+        private static FieldInfo? _agentField;
+
         internal static void Apply(Harmony harmony)
         {
             if (_original != null || DreadConfig.CompatibilityMode.Value)
                 return;
 
             var type = typeof(EnemyNavMeshAgent);
+            _agentField = AccessTools.Field(type, "Agent");
             _original = AccessTools.Method(type, "Awake");
             if (_original == null)
             {
@@ -48,7 +54,7 @@ namespace Dread.Systems
 
             try
             {
-                var agent = __instance.Agent;
+                var agent = _agentField?.GetValue(__instance) as NavMeshAgent;
                 if (agent == null) return;
 
                 agent.speed *= 1.2f;
