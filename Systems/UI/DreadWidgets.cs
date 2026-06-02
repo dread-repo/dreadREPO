@@ -87,10 +87,13 @@ namespace Dread.Systems.UI
             _trackTex = MakeTexture(ColTrack);
             _steelTex = MakeTexture(ColSteel);
 
-            _trackStyle = new GUIStyle(GUI.skin.box);
+            // Zero the inherited 9-slice border: the fill shrinks to a sliver at
+            // low values, and GUI.skin.box's ~6px border would bloat that sliver
+            // into a square (see DebugOverlayStyles for the full rationale).
+            _trackStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
             _trackStyle.normal.background = _trackTex;
 
-            _fillStyle = new GUIStyle(GUI.skin.box);
+            _fillStyle = new GUIStyle(GUI.skin.box) { border = new RectOffset(0, 0, 0, 0) };
             _fillStyle.normal.background = _steelTex;
 
             // Transparent styles: the native slider stays invisible (no background)
