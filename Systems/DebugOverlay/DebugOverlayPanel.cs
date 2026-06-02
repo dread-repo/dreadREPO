@@ -393,6 +393,39 @@ namespace Dread.Systems
                 ColDim);
 
             AddRow("Patches", DreadRuntimeState.DreadPatchCount.ToString(), ColValue);
+
+            // Sections contributed by other features via DebugOverlayRegistry (DBG-5).
+            // Each is foldable and persisted exactly like the built-in sections.
+            var sink = _rowSink ??= new RegistrySink(this);
+            var sections = DebugOverlayRegistry.Sections;
+            for (int i = 0; i < sections.Count; i++)
+            {
+                AddSection(sections[i].Title);
+                sections[i].Build(sink);
+            }
+        }
+
+        private RegistrySink? _rowSink;
+
+        private Color StatusColor(OverlayStatus status) => status switch
+        {
+            OverlayStatus.Good => ColGood,
+            OverlayStatus.Warn => ColWarn,
+            OverlayStatus.Bad => ColBad,
+            OverlayStatus.Dim => ColDim,
+            _ => ColValue,
+        };
+
+        // Bridges registered sections to the row list, mapping semantic status to
+        // the Slate palette so callers stay decoupled from colors and RowData.
+        private sealed class RegistrySink : IOverlayRowSink
+        {
+            private readonly DebugOverlaySystem _owner;
+
+            public RegistrySink(DebugOverlaySystem owner) => _owner = owner;
+
+            public void Row(string label, string value, OverlayStatus status)
+                => _owner.AddRow(label ?? string.Empty, value ?? string.Empty, _owner.StatusColor(status));
         }
 
         private void AddRow(string left, string right, Color color)
