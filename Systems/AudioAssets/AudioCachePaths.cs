@@ -88,15 +88,32 @@ namespace Dread.Systems.AudioAssets
         {
             var a = ParseVersionFolder(Path.GetFileName(dirPathA));
             var b = ParseVersionFolder(Path.GetFileName(dirPathB));
-            return a.CompareTo(b);
+            for (int i = 0; i < a.Length; i++)
+            {
+                int cmp = a[i].CompareTo(b[i]);
+                if (cmp != 0)
+                    return cmp;
+            }
+
+            return 0;
         }
 
-        private static Version ParseVersionFolder(string folderName)
+        // Parse "v1.6.1" into up to four numeric components (major.minor.patch.build);
+        // missing or non-numeric parts read as 0. Uses int.TryParse instead of
+        // System.Version.TryParse, which is absent from the netstandard2.0 facade
+        // that some build toolchains resolve for this net48 target.
+        private static int[] ParseVersionFolder(string folderName)
         {
             var s = folderName;
             if (s.StartsWith("v", StringComparison.OrdinalIgnoreCase))
                 s = s.Substring(1);
-            return Version.TryParse(s, out var v) ? v : new Version(0, 0, 0);
+
+            var parts = s.Split('.');
+            var version = new int[4];
+            for (int i = 0; i < version.Length && i < parts.Length; i++)
+                int.TryParse(parts[i], out version[i]);
+
+            return version;
         }
     }
 }
