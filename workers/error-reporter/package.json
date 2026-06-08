@@ -11,7 +11,7 @@
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.16.11",
+    "@cloudflare/vitest-pool-workers": "^0.16.13",
     "vitest": "^4.1.8",
     "wrangler": "^4.96.0"
   }
