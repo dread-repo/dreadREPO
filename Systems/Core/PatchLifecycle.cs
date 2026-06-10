@@ -62,6 +62,18 @@ namespace Dread.Systems.Core
                 _debugConsoleHandler = null;
             }
 
+            // Sweep any Dread-owned hooks applied outside the registry (e.g. the
+            // REPOConfig slider label compat) so unload leaves no Dread IL behind.
+            try
+            {
+                _harmony.UnpatchSelf();
+                RepoConfigCompat.Shutdown();
+            }
+            catch (Exception ex)
+            {
+                LoggingService.LogWarning($"[Dread] Harmony self-unpatch on shutdown failed: {ex.Message}");
+            }
+
             _harmony = null;
         }
 

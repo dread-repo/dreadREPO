@@ -11,5 +11,11 @@ namespace Dread.Systems.Core
         {
             RepoConfigSliderLabelCompat.TryApply(harmony);
         }
+
+        /// <summary>Reset apply state after the owning Harmony instance unpatched itself (plugin unload).</summary>
+        internal static void Shutdown()
+        {
+            RepoConfigSliderLabelCompat.Reset();
+        }
     }
 }
