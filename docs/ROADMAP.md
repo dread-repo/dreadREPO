@@ -120,8 +120,8 @@ Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + 
 | 16 | CI-1 | **P0** | 01, 03, 04, 05, 06, 07 | None | **done:** analyze + Tier 0 grep recurse `Systems/**/*.cs`; nested violations fixed |
 | 17 | MCP-1 | **P0** | 08 | CI-1 (soft) | **done:** log/patch text formatters match Unity JSON; `get_state` description fixed |
 | 18 | MCP-2 | P1 | 08 | None | **done:** `MaxMessageBytes` enforced on TCP read, `code:-3` reject (ADR-0013) |
-| 19 | CORE-2 | P1 | 01, 04 | None | `HarmonyPatchCompat.IsMasterClient()` fails open on reflection errors |
-| 20 | CORE-1 | P1 | 01, 05 | None | `PlayerTumbleCompat` forced tumble is global, not per-player |
+| 19 | CORE-2 | P1 | 01, 04 | None | **done:** fail-closed on probe failure, one-time Warning |
+| 20 | CORE-1 | P1 | 01, 05 | None | **done:** forced tumble keyed per `PlayerController` instance id |
 | 21 | ARCH-1b | P1 | 07, 09 | ARCH-1 | Finish folder map: move root loose files per [systems-folder-governance.md](agents/systems-folder-governance.md) |
 | 22 | ERR-8 | P1 | 06, 07 | ARCH-1b (soft) | Move `ErrorReportJson.cs` + `ErrorReportTypes.cs` under `ErrorReporting/` |
 | 23 | PATCH-1 | P1 | 04 | None | `Plugin.OnDestroy` (or unload) calls Harmony `Remove` on all patch classes |
@@ -282,8 +282,8 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| CORE-1 | P1 | **Per-player forced tumble** | `PlayerTumbleCompat` instance state, not static bool | idea | (to file; review 01, 05) |
-| CORE-2 | P1 | **Fail-closed master client** | `HarmonyPatchCompat.IsMasterClient()` false on probe failure | idea | (to file; review 01, 04) |
+| CORE-1 | P1 | **Per-player forced tumble** | `PlayerTumbleCompat` keys forced state by controller instance id (reference-checked), not a static bool | done | (review 01, 05) |
+| CORE-2 | P1 | **Fail-closed master client** | `IsMasterClient()` returns false when the `SemiFunc` probe is missing or throws; warns once | done | (review 01, 04) |
 | CORE-3 | P2 | **Error capture uses compat** | Wire `ErrorReportPayloadCapture` HP/stamina via `PlayerControllerCompat` | idea | (to file; review 01, 06) |
 | CORE-4 | P3 | **Remove or wire `GetStamina`** | Dead API on `PlayerControllerCompat` | idea | (to file; review 01) |
 
