@@ -7,6 +7,7 @@ namespace UnityEngine
     public abstract class MonoBehaviour : Behaviour
     {
         public Coroutine StartCoroutine(IEnumerator routine) => null;
+        public void StopCoroutine(Coroutine routine) { }
         public void StopAllCoroutines() { }
     }
     public class Behaviour : Component

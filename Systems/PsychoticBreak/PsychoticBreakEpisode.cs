@@ -134,7 +134,11 @@ namespace Dread.Systems
             var pc = PlayerController.instance;
             RestorePlayerControl(pc);
             if ((object)pc != null)
-                StartCoroutine(DoStumble());
+            {
+                if (_stumbleRoutine != null)
+                    StopCoroutine(_stumbleRoutine);
+                _stumbleRoutine = StartCoroutine(DoStumble());
+            }
 
             CleanupFootstepSource();
             CleanupDistantScreamSource();
@@ -154,6 +158,14 @@ namespace Dread.Systems
 
             while (elapsed < duration)
             {
+                // Camera can be destroyed mid-stumble (scene unload); bail instead
+                // of rolling a dead transform.
+                if (cam == null)
+                {
+                    _stumbleRoutine = null;
+                    yield break;
+                }
+
                 float t = elapsed / duration;
                 float roll = Mathf.Lerp(15f, 0f, t);
                 float dip = Mathf.Lerp(-0.3f, 0f, t);
@@ -163,8 +175,13 @@ namespace Dread.Systems
                 yield return null;
             }
 
-            cam.transform.localEulerAngles = originalRot;
-            cam.transform.localPosition = originalPos;
+            if (cam != null)
+            {
+                cam.transform.localEulerAngles = originalRot;
+                cam.transform.localPosition = originalPos;
+            }
+
+            _stumbleRoutine = null;
         }
     }
 }

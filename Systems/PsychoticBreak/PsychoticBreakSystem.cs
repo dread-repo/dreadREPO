@@ -40,6 +40,7 @@ namespace Dread.Systems
         private Texture2D? _vignetteTexture;
 
         private EnemyHealth[]? _cachedEnemies;
+        private Coroutine? _stumbleRoutine;
         private float _phantomSoundAccumulator;
         private float _tumbleMaintainTimer;
         private bool _sceneLoaded;
@@ -86,7 +87,16 @@ namespace Dread.Systems
         private void OnDestroy()
         {
             StopAllCoroutines();
+            _stumbleRoutine = null;
             SceneManager.sceneLoaded -= OnSceneLoaded;
+
+            // Mid-episode teardown (unload, registry destroy) must not leave the
+            // player input-locked, flashlight-dark, or stuck in forced tumble.
+            if (_episodeActive)
+                RestorePlayerControl(PlayerController.instance);
+            else
+                PlayerTumbleCompat.ReleaseForcedTumble(PlayerController.instance);
+            _episodeActive = false;
 
             DreadConfig.PsychoticBreakEnabled.SettingChanged -= OnConfigChanged;
             DreadConfig.PsychoticBreakTriggerChance.SettingChanged -= OnConfigChanged;
@@ -108,6 +118,13 @@ namespace Dread.Systems
             _sceneLoaded = true;
             if (_episodeActive)
                 RestorePlayerControl(PlayerController.instance);
+
+            // An end-of-episode stumble must not roll a stale camera after load.
+            if (_stumbleRoutine != null)
+            {
+                StopCoroutine(_stumbleRoutine);
+                _stumbleRoutine = null;
+            }
 
             _episodeActive = false;
             _threatMemoryUntil = 0f;
