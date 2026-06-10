@@ -10,7 +10,9 @@ namespace Dread.Systems.Core
     /// </summary>
     internal static class PlayerTumbleCompat
     {
-        private static bool _forcedActive;
+        // Forced state is keyed per player so a second consumer (or a future
+        // host+client flow) cannot force or release tumble on the wrong avatar.
+        private static readonly HashSet<int> ForcedPlayerIds = new();
         private static readonly Dictionary<Type, FieldInfo[]> TumbleBoolFieldsByType = new();
         private static readonly Dictionary<Type, FieldInfo?> AvatarTumbleFieldByType = new();
         private static readonly Dictionary<Type, MethodInfo?> TumbleSetMethodByType = new();
@@ -71,13 +73,15 @@ namespace Dread.Systems.Core
             if (!InvokeTumble(tumble, active: true))
                 return false;
 
-            _forcedActive = true;
+            lock (ForcedPlayerIds)
+                ForcedPlayerIds.Add(KeyFor(pc));
+
             return true;
         }
 
         public static void MaintainForcedTumble(PlayerController pc)
         {
-            if (!_forcedActive || pc == null)
+            if (pc == null || !IsForced(pc))
                 return;
 
             var tumble = ResolveTumble(pc);
@@ -89,11 +93,11 @@ namespace Dread.Systems.Core
 
         public static void ReleaseForcedTumble(PlayerController? pc)
         {
-            if (!_forcedActive)
-                return;
+            bool wasForced;
+            lock (ForcedPlayerIds)
+                wasForced = ForcedPlayerIds.Remove(KeyFor(pc));
 
-            _forcedActive = false;
-            if (pc == null)
+            if (!wasForced || pc == null)
                 return;
 
             var tumble = ResolveTumble(pc);
@@ -102,6 +106,16 @@ namespace Dread.Systems.Core
 
             InvokeTumble(tumble, active: false);
         }
+
+        private static bool IsForced(PlayerController? pc)
+        {
+            lock (ForcedPlayerIds)
+                return ForcedPlayerIds.Contains(KeyFor(pc));
+        }
+
+        // Reference check (not Unity's overloaded ==) so a destroyed controller
+        // still maps to the id it was forced under and can be released.
+        private static int KeyFor(PlayerController? pc) => pc is null ? 0 : pc.GetInstanceID();
 
         private static object? ResolveTumble(PlayerController pc)
         {
