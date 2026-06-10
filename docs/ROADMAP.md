@@ -117,9 +117,9 @@ Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + 
 
 | Order | ID | Priority | Review | Depends on | Why |
 |-------|-----|----------|--------|------------|-----|
-| 16 | CI-1 | **P0** | 01, 03, 04, 05, 06, 07 | None | `ci.yml` analyze greps only `Systems/*.cs`; nested paths skip lint gates |
-| 17 | MCP-1 | **P0** | 08 | CI-1 (soft) | MCP `dread_get_logs` / `dread_get_patches` text formatters wrong vs Unity JSON |
-| 18 | MCP-2 | P1 | 08 | None | Enforce `MaxMessageBytes` on TCP read (ADR-0013) |
+| 16 | CI-1 | **P0** | 01, 03, 04, 05, 06, 07 | None | **done:** analyze + Tier 0 grep recurse `Systems/**/*.cs`; nested violations fixed |
+| 17 | MCP-1 | **P0** | 08 | CI-1 (soft) | **done:** log/patch text formatters match Unity JSON; `get_state` description fixed |
+| 18 | MCP-2 | P1 | 08 | None | **done:** `MaxMessageBytes` enforced on TCP read, `code:-3` reject (ADR-0013) |
 | 19 | CORE-2 | P1 | 01, 04 | None | `HarmonyPatchCompat.IsMasterClient()` fails open on reflection errors |
 | 20 | CORE-1 | P1 | 01, 05 | None | `PlayerTumbleCompat` forced tumble is global, not per-player |
 | 21 | ARCH-1b | P1 | 07, 09 | ARCH-1 | Finish folder map: move root loose files per [systems-folder-governance.md](agents/systems-folder-governance.md) |
@@ -273,7 +273,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| CI-1 | **P0** | **Analyze nested `Systems/**`** | Extend `ci.yml` (and local grep) to `Systems/**/*.cs` | idea | (to file; reviews 01-07) |
+| CI-1 | **P0** | **Analyze nested `Systems/**`** | `ci.yml` analyze + `verify-dread.ps1` grep recurse `Systems/**/*.cs`; nested `!.` and >120-col violations fixed | done | (reviews 01-07) |
 | DEV-3 | P2 | **MCP package in CI** | `npm ci && npm run build` in `dread-mcp-server` on PRs touching MCP | idea | (to file; review 08) |
 
 ---
@@ -303,8 +303,8 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| MCP-1 | **P0** | **Fix log/patch text formatters** | Match Unity JSON (`Level`, `Message`; patch `prefixes`) | idea | (to file; review 08) |
-| MCP-2 | P1 | **Enforce `MaxMessageBytes`** | Reject oversized TCP lines before enqueue | idea | (to file; review 08) |
+| MCP-1 | **P0** | **Fix log/patch text formatters** | Text mode reads Unity JSON (`Level`, `Message`, `Timestamp`; flat patch counts); `get_state` description corrected | done | (review 08) |
+| MCP-2 | P1 | **Enforce `MaxMessageBytes`** | Oversized TCP lines rejected with `code:-3` before enqueue; shared `TryWriteReject` with queue-full path | done | (review 08) |
 | MCP-3 | P1 | **MCP vitest suite** | Fixture TCP responses; `npm test` | idea | (to file; review 08) |
 | MCP-4 | P2 | **MCP CI build step** | Same scope as DEV-3 | idea | (to file; review 08) |
 
