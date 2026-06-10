@@ -14,16 +14,27 @@ namespace Dread.Systems
         internal static bool TryPostPayloadSync(ErrorPayload payload, out string responseBody, out string error)
         {
             responseBody = string.Empty;
+
+            var json = ErrorReportJson.SerializePayload(payload);
+            if (string.IsNullOrEmpty(json) || json.IndexOf("\"Reports\":[", StringComparison.Ordinal) < 0)
+            {
+                error = $"JSON serializer produced invalid payload (length={json?.Length ?? 0})";
+                return false;
+            }
+
+            return TryPostJsonSync(json, out responseBody, out error);
+        }
+
+        /// <summary>
+        /// POST pre-serialized payload JSON to the Worker. Blocking; no Unity API
+        /// inside, so it is safe to run on a background thread (ERR-4).
+        /// </summary>
+        internal static bool TryPostJsonSync(string json, out string responseBody, out string error)
+        {
+            responseBody = string.Empty;
             error = string.Empty;
             try
             {
-                var json = ErrorReportJson.SerializePayload(payload);
-                if (string.IsNullOrEmpty(json) || json.IndexOf("\"Reports\":[", StringComparison.Ordinal) < 0)
-                {
-                    error = $"JSON serializer produced invalid payload (length={json?.Length ?? 0})";
-                    return false;
-                }
-
                 var request = (HttpWebRequest)WebRequest.Create(WorkerUrl);
                 request.Method = "POST";
                 request.ContentType = "application/json";
@@ -72,6 +83,61 @@ namespace Dread.Systems
             return failed;
         }
 
+        /// <summary>
+        /// Reports whose hash is not confirmed settled (created or skipped) in the
+        /// Worker response. Used to narrow the unmapped-error requeue so a partial
+        /// success does not re-send reports GitHub already accepted (ERR-7).
+        /// </summary>
+        internal static List<ErrorReport> CollectUnsettledReports(string body, List<ErrorReport> batch)
+        {
+            var unsettled = new List<ErrorReport>();
+            foreach (var report in batch)
+            {
+                if (!IsReportSettledInResponse(body, report.Hash))
+                    unsettled.Add(report);
+            }
+
+            return unsettled;
+        }
+
+        internal static bool IsReportSettledInResponse(string body, string hash)
+        {
+            if (string.IsNullOrEmpty(body) || string.IsNullOrEmpty(hash))
+                return false;
+
+            var hashNeedle = "\"hash\":\"" + hash + "\"";
+            var idx = 0;
+            while ((idx = body.IndexOf(hashNeedle, idx, StringComparison.Ordinal)) >= 0)
+            {
+                var slice = ResultWindow(body, idx, hashNeedle.Length);
+                if (HasStatusInSlice(slice, "created") || HasStatusInSlice(slice, "skipped"))
+                    return true;
+
+                idx += hashNeedle.Length;
+            }
+
+            return false;
+        }
+
+        private static bool HasStatusInSlice(string slice, string status)
+        {
+            return slice.IndexOf("\"status\":\"" + status + "\"", StringComparison.Ordinal) >= 0
+                || slice.IndexOf("\"status\": \"" + status + "\"", StringComparison.Ordinal) >= 0;
+        }
+
+        // Slice of the response belonging to one result entry: from its hash up to
+        // the next result's hash (or 256 chars). Without the boundary, a status
+        // from a neighboring result inside the window is misattributed.
+        private static string ResultWindow(string body, int idx, int needleLength)
+        {
+            var windowEnd = Math.Min(body.Length, idx + 256);
+            var nextHash = body.IndexOf("\"hash\":", idx + needleLength, StringComparison.Ordinal);
+            if (nextHash >= 0 && nextHash < windowEnd)
+                windowEnd = nextHash;
+
+            return body.Substring(idx, windowEnd - idx);
+        }
+
         internal static bool HasWorkerReportFailures(string body, ErrorReport[] reports)
         {
             if (string.IsNullOrEmpty(body))
@@ -101,10 +167,8 @@ namespace Dread.Systems
             var idx = 0;
             while ((idx = body.IndexOf(hashNeedle, idx, StringComparison.Ordinal)) >= 0)
             {
-                var windowEnd = Math.Min(body.Length, idx + 256);
-                var slice = body.Substring(idx, windowEnd - idx);
-                if (slice.IndexOf("\"status\":\"error\"", StringComparison.Ordinal) >= 0
-                    || slice.IndexOf("\"status\": \"error\"", StringComparison.Ordinal) >= 0)
+                var slice = ResultWindow(body, idx, hashNeedle.Length);
+                if (HasStatusInSlice(slice, "error"))
                     return true;
 
                 idx += hashNeedle.Length;
@@ -118,12 +182,6 @@ namespace Dread.Systems
             if (json.IndexOf("\"Reports\":[", StringComparison.Ordinal) < 0)
                 return $"JSON missing Reports (len={json.Length}); re-queuing batch.";
             return null;
-        }
-
-        internal static byte[] EncodePayload(ErrorPayload payload, out string json)
-        {
-            json = ErrorReportJson.SerializePayload(payload);
-            return Encoding.UTF8.GetBytes(json);
         }
     }
 }

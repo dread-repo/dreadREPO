@@ -12,9 +12,18 @@ namespace Dread.Systems
         private readonly List<ErrorReport> _buffer = new List<ErrorReport>();
         private float _lastFlushTime;
         private volatile bool _shouldFlush;
-        private volatile bool _urgentFlush;
         private bool _sendInProgress;
         private const float FlushInterval = 300f;
+
+        // Completion handoff for the background POST (ERR-4). Done is volatile so
+        // the main-thread poll observes Ok/Body/Error written before it.
+        private sealed class PostResult
+        {
+            public volatile bool Done;
+            public bool Ok;
+            public string Body = string.Empty;
+            public string Error = string.Empty;
+        }
 
         private void OnEnable()
         {
@@ -81,11 +90,7 @@ namespace Dread.Systems
             ProcessPendingLogs();
 
             if (_shouldFlush || Time.realtimeSinceStartup - _lastFlushTime >= FlushInterval)
-            {
-                var sync = _urgentFlush;
-                _urgentFlush = false;
-                FlushNow(sync);
-            }
+                FlushNow();
         }
 
 #if DREAD_DEBUG
@@ -250,10 +255,7 @@ namespace Dread.Systems
             }
 
             if (scheduleUrgentFlush)
-            {
                 _shouldFlush = true;
-                _urgentFlush = true;
-            }
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -333,9 +335,21 @@ namespace Dread.Systems
 
             if (ErrorReportUploader.HasUnmappedWorkerErrors(body))
             {
+                // ERR-7: only re-send reports the Worker did not settle; hashes it
+                // confirmed as created/skipped must not produce duplicate issues.
+                var unsettled = ErrorReportUploader.CollectUnsettledReports(body, batch);
+                if (unsettled.Count == 0)
+                {
+                    LoggingService.LogWarning(
+                        "[ErrorReporter] Worker returned errors but all batch hashes settled; "
+                            + $"not re-queuing. Response: {body}");
+                    return;
+                }
+
                 LoggingService.LogWarning(
-                    $"[ErrorReporter] Worker returned errors; re-queuing full batch. Response: {body}");
-                RequeueFailedBatch(batch);
+                    $"[ErrorReporter] Worker returned errors; re-queuing {unsettled.Count} "
+                        + $"unsettled report(s). Response: {body}");
+                RequeueFailedBatch(unsettled);
                 return;
             }
 
@@ -364,7 +378,11 @@ namespace Dread.Systems
             try
             {
                 LoggingService.LogVerbose("[ErrorReporter] Sending report...");
-                ErrorReportUploader.EncodePayload(BuildPayload(batch), out var json);
+
+                // Serialize on the main thread (payload touches Unity API), then
+                // POST on a worker thread so a slow Worker cannot freeze gameplay
+                // for the 15s request timeout (ERR-4).
+                var json = ErrorReportJson.SerializePayload(BuildPayload(batch));
                 var validationError = ErrorReportUploader.ValidateBatchJson(json);
                 if (validationError != null)
                 {
@@ -373,8 +391,38 @@ namespace Dread.Systems
                     yield break;
                 }
 
-                yield return null;
-                SendBatchCore(batch);
+                var result = new PostResult();
+                System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    try
+                    {
+                        result.Ok = ErrorReportUploader.TryPostJsonSync(json, out var body, out var postError);
+                        result.Body = body;
+                        result.Error = postError;
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Ok = false;
+                        result.Error = ex.Message;
+                    }
+                    finally
+                    {
+                        result.Done = true;
+                    }
+                });
+
+                while (!result.Done)
+                    yield return null;
+
+                if (!result.Ok)
+                {
+                    LoggingService.LogWarning($"Error report HTTP failed: {result.Error}");
+                    RequeueFailedBatch(batch);
+                }
+                else
+                {
+                    HandleWorkerResponse(result.Body, batch);
+                }
             }
             finally
             {
@@ -393,10 +441,11 @@ namespace Dread.Systems
             };
         }
 
+        // Blocking send for quit/disable drains only; in-game sends go through
+        // the SendBatch coroutine with a background-thread POST.
         private void SendBatchCore(List<ErrorReport> batch)
         {
-            var payload = BuildPayload(batch);
-            ErrorReportUploader.EncodePayload(payload, out var json);
+            var json = ErrorReportJson.SerializePayload(BuildPayload(batch));
             var validationError = ErrorReportUploader.ValidateBatchJson(json);
             if (validationError != null)
             {
@@ -405,7 +454,7 @@ namespace Dread.Systems
                 return;
             }
 
-            if (!ErrorReportUploader.TryPostPayloadSync(payload, out var body, out var postError))
+            if (!ErrorReportUploader.TryPostJsonSync(json, out var body, out var postError))
             {
                 LoggingService.LogWarning($"Error report HTTP failed: {postError}");
                 RequeueFailedBatch(batch);
