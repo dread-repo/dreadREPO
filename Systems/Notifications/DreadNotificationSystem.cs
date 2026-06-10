@@ -123,6 +123,9 @@ namespace Dread.Systems
                 return;
 
             EnsureStyles();
+            if (_panelStyle == null || _railStyle == null || _titleStyle == null || _messageStyle == null)
+                return;
+
             GUI.depth = GuiDepth;
 
             float now = Time.realtimeSinceStartup;
@@ -137,22 +140,22 @@ namespace Dread.Systems
                 float age = now - t.Spawn;
 
                 ScratchContent.text = t.Message;
-                float msgH = _messageStyle!.CalcHeight(ScratchContent, innerW);
+                float msgH = _messageStyle.CalcHeight(ScratchContent, innerW);
                 float height = PadY * 2f + TitleLineH + 5f + msgH + 4f;
 
                 float x = SlideX(age, targetX);
                 y -= height;
                 var box = new Rect(x, y, ToastWidth, height);
 
-                GUI.Box(box, DreadGui.EmptyContent, _panelStyle!);
+                GUI.Box(box, DreadGui.EmptyContent, _panelStyle);
 
                 // Severity is carried entirely by the rail color (no icons).
-                _railStyle!.normal.background = RailTex(t.Kind);
+                _railStyle.normal.background = RailTex(t.Kind);
                 GUI.Box(new Rect(box.x, box.y, RailWidth, height), DreadGui.EmptyContent, _railStyle);
 
                 float tx = box.x + RailWidth + PadX;
                 float ty = box.y + PadY;
-                GUI.Label(new Rect(tx, ty, innerW, TitleLineH), t.Title.ToUpperInvariant(), _titleStyle!);
+                GUI.Label(new Rect(tx, ty, innerW, TitleLineH), t.Title.ToUpperInvariant(), _titleStyle);
                 GUI.Label(new Rect(tx, ty + TitleLineH + 5f, innerW, msgH), t.Message, _messageStyle);
 
                 // Shrinking life bar across the bottom edge (steel). It starts

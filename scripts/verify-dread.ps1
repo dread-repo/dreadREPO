@@ -72,15 +72,16 @@ if (-not $SkipBuild) {
     Add-Check -Tier "tier0" -Id "dotnet_build" -Ok $true -Message "skipped"
 }
 
-# Analyze grep (mirrors CI)
+# Analyze grep (mirrors CI; recursive over nested Systems/** per CI-1)
+$analyzePaths = @("--include=*.cs", "*.cs", "Systems", "Config")
 Invoke-GrepCheck -Id "null_forgiving" -Pattern '\w+!\.|\)!\.(?!.*!= )' `
-    -Paths @("*.cs", "Systems/*.cs", "Config/*.cs") -FailMsg "null-forgiving operator found"
+    -Paths $analyzePaths -FailMsg "null-forgiving operator found"
 Invoke-GrepCheck -Id "hardcoded_paths" -Pattern '[A-Z]:\\' `
-    -Paths @("*.cs", "Systems/*.cs", "Config/*.cs") -FailMsg "hardcoded Windows paths"
+    -Paths $analyzePaths -FailMsg "hardcoded Windows paths"
 Invoke-GrepCheck -Id "trailing_whitespace" -Pattern '[[:blank:]]$' `
-    -Paths @("*.cs", "Systems/*.cs", "Config/*.cs") -FailMsg "trailing whitespace"
+    -Paths $analyzePaths -FailMsg "trailing whitespace"
 Invoke-GrepCheck -Id "tabs" -Pattern "`t" `
-    -Paths @("*.cs", "Systems/*.cs", "Config/*.cs") -FailMsg "tab characters"
+    -Paths $analyzePaths -FailMsg "tab characters"
 
 # Feature systems must use AudioAssetApi, not bundled AudioClipLoader.LoadClip
 $legacyLoadHits = @()

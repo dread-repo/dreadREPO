@@ -229,8 +229,10 @@ namespace Dread.Systems
                     Timestamp = DateTime.UtcNow.ToString("o"),
                     Type = raw.Type == LogType.Exception ? "exception" : "error",
                     ExceptionType = ErrorReportPayloadCapture.ParseExceptionType(raw.Message),
-                    Message = ErrorReportPayloadCapture.Truncate(raw.Message, ErrorReportPayloadCapture.MaxMessageLength),
-                    StackTrace = ErrorReportPayloadCapture.Truncate(raw.StackTrace, ErrorReportPayloadCapture.MaxStackTraceLength),
+                    Message = ErrorReportPayloadCapture.Truncate(
+                        raw.Message, ErrorReportPayloadCapture.MaxMessageLength),
+                    StackTrace = ErrorReportPayloadCapture.Truncate(
+                        raw.StackTrace, ErrorReportPayloadCapture.MaxStackTraceLength),
                     Scene = scene,
                     GameState = gameState,
                     SystemInfo = systemInfo,

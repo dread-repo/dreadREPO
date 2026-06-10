@@ -176,7 +176,8 @@ jobs:
         shell: bash
         run: |
           has_issues=0
-          cs_glob=(./*.cs Systems/*.cs Systems/AudioAssets/*.cs Config/*.cs)
+          # Recurse all mod C# (CI-1): nested Systems/** folders must not skip lint gates.
+          cs_glob=(--include=*.cs ./*.cs Systems Config)
 
           if grep -rnP '\w+!\.|\)!\.' "${cs_glob[@]}" 2>/dev/null | grep -v '!= '; then
             echo "::error::Null-forgiving operator (!) usage found"

@@ -84,7 +84,8 @@ namespace Dread.Systems.Core
             _params = _setInvestigate?.GetParameters();
 
             if (_setInvestigate == null)
-                LoggingService.LogWarning("[Dread] EnemyLureCompat: EnemyDirector.SetInvestigate not found; camp lure disabled");
+                LoggingService.LogWarning(
+                    "[Dread] EnemyLureCompat: EnemyDirector.SetInvestigate not found; camp lure disabled");
         }
     }
 }

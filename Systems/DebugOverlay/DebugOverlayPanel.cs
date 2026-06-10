@@ -341,15 +341,20 @@ namespace Dread.Systems
 
         private void ApplyZoom()
         {
-            _headerStyle!.fontSize = Scaled(15);
-            _hintStyle!.fontSize = Scaled(11);
-            _labelStyle!.fontSize = Scaled(13);
-            _valueStyle!.fontSize = Scaled(13);
-            _sectionStyle!.fontSize = Scaled(11);
-            _sectionBtnStyle!.fontSize = Scaled(11);
-            _caretStyle!.fontSize = Scaled(11);
-            _midStyle!.fontSize = Scaled(11);
-            _buttonStyle!.fontSize = Scaled(11);
+            if (_headerStyle == null || _hintStyle == null || _labelStyle == null
+                || _valueStyle == null || _sectionStyle == null || _sectionBtnStyle == null
+                || _caretStyle == null || _midStyle == null || _buttonStyle == null)
+                return;
+
+            _headerStyle.fontSize = Scaled(15);
+            _hintStyle.fontSize = Scaled(11);
+            _labelStyle.fontSize = Scaled(13);
+            _valueStyle.fontSize = Scaled(13);
+            _sectionStyle.fontSize = Scaled(11);
+            _sectionBtnStyle.fontSize = Scaled(11);
+            _caretStyle.fontSize = Scaled(11);
+            _midStyle.fontSize = Scaled(11);
+            _buttonStyle.fontSize = Scaled(11);
         }
 
         private int Scaled(int baseSize)
