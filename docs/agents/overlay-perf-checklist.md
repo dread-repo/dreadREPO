@@ -32,6 +32,7 @@ Issue: [#170](https://github.com/grompen91-droid/dreadREPO/issues/170)
 - [ ] Press F10 until the overlay is hidden
 - [ ] Confirm `OnGUI` draws nothing (no box, no labels)
 - [ ] Confirm the Harmony patch count stops refreshing (no patch-count reflection while hidden): `DreadPatchCount` should not change while toggled off
+- [ ] Confirm FPS/min-FPS sampling also stops while hidden (DBG-6); FPS smoothing is reset and re-seeds within a few frames of showing
 - [ ] Press F10 again; the overlay reappears and the patch count resumes refreshing about every 0.5s
 
 ### C. Enabled and visible
