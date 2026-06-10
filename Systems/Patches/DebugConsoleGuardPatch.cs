@@ -7,6 +7,9 @@ namespace Dread.Systems
     /// <summary>
     /// Suppresses NullReferenceException spam from DebugConsoleUI.Update calling a broken
     /// SemiFunc.DebugTester Harmony hook (common with REPOConfig / MenuLib profiles).
+    /// Deliberately exempt from <c>ShouldSkipDueToForeignPatches</c>: a foreign patch
+    /// breaking DebugConsoleUI is the reason this guard exists, so skipping when one is
+    /// present would disable the guard exactly when it is needed.
     /// </summary>
     internal static class DebugConsoleGuardPatch
     {
