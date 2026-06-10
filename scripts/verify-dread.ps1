@@ -176,18 +176,28 @@ if ($arch3Missing.Count -gt 0) {
     Add-Check -Tier "tier0" -Id "arch3_registry_manifest" -Ok $true -Message $manifestMsg
 }
 
-# MCP npm build
+# MCP npm build + vitest suite (MCP-3)
 if (-not $SkipMcpBuild) {
     Push-Location dread-mcp-server
     npm ci --silent 2>&1 | Out-Null
     $npmCi = $LASTEXITCODE -eq 0
     npm run build --silent 2>&1 | Out-Null
     $npmBuild = $LASTEXITCODE -eq 0
-    Pop-Location
     Add-Check -Tier "tier0" -Id "mcp_build" -Ok ($npmCi -and $npmBuild) `
         -Message $(if ($npmCi -and $npmBuild) { "dread-mcp-server built" } else { "npm ci/build failed" })
+
+    if ($npmCi -and $npmBuild) {
+        npm test --silent 2>&1 | Out-Null
+        $npmTest = $LASTEXITCODE -eq 0
+        Add-Check -Tier "tier0" -Id "mcp_test" -Ok $npmTest `
+            -Message $(if ($npmTest) { "dread-mcp-server vitest suite passed" } else { "npm test failed" })
+    } else {
+        Add-Check -Tier "tier0" -Id "mcp_test" -Ok $false -Message "skipped: npm ci/build failed"
+    }
+    Pop-Location
 } else {
     Add-Check -Tier "tier0" -Id "mcp_build" -Ok $true -Message "skipped"
+    Add-Check -Tier "tier0" -Id "mcp_test" -Ok $true -Message "skipped"
 }
 
 # Package layout (manifest + icon + audio)
