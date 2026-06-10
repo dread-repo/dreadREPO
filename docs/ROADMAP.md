@@ -122,8 +122,8 @@ Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + 
 | 18 | MCP-2 | P1 | 08 | None | **done:** `MaxMessageBytes` enforced on TCP read, `code:-3` reject (ADR-0013) |
 | 19 | CORE-2 | P1 | 01, 04 | None | **done:** fail-closed on probe failure, one-time Warning |
 | 20 | CORE-1 | P1 | 01, 05 | None | **done:** forced tumble keyed per `PlayerController` instance id |
-| 21 | ARCH-1b | P1 | 07, 09 | ARCH-1 | Finish folder map: move root loose files per [systems-folder-governance.md](agents/systems-folder-governance.md) |
-| 22 | ERR-8 | P1 | 06, 07 | ARCH-1b (soft) | Move `ErrorReportJson.cs` + `ErrorReportTypes.cs` under `ErrorReporting/` |
+| 21 | ARCH-1b | P1 | 07, 09 | ARCH-1 | **done:** all root loose files moved per review 07 map; `Systems/` root is folder-only |
+| 22 | ERR-8 | P1 | 06, 07 | ARCH-1b (soft) | **done:** error JSON types live under `ErrorReporting/` (with ARCH-1b) |
 | 23 | PATCH-1 | P1 | 04 | None | `Plugin.OnDestroy` (or unload) calls Harmony `Remove` on all patch classes |
 | 24 | PB-1 | P1 | 05 | CORE-1 (soft) | Psychotic break `OnDestroy`/scene: restore control, stop stumble coroutine |
 | 25 | MCP-3 | P1 | 08 | MCP-1 | Vitest suite for `dread-mcp-server`; optional hook in `verify-dread.ps1` |
@@ -131,7 +131,7 @@ Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + 
 | 27 | ERR-5 | P2 | 06 | None | `PendingLogs` backpressure when queue full |
 | 28 | CORE-3 | P2 | 01, 06 | None | Error capture player stats via `PlayerControllerCompat` |
 | 29 | UI-2 | P2 | 02 | UI-1 (soft) | `DreadImGuiTheme` + migrate overlay/prompt styles (UI-1 foundation) |
-| 30 | UI-3 | P2 | 02 | UI-2 (soft) | Move `OverlayTextureUtil` + prompt to `Systems/UI/`; `DebugServer` to `Systems/Debug/` |
+| 30 | UI-3 | P2 | 02 | UI-2 (soft) | Mostly done by ARCH-1b (`OverlayTextureUtil` in `UI/Shared/`, `DebugServer` in `Debug/`); remaining: prompt placement decision (see NOTIF-2) |
 | 31 | PATCH-2 | P2 | 04 | PATCH-1 (soft) | Foreign-patch skip parity on player/debug patches |
 | 32 | PB-2 | P2 | 05 | None | Refresh ADR-0011 + `psychotic-break.md` vs shipped audio/trigger names |
 | 33 | MCP-4 | P2 | 08 | None | CI: `npm ci && npm run build` for `dread-mcp-server` on relevant PRs |
@@ -207,7 +207,7 @@ See also: `docs/repo-config-slider-labels-investigation.md`.
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
 | ARCH-1 | P0 | **Refactor into manageable files** | Phase 1 split (`Patches/`, `PsychoticBreak/`, etc.); **follow-up:** ARCH-1b per review 07 | done | [#167](https://github.com/grompen91-droid/dreadREPO/issues/167) |
-| ARCH-1b | P1 | **Complete `Systems/` folder map** | Move remaining root loose files per [systems-folder-governance.md](agents/systems-folder-governance.md); update `domain.md` | idea | (to file; review 07) |
+| ARCH-1b | P1 | **Complete `Systems/` folder map** | Root loose files moved to `Bootstrap/`, `Runtime/`, `Infrastructure/`, `Audio/`, `Tension/`, `Monster/`, `Debug/`, `ErrorReporting/`, `UI/Shared/`, `PsychoticBreak/`; `domain.md` + `CONTEXT.md` maps updated | done | (review 07) |
 | ARCH-4 | P3 | **External mod API + feature modules** | Optional cfg feature packs; documented BepInEx soft-dependency API; semver + ADR; after ARCH-3 | idea | (to file) |
 | ARCH-2 | P1 | **Reduce DLL / reflection surface** | Compile-time refs; document stub vs full build | done | [#168](https://github.com/grompen91-droid/dreadREPO/issues/168) |
 | ARCH-3 | P0 | **Extensibility + hardened core** | Extension points, fail-safe init, compat patterns | done | [#175](https://github.com/grompen91-droid/dreadREPO/issues/175) (`specs/002-arch-3-extensible-core/`) |
@@ -233,7 +233,7 @@ See also: `docs/repo-config-slider-labels-investigation.md`.
 | ERR-5 | P2 | **Log queue backpressure** | Warn or ring-buffer when `PendingLogs` full | idea | (to file; review 06) |
 | ERR-6 | P2 | **Prune `RecentHashes`** | Prevent unbounded growth in error reporter | idea | (to file; review 06) |
 | ERR-7 | P2 | **Safer Worker batch requeue** | Do not requeue full batch after partial GitHub success | idea | (to file; review 06) |
-| ERR-8 | P1 | **Colocate error JSON types** | Move `ErrorReportJson.cs` / `ErrorReportTypes.cs` into `ErrorReporting/` | idea | (to file; review 06, 07) |
+| ERR-8 | P1 | **Colocate error JSON types** | `ErrorReportJson.cs` / `ErrorReportTypes.cs` moved into `ErrorReporting/` (with ARCH-1b); test csproj includes updated | done | (review 06, 07) |
 | ERR-9 | P2 | **ADR transport wording sync** | ADR-0010/0012 diagrams match ADR-0015 `HttpWebRequest` | idea | (to file; review 06) |
 | ERR-10 | P3 | **Shared input-lock helper** | DRY ERR-2 prompt + psychotic break lockdown reflection | idea | (to file; review 06) |
 | ERR-3 | P1 | **Privacy copy** | Canonical disclosure + cfg description; ERR-2 uses same strings | done | [#173](https://github.com/grompen91-droid/dreadREPO/issues/173) (PR #207, `specs/003-err-3-privacy-copy/`) |

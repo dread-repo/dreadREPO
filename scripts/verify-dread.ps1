@@ -102,8 +102,8 @@ if ($legacyLoadHits.Count -gt 0) {
 
 # ARCH-3: spawn only via DreadSystemRegistry + DreadSystemInitializer (no stray TryAddSystem< elsewhere)
 $arch3Allowed = @(
-    "Systems/DreadSystemInitializer.cs",
-    "Systems/DreadSystemRegistry.cs"
+    "Systems/Bootstrap/DreadSystemInitializer.cs",
+    "Systems/Bootstrap/DreadSystemRegistry.cs"
 )
 $arch3Hits = @()
 foreach ($path in @("*.cs", "Systems", "Systems/Patches", "Systems/PsychoticBreak", "Systems/ErrorReporting", "Systems/DebugOverlay", "Config")) {
@@ -127,7 +127,7 @@ if ($arch3Hits.Count -gt 0) {
 }
 
 # ARCH-3: baseline system types from extension-registry contract
-$arch3RegistryPath = "Systems/DreadSystemRegistry.cs"
+$arch3RegistryPath = "Systems/Bootstrap/DreadSystemRegistry.cs"
 $arch3CoreTypes = @(
     "AudioAssetSystem",
     "AudioDreadSystem",

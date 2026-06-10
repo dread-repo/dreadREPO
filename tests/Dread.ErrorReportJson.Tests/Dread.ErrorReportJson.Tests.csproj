@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Systems\ErrorReportJson.cs" Link="ErrorReportJson.cs" />
-    <Compile Include="..\..\Systems\ErrorReportTypes.cs" Link="ErrorReportTypes.cs" />
+    <Compile Include="..\..\Systems\ErrorReporting\ErrorReportJson.cs" Link="ErrorReportJson.cs" />
+    <Compile Include="..\..\Systems\ErrorReporting\ErrorReportTypes.cs" Link="ErrorReportTypes.cs" />
   </ItemGroup>
 </Project>

@@ -49,6 +49,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Camp Lure:** new `LureCooldownSeconds` config (default 60s) prevents instant re-lure after contact; no lure when zero enemies in scan
 - **Snitch:** explicit `failed` arm state; 2s pickup grace period; arm logs at Verbose only; removed temporary agent debug instrumentation
 - **Error reporting:** Auto-reported issues now include a length-capped **Console Log** section (recent Unity console output from the session plus a tail of `BepInEx/LogOutput.log`) so triage has full context around the failure
+- **Structure (ARCH-1b / ERR-8):** `Systems/` root loose files moved into governance folders (`Bootstrap/`, `Runtime/`, `Infrastructure/`, `Audio/`, `Tension/`, `Monster/`, `Debug/`, `UI/Shared/`; `ErrorReportJson` / `ErrorReportTypes` join `ErrorReporting/`; `FlashlightStateTracker` joins `PsychoticBreak/`). Namespaces unchanged (`Dread.Systems`); production builds now exclude `Systems/Debug/**`; `domain.md`, `CONTEXT.md`, and agent guides updated
 - **CI (CI-1):** analyze lint gates (null-forgiving member access, Windows paths, whitespace, tabs, line length, BOM) and the Tier 0 verify mirror now recurse all nested `Systems/**/*.cs` instead of top-level files only; existing nested violations fixed (overlay, toast, and prompt null-forgiving member access replaced with null guards; four over-length lines wrapped)
 
 ### Fixed

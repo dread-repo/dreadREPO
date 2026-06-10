@@ -31,7 +31,7 @@
 
 ## Overview
 
-Dread is a BepInEx plugin that transforms R.E.P.O. into a genuinely unsettling experience at the IL level. It uses **Harmony 2 runtime patching** to intercept enemy spawn, movement, and detection methods, while registered MonoBehaviour systems (see `Systems/DreadSystemRegistry.cs`) run on persistent hosts that survive scene transitions.
+Dread is a BepInEx plugin that transforms R.E.P.O. into a genuinely unsettling experience at the IL level. It uses **Harmony 2 runtime patching** to intercept enemy spawn, movement, and detection methods, while registered MonoBehaviour systems (see `Systems/Bootstrap/DreadSystemRegistry.cs`) run on persistent hosts that survive scene transitions.
 
 Every feature is independently toggleable via `BepInEx/config/elytraking.dread.cfg`. Players without Dread can join modded lobbies: monster changes are host-authoritative, while audio and tension effects are client-local.
 

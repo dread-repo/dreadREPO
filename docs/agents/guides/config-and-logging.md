@@ -1,6 +1,6 @@
 # Config and logging
 
-How agents add settings and control log verbosity. Files: `Config/DreadConfig.cs`, `Systems/LoggingService.cs`.
+How agents add settings and control log verbosity. Files: `Config/DreadConfig.cs`, `Systems/Infrastructure/LoggingService.cs`.
 
 ## DreadConfig rules
 
