@@ -43,7 +43,7 @@ Loaded via **`AudioAssetApi`** (`psychotic_break` category; `footsteps.ogg` reso
 
 Runtime `Canvas` + `RawImage` (reflection for stub/Proton builds). `OverlayTextureUtil` for vignette textures. Episode ends on timer even if overlay creation fails.
 
-## Config (`6. Psychotic Break`)
+## Config (`4. Psychotic Break`)
 
 | Key | Default | Notes |
 |-----|---------|-------|

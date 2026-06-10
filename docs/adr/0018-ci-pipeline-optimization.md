@@ -1,7 +1,7 @@
-# ADR-0007: CI Pipeline Optimization for Sub-30s Verification
+# ADR-0018: CI Pipeline Optimization for Sub-30s Verification
 
 **Date:** 2026-05-22
-**Status:** Accepted
+**Status:** Accepted (renumbered from a duplicate 0007 filename, 2026-06-10; ADR-0007 is the AudioClipLoader decision)
 
 ---
 
