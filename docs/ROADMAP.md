@@ -111,9 +111,9 @@ Work top to bottom within each phase. Do not skip **Depends on** unless the issu
 
 > **DBG-4 status:** blocked on upstream. `RepoConfigSliderLabelCompat` cannot be removed until REPOConfig/MenuLib emits slider descriptions (or matches the toggle layout) upstream. Removing it now regresses slider labels for everyone running REPOConfig, so the compat stays until the upstream fix lands. Nothing to implement here.
 
-### Phase 7: Code quality (from `docs/reviews/` 01-09)
+### Phase 7: Code quality (from `docs/reviews/` 01-09) (FINISHED)
 
-Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + roadmap ID.
+All rows below shipped 2026-06-10 (branch `claude/roadmap-next-tasks-olx8zp`). Remaining review follow-ups not in this order (UI-4, UI-5, PB-3, PB-4, PATCH-3, ERR-10, AUDIO-2/3) stay in the section tables as `idea`.
 
 | Order | ID | Priority | Review | Depends on | Why |
 |-------|-----|----------|--------|------------|-----|
@@ -127,20 +127,20 @@ Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + 
 | 23 | PATCH-1 | P1 | 04 | None | **done:** registry teardown was shipped via `PatchLifecycle.Shutdown`; now also `UnpatchSelf` sweep for non-registry hooks (slider compat) |
 | 24 | PB-1 | P1 | 05 | CORE-1 (soft) | **done:** `OnDestroy` restores control + releases tumble; stumble coroutine tracked and stopped on scene load |
 | 25 | MCP-3 | P1 | 08 | MCP-1 | **done:** vitest suite (TCP fixture + formatter cases); `mcp_test` Tier 0 check |
-| 26 | ERR-4 | P2 | 06 | ERR-1 | Non-blocking batch flush (already on ROADMAP; review 06 confirms main-thread hitch) |
-| 27 | ERR-5 | P2 | 06 | None | `PendingLogs` backpressure when queue full |
-| 28 | CORE-3 | P2 | 01, 06 | None | Error capture player stats via `PlayerControllerCompat` |
-| 29 | UI-2 | P2 | 02 | UI-1 (soft) | `DreadImGuiTheme` + migrate overlay/prompt styles (UI-1 foundation) |
-| 30 | UI-3 | P2 | 02 | UI-2 (soft) | Mostly done by ARCH-1b (`OverlayTextureUtil` in `UI/Shared/`, `DebugServer` in `Debug/`); remaining: prompt placement decision (see NOTIF-2) |
-| 31 | PATCH-2 | P2 | 04 | PATCH-1 (soft) | Foreign-patch skip parity on player/debug patches |
-| 32 | PB-2 | P2 | 05 | None | Refresh ADR-0011 + `psychotic-break.md` vs shipped audio/trigger names |
-| 33 | MCP-4 | P2 | 08 | None | CI: `npm ci && npm run build` for `dread-mcp-server` on relevant PRs |
-| 34 | DEV-3 | P2 | 08 | MCP-3 (soft) | Same as MCP-4 if folded into one issue |
-| 35 | NOTIF-2 | P2 | 03 | UI-3 (soft) | Separate telemetry consent from toast host; optional `SystemOrderGroup.Ui` (toasts **shipped** as NOTIF-0) |
-| 36 | DBG-6 | P2 | 02 | PERF-2 | Gate overlay FPS sampling when F10 hidden |
-| 37 | DOCS-3 | P3 | 09 | None | Renumber duplicate ADR `0007-*` filenames or add disambiguation index |
-| 38 | ERR-6 | P3 | 06 | None | Prune `RecentHashes` in error reporter |
-| 39 | ERR-7 | P3 | 06 | ERR-4 (soft) | Narrow Worker batch requeue on partial success |
+| 26 | ERR-4 | P2 | 06 | ERR-1 | **done:** batch POST runs on a thread-pool thread; single serialization |
+| 27 | ERR-5 | P2 | 06 | None | **done:** warn once per session when `PendingLogs` drops at capacity |
+| 28 | CORE-3 | P2 | 01, 06 | None | **done:** was already shipped (capture uses `PlayerControllerCompat.GetHealth/GetStamina`) |
+| 29 | UI-2 | P2 | 02 | UI-1 (soft) | **done:** shipped by UI-1 under final names (`DreadTheme`, `DreadGui.SolidTexture` -> `OverlayTextureUtil.CreateSolid`, `DreadInputCapture`) |
+| 30 | UI-3 | P2 | 02 | UI-2 (soft) | **done:** ARCH-1b moved `OverlayTextureUtil` to `UI/Shared/`, `DebugServer` to `Debug/`; prompt stays under `ErrorReporting/` (NOTIF-2 decision) |
+| 31 | PATCH-2 | P2 | 04 | PATCH-1 (soft) | **done:** crouch patch gets foreign skip; debug-console guard documented exempt (foreign patch is its trigger) |
+| 32 | PB-2 | P2 | 05 | None | **done:** ADR-0011 synced (shipped audio names, hiding condition, partials, `ProximityScan`); guide config section fixed |
+| 33 | MCP-4 | P2 | 08 | None | **done:** `mcp` CI job (`npm ci && npm run build && npm test`) |
+| 34 | DEV-3 | P2 | 08 | MCP-3 (soft) | **done:** folded into MCP-4 job |
+| 35 | NOTIF-2 | P2 | 03 | UI-3 (soft) | **done (decision):** consent gate and toast host already separate; prompt stays in `ErrorReporting/` (consent flow first); no `SystemOrderGroup.Ui` (no behavioral need for a third group) |
+| 36 | DBG-6 | P2 | 02 | PERF-2 | **done:** FPS sampling gated on visibility; smoothing reset on F10 show |
+| 37 | DOCS-3 | P3 | 09 | None | **done:** CI pipeline ADR renumbered to `0018-*`; 0007 is AudioClipLoader |
+| 38 | ERR-6 | P3 | 06 | None | **done:** `RecentHashes` prunes expired entries past 256 |
+| 39 | ERR-7 | P3 | 06 | ERR-4 (soft) | **done:** unmapped-error requeue narrowed to unsettled hashes; window-bleed parser bug fixed + xUnit tests |
 
 ```mermaid
 flowchart TD
@@ -230,14 +230,14 @@ See also: `docs/repo-config-slider-labels-investigation.md`.
 | ERR-1 | P0 | **Test error reporting end-to-end** | TestCrash, MCP, real exceptions (ADR-0010, ADR-0012, ADR-0015); checklist in `docs/agents/error-reporting-test-checklist.md` | done | [#171](https://github.com/grompen91-droid/dreadREPO/issues/171) |
 | ERR-2 | P1 | **Default on + first-run prompt** | Default `ErrorReportingEnabled` true; `ErrorReportingPromptSystem` + consent gate | done | [#172](https://github.com/grompen91-droid/dreadREPO/issues/172) (PR #208) |
 | ERR-2b | P1 | **Core error capture fix** | `EnemyHealthCompat` + `ProximityScan` in payloads (no direct `CurrentHealth`) | done | CHANGELOG `[Unreleased]`; was PR #213 |
-| ERR-5 | P2 | **Log queue backpressure** | Warn or ring-buffer when `PendingLogs` full | idea | (to file; review 06) |
-| ERR-6 | P2 | **Prune `RecentHashes`** | Prevent unbounded growth in error reporter | idea | (to file; review 06) |
-| ERR-7 | P2 | **Safer Worker batch requeue** | Do not requeue full batch after partial GitHub success | idea | (to file; review 06) |
+| ERR-5 | P2 | **Log queue backpressure** | One Warning per session when `PendingLogs` drops new errors at capacity | done | (review 06) |
+| ERR-6 | P2 | **Prune `RecentHashes`** | Expired dedupe entries pruned once the map passes 256 | done | (review 06) |
+| ERR-7 | P2 | **Safer Worker batch requeue** | Unmapped-error requeue narrowed to unsettled hashes; per-result window no longer bleeds into neighbors; xUnit coverage | done | (review 06) |
 | ERR-8 | P1 | **Colocate error JSON types** | `ErrorReportJson.cs` / `ErrorReportTypes.cs` moved into `ErrorReporting/` (with ARCH-1b); test csproj includes updated | done | (review 06, 07) |
-| ERR-9 | P2 | **ADR transport wording sync** | ADR-0010/0012 diagrams match ADR-0015 `HttpWebRequest` | idea | (to file; review 06) |
+| ERR-9 | P2 | **ADR transport wording sync** | ADR-0010/0012 now say `HttpWebRequest` on a background thread (ADR-0015, ERR-4) | done | (review 06) |
 | ERR-10 | P3 | **Shared input-lock helper** | DRY ERR-2 prompt + psychotic break lockdown reflection | idea | (to file; review 06) |
 | ERR-3 | P1 | **Privacy copy** | Canonical disclosure + cfg description; ERR-2 uses same strings | done | [#173](https://github.com/grompen91-droid/dreadREPO/issues/173) (PR #207, `specs/003-err-3-privacy-copy/`) |
-| ERR-4 | P2 | **Non-blocking batch flush** | `SendBatch` uses sync `HttpWebRequest` on main thread (up to 15s). Prefer `UnityWebRequest` when `UnityWebRequestCompat.IsUsable`, else background thread. Narrow `ShouldIgnoreUnityLog` if we need non-UWR `BadImageFormatException` reports | idea | (to file) |
+| ERR-4 | P2 | **Non-blocking batch flush** | `SendBatch` serializes on the main thread, POSTs on a thread-pool thread, and polls completion; quit/disable drains stay synchronous so reports survive exit | done | (review 06) |
 
 **Current behavior:** `ErrorReportingEnabled` defaults to **true** for new cfg. First gameplay level shows one-time prompt; no upload until acknowledged. Upgrades keep saved `false`. Batch flush: `ErrorReportUploader.TryPostPayloadSync` (ADR-0015). Payload capture uses Core compat (ERR-2b done on `master`).
 
@@ -265,7 +265,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 |----|----------|------|-------|--------|-------|
 | DOCS-1 | P1 | **Add root `CONTEXT.md`** | Glossary + bounded context for agents | done | [#174](https://github.com/grompen91-droid/dreadREPO/issues/174) |
 | DOCS-2 | P1 | **Structure governance + review index** | `systems-folder-governance.md`, `docs/reviews/`, hub links | done | PR [#242](https://github.com/grompen91-droid/dreadREPO/pull/242) |
-| DOCS-3 | P3 | **ADR-0007 filename collision** | Two files share `0007` prefix; renumber or index | idea | (to file; review 09) |
+| DOCS-3 | P3 | **ADR-0007 filename collision** | CI pipeline ADR renumbered to `0018-ci-pipeline-optimization.md`; `0007` is AudioClipLoader | done | (review 09) |
 
 ---
 
@@ -274,7 +274,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
 | CI-1 | **P0** | **Analyze nested `Systems/**`** | `ci.yml` analyze + `verify-dread.ps1` grep recurse `Systems/**/*.cs`; nested `!.` and >120-col violations fixed | done | (reviews 01-07) |
-| DEV-3 | P2 | **MCP package in CI** | `npm ci && npm run build` in `dread-mcp-server` on PRs touching MCP | idea | (to file; review 08) |
+| DEV-3 | P2 | **MCP package in CI** | Folded into MCP-4 `mcp` CI job | done | (review 08) |
 
 ---
 
@@ -284,8 +284,8 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 |----|----------|------|-------|--------|-------|
 | CORE-1 | P1 | **Per-player forced tumble** | `PlayerTumbleCompat` keys forced state by controller instance id (reference-checked), not a static bool | done | (review 01, 05) |
 | CORE-2 | P1 | **Fail-closed master client** | `IsMasterClient()` returns false when the `SemiFunc` probe is missing or throws; warns once | done | (review 01, 04) |
-| CORE-3 | P2 | **Error capture uses compat** | Wire `ErrorReportPayloadCapture` HP/stamina via `PlayerControllerCompat` | idea | (to file; review 01, 06) |
-| CORE-4 | P3 | **Remove or wire `GetStamina`** | Dead API on `PlayerControllerCompat` | idea | (to file; review 01) |
+| CORE-3 | P2 | **Error capture uses compat** | `ErrorReportPayloadCapture` reads HP/stamina via `PlayerControllerCompat` (shipped with ERR-2b work) | done | (review 01, 06) |
+| CORE-4 | P3 | **Remove or wire `GetStamina`** | Wired: error capture consumes `PlayerControllerCompat.GetStamina` | done | (review 01) |
 
 ---
 
@@ -294,7 +294,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
 | PATCH-1 | P1 | **Harmony teardown on unload** | `Plugin.OnDestroy` -> `PatchLifecycle.Shutdown`: registry `Remove` pairs + `UnpatchSelf` sweep (covers REPOConfig slider compat); compat re-apply state reset | done | (review 04) |
-| PATCH-2 | P2 | **Foreign-patch skip parity** | Extend skip to player/debug patches or document enemy-only | idea | (to file; review 04) |
+| PATCH-2 | P2 | **Foreign-patch skip parity** | Crouch patch honors `ShouldSkipDueToForeignPatches`; debug-console guard documented exempt by design | done | (review 04) |
 | PATCH-3 | P3 | **Patch multiplier constants** | Named constants for aggression/investigate/crouch | idea | (to file; review 04) |
 
 ---
@@ -306,7 +306,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 | MCP-1 | **P0** | **Fix log/patch text formatters** | Text mode reads Unity JSON (`Level`, `Message`, `Timestamp`; flat patch counts); `get_state` description corrected | done | (review 08) |
 | MCP-2 | P1 | **Enforce `MaxMessageBytes`** | Oversized TCP lines rejected with `code:-3` before enqueue; shared `TryWriteReject` with queue-full path | done | (review 08) |
 | MCP-3 | P1 | **MCP vitest suite** | `tcpClient` / `format` extracted from `index.ts`; 17 tests (fixture TCP server, Unity JSON formatter cases); `npm test` + Tier 0 `mcp_test` | done | (review 08) |
-| MCP-4 | P2 | **MCP CI build step** | Same scope as DEV-3 | idea | (to file; review 08) |
+| MCP-4 | P2 | **MCP CI build step** | `mcp` job in `ci.yml`: `npm ci && npm run build && npm test` (covers DEV-3) | done | (review 08) |
 
 ---
 
@@ -315,7 +315,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
 | PB-1 | P1 | **Episode lifecycle cleanup** | `OnDestroy` restores control / releases tumble; stumble coroutine handle stopped on scene load + re-entry; per-frame camera guard | done | (review 05) |
-| PB-2 | P2 | **ADR-0011 + guide refresh** | Audio names, hiding, partial layout | idea | (to file; review 05) |
+| PB-2 | P2 | **ADR-0011 + guide refresh** | ADR-0011 synced to shipped audio names, hiding condition, partials, `ProximityScan`; guide config section corrected | done | (review 05) |
 | PB-3 | P2 | **Trigger predicate DRY** | Merge `GetTriggerBlockReason` and `CanTrigger` | idea | (to file; review 05) |
 | PB-4 | P3 | **Solo scan performance** | Replace periodic `FindObjectsOfType` for player count | idea | (to file; review 05) |
 
@@ -326,7 +326,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
 | NOTIF-0 | P2 | **Corner toasts (shipped)** | `DreadNotificationSystem` + `DreadWidgets`; guide: [ui-notifications.md](agents/guides/ui-notifications.md) | done | CHANGELOG `[Unreleased]` |
-| NOTIF-2 | P2 | **Consent vs toast boundaries** | Do not reuse `ErrorReportingConsent` for UI; optional `SystemOrderGroup.Ui` after UI-3 | idea | (to file; review 03) |
+| NOTIF-2 | P2 | **Consent vs toast boundaries** | Decision recorded: consent gate and toast host already separate (NOTIF-0); prompt stays under `ErrorReporting/`; no third `SystemOrderGroup` | done | (review 03) |
 
 Note: review 03 predates NOTIF-0; backlog focuses on **structure** (prompt under `ErrorReporting/` vs `Systems/UI/`), not building toasts from scratch.
 
@@ -336,11 +336,11 @@ Note: review 03 predates NOTIF-0; backlog focuses on **structure** (prompt under
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| UI-2 | P2 | **UI-1 theme foundation** | `DreadImGuiTheme` + shared `ImGuiTexture` from `OverlayTextureUtil` | idea | (to file; review 02) |
-| UI-3 | P2 | **UI folder moves** | `Systems/UI/Shared`, `ImGui/`, `Debug/` per governance | idea | (to file; review 02, 07) |
+| UI-2 | P2 | **UI-1 theme foundation** | Shipped by UI-1 under final names: `DreadTheme`, `DreadGui.SolidTexture` (routes `OverlayTextureUtil.CreateSolid`), `DreadInputCapture` | done | (review 02) |
+| UI-3 | P2 | **UI folder moves** | ARCH-1b: `OverlayTextureUtil` -> `UI/Shared/`, debug server -> `Debug/`; prompt stays in `ErrorReporting/` (NOTIF-2) | done | (review 02, 07) |
 | UI-4 | P2 | **IMGUI texture lifecycle** | Destroy helper textures in overlay/prompt `OnDestroy` | idea | (to file; review 02) |
 | UI-5 | P2 | **Harmony patch count DRY** | `HarmonyPatchCompat.CountPatchesOwnedBy` for overlay + server | idea | (to file; review 02) |
-| DBG-6 | P2 | **Overlay FPS when hidden** | Gate `SampleFrameStats` when F10 closed (PERF-2 follow-up) | idea | (to file; review 02) |
+| DBG-6 | P2 | **Overlay FPS when hidden** | `SampleFrameStats` gated on visibility; smoothing reset when shown; checklist case B updated | done | (review 02) |
 
 ---
 
