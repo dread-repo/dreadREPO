@@ -254,22 +254,28 @@ namespace Dread.Systems
                         if (line.Length == 0)
                             continue;
 
+                        // ADR-0013: reject oversized requests before they reach the queue.
+                        if (Encoding.UTF8.GetByteCount(line) > MaxMessageBytes)
+                        {
+                            if (!TryWriteReject(stream, line, "request too large", -3))
+                                break;
+                            continue;
+                        }
+
                         var cmd = new DebugCommand { RequestJson = line };
+                        bool queueFull = false;
                         lock (_queue)
                         {
                             if (_queue.Count >= MaxQueueDepth)
-                            {
-                                RequestEnvelope envelope;
-                                try { envelope = JsonUtility.FromJson<RequestEnvelope>(line); }
-                                catch { envelope = new RequestEnvelope(); }
-                                var reject = $"{{\"id\":{envelope.id},\"ok\":false,"
-                                    + "\"error\":\"queue full\",\"code\":-1}}\n";
-                                var rejectBytes = Encoding.UTF8.GetBytes(reject);
-                                try { stream.Write(rejectBytes, 0, rejectBytes.Length); }
-                                catch (IOException) { }
-                                break;
-                            }
-                            _queue.Enqueue(cmd);
+                                queueFull = true;
+                            else
+                                _queue.Enqueue(cmd);
+                        }
+
+                        if (queueFull)
+                        {
+                            TryWriteReject(stream, line, "queue full", -1);
+                            break;
                         }
 
                         if (!WaitForCommandDone(cmd))
@@ -295,6 +301,22 @@ namespace Dread.Systems
                     Thread.Sleep(500);
                 }
             }
+        }
+
+        // Writes an ok:false envelope for a request rejected before execution.
+        // Returns false when the client connection is gone.
+        private static bool TryWriteReject(NetworkStream stream, string requestLine, string error, int code)
+        {
+            RequestEnvelope envelope;
+            try { envelope = JsonUtility.FromJson<RequestEnvelope>(requestLine); }
+            catch { envelope = new RequestEnvelope(); }
+
+            var reject = $"{{\"id\":{envelope.id},\"ok\":false,"
+                + $"\"error\":\"{error}\",\"code\":{code}}}\n";
+            var rejectBytes = Encoding.UTF8.GetBytes(reject);
+            try { stream.Write(rejectBytes, 0, rejectBytes.Length); }
+            catch (IOException) { return false; }
+            return true;
         }
 
         private void Update()
