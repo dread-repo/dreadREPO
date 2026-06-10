@@ -124,8 +124,8 @@ Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + 
 | 20 | CORE-1 | P1 | 01, 05 | None | **done:** forced tumble keyed per `PlayerController` instance id |
 | 21 | ARCH-1b | P1 | 07, 09 | ARCH-1 | **done:** all root loose files moved per review 07 map; `Systems/` root is folder-only |
 | 22 | ERR-8 | P1 | 06, 07 | ARCH-1b (soft) | **done:** error JSON types live under `ErrorReporting/` (with ARCH-1b) |
-| 23 | PATCH-1 | P1 | 04 | None | `Plugin.OnDestroy` (or unload) calls Harmony `Remove` on all patch classes |
-| 24 | PB-1 | P1 | 05 | CORE-1 (soft) | Psychotic break `OnDestroy`/scene: restore control, stop stumble coroutine |
+| 23 | PATCH-1 | P1 | 04 | None | **done:** registry teardown was shipped via `PatchLifecycle.Shutdown`; now also `UnpatchSelf` sweep for non-registry hooks (slider compat) |
+| 24 | PB-1 | P1 | 05 | CORE-1 (soft) | **done:** `OnDestroy` restores control + releases tumble; stumble coroutine tracked and stopped on scene load |
 | 25 | MCP-3 | P1 | 08 | MCP-1 | Vitest suite for `dread-mcp-server`; optional hook in `verify-dread.ps1` |
 | 26 | ERR-4 | P2 | 06 | ERR-1 | Non-blocking batch flush (already on ROADMAP; review 06 confirms main-thread hitch) |
 | 27 | ERR-5 | P2 | 06 | None | `PendingLogs` backpressure when queue full |
@@ -293,7 +293,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| PATCH-1 | P1 | **Harmony teardown on unload** | `Plugin.OnDestroy` removes all Dread patches | idea | (to file; review 04) |
+| PATCH-1 | P1 | **Harmony teardown on unload** | `Plugin.OnDestroy` -> `PatchLifecycle.Shutdown`: registry `Remove` pairs + `UnpatchSelf` sweep (covers REPOConfig slider compat); compat re-apply state reset | done | (review 04) |
 | PATCH-2 | P2 | **Foreign-patch skip parity** | Extend skip to player/debug patches or document enemy-only | idea | (to file; review 04) |
 | PATCH-3 | P3 | **Patch multiplier constants** | Named constants for aggression/investigate/crouch | idea | (to file; review 04) |
 
@@ -314,7 +314,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 
 | ID | Priority | Item | Notes | Status | Issue |
 |----|----------|------|-------|--------|-------|
-| PB-1 | P1 | **Episode lifecycle cleanup** | `OnDestroy`/scene: restore control, release tumble, stop stumble | idea | (to file; review 05) |
+| PB-1 | P1 | **Episode lifecycle cleanup** | `OnDestroy` restores control / releases tumble; stumble coroutine handle stopped on scene load + re-entry; per-frame camera guard | done | (review 05) |
 | PB-2 | P2 | **ADR-0011 + guide refresh** | Audio names, hiding, partial layout | idea | (to file; review 05) |
 | PB-3 | P2 | **Trigger predicate DRY** | Merge `GetTriggerBlockReason` and `CanTrigger` | idea | (to file; review 05) |
 | PB-4 | P3 | **Solo scan performance** | Replace periodic `FindObjectsOfType` for player count | idea | (to file; review 05) |
