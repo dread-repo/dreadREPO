@@ -16,20 +16,36 @@ namespace Dread.Systems.Core
         private static readonly HashSet<string> SkipWarningsLogged = new(StringComparer.Ordinal);
         private static readonly MethodInfo? IsMasterClientMethod =
             AccessTools.Method(typeof(SemiFunc), "IsMasterClient");
+        private static bool _masterClientProbeWarned;
 
+        // Fail closed: host-only monster patches must not run on clients when the
+        // probe breaks (ADR-0004), or Photon-synced EnemyDirector state can desync.
         internal static bool IsMasterClient()
         {
             try
             {
                 if (IsMasterClientMethod == null)
-                    return true;
+                {
+                    WarnMasterClientProbeOnce("SemiFunc.IsMasterClient not found");
+                    return false;
+                }
 
                 return IsMasterClientMethod.Invoke(null, null) is bool isMaster && isMaster;
             }
-            catch
+            catch (Exception ex)
             {
-                return true;
+                WarnMasterClientProbeOnce($"SemiFunc.IsMasterClient probe failed: {ex.Message}");
+                return false;
             }
+        }
+
+        private static void WarnMasterClientProbeOnce(string reason)
+        {
+            if (_masterClientProbeWarned)
+                return;
+
+            _masterClientProbeWarned = true;
+            LoggingService.LogWarning($"[Dread] {reason}; treating session as non-host (host-only features stay off)");
         }
 
         internal static bool ShouldSkipDueToForeignPatches(MethodBase method, string patchLabel)
