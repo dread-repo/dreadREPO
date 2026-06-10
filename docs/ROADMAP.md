@@ -126,7 +126,7 @@ Work top to bottom. File GitHub issues with `ready-for-agent` and cite review + 
 | 22 | ERR-8 | P1 | 06, 07 | ARCH-1b (soft) | **done:** error JSON types live under `ErrorReporting/` (with ARCH-1b) |
 | 23 | PATCH-1 | P1 | 04 | None | **done:** registry teardown was shipped via `PatchLifecycle.Shutdown`; now also `UnpatchSelf` sweep for non-registry hooks (slider compat) |
 | 24 | PB-1 | P1 | 05 | CORE-1 (soft) | **done:** `OnDestroy` restores control + releases tumble; stumble coroutine tracked and stopped on scene load |
-| 25 | MCP-3 | P1 | 08 | MCP-1 | Vitest suite for `dread-mcp-server`; optional hook in `verify-dread.ps1` |
+| 25 | MCP-3 | P1 | 08 | MCP-1 | **done:** vitest suite (TCP fixture + formatter cases); `mcp_test` Tier 0 check |
 | 26 | ERR-4 | P2 | 06 | ERR-1 | Non-blocking batch flush (already on ROADMAP; review 06 confirms main-thread hitch) |
 | 27 | ERR-5 | P2 | 06 | None | `PendingLogs` backpressure when queue full |
 | 28 | CORE-3 | P2 | 01, 06 | None | Error capture player stats via `PlayerControllerCompat` |
@@ -305,7 +305,7 @@ Stub/local builds: always use real game `Managed` DLLs for release packages when
 |----|----------|------|-------|--------|-------|
 | MCP-1 | **P0** | **Fix log/patch text formatters** | Text mode reads Unity JSON (`Level`, `Message`, `Timestamp`; flat patch counts); `get_state` description corrected | done | (review 08) |
 | MCP-2 | P1 | **Enforce `MaxMessageBytes`** | Oversized TCP lines rejected with `code:-3` before enqueue; shared `TryWriteReject` with queue-full path | done | (review 08) |
-| MCP-3 | P1 | **MCP vitest suite** | Fixture TCP responses; `npm test` | idea | (to file; review 08) |
+| MCP-3 | P1 | **MCP vitest suite** | `tcpClient` / `format` extracted from `index.ts`; 17 tests (fixture TCP server, Unity JSON formatter cases); `npm test` + Tier 0 `mcp_test` | done | (review 08) |
 | MCP-4 | P2 | **MCP CI build step** | Same scope as DEV-3 | idea | (to file; review 08) |
 
 ---
