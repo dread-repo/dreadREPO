@@ -52,7 +52,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup .NET
         if: matrix.language == 'csharp'
@@ -63,7 +63,7 @@ jobs:
       - name: Cache generated stubs
         if: matrix.language == 'csharp'
         id: cache-stubs
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .github/stubs/refs
           key: stubs-${{ hashFiles('.github/scripts/gen-stubs.ps1', '.github/scripts/UnityEngine_stubs.cs', '.github/scripts/UnityEngine.UI_stubs.cs', '.github/scripts/UnityEngine.UIModule_stubs.cs', '.github/scripts/Assembly-CSharp_stubs.cs', '.github/scripts/UnityEngine.UnityWebRequestModule_stubs.cs', '.github/scripts/UnityEngine.UnityWebRequestAudioModule_stubs.cs', '.github/scripts/verify-stubs/Program.cs', '.github/scripts/verify-stubs/verify-stubs.csproj', 'Dread.csproj') }}

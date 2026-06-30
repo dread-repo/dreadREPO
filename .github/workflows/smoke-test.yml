@@ -24,7 +24,7 @@ jobs:
       LOG_FILE: ${{ vars.LOG_FILE || 'C:\Program Files (x86)\Steam\steamapps\common\REPO\BepInEx\LogOutput.log' }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
