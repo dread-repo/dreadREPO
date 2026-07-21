@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -168,12 +168,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
       - name: Cache NuGet packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
@@ -182,7 +182,7 @@ jobs:
 
       - name: Cache generated stubs
         id: cache-stubs
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .github/stubs/refs
           key: stubs-${{ hashFiles('.github/scripts/gen-stubs.ps1', '.github/scripts/UnityEngine_stubs.cs', '.github/scripts/UnityEngine.UI_stubs.cs', '.github/scripts/UnityEngine.UIModule_stubs.cs', '.github/scripts/Assembly-CSharp_stubs.cs', '.github/scripts/UnityEngine.UnityWebRequestModule_stubs.cs', '.github/scripts/UnityEngine.UnityWebRequestAudioModule_stubs.cs', '.github/scripts/verify-stubs/Program.cs', '.github/scripts/verify-stubs/verify-stubs.csproj', 'Dread.csproj') }}
@@ -261,7 +261,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download plugin binaries
         uses: actions/download-artifact@v8
@@ -342,7 +342,7 @@ jobs:
 
     steps:
       - name: Checkout default branch
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
