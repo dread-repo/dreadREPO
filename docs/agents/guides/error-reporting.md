@@ -1,6 +1,6 @@
 # Error reporting
 
-Anonymous crash telemetry from game to Cloudflare Worker to GitHub issues. Default **on** for new cfg with a one-time first-run IMGUI prompt before any sends (ERR-2, ADR-0010). Code: `Systems/ErrorReporting/` (`ErrorReporterSystem.cs`, `ErrorReportLogQueue.cs`, `ErrorReportingPromptSystem.cs`, `ErrorReportingConsent.cs`, `ErrorReportPayloadCapture.cs`, `ErrorReportUploader.cs`), `Systems/ErrorReportJson.cs`, `workers/error-reporter/`.
+Anonymous crash telemetry from game to Cloudflare Worker to GitHub issues. Default **on** for new cfg with a one-time first-run IMGUI prompt before any sends (ERR-2, ADR-0010). Code: `Systems/ErrorReporting/` (`ErrorReporterSystem.cs`, `ErrorReportLogQueue.cs`, `ErrorReportingPromptSystem.cs`, `ErrorReportingConsent.cs`, `ErrorReportPayloadCapture.cs`, `ErrorReportUploader.cs`), `Systems/ErrorReporting/ErrorReportJson.cs`, `workers/error-reporter/`.
 
 **Privacy copy (ERR-3):** canonical strings in `Systems/ErrorReporting/ErrorReportingPrivacyCopy.cs`; review checklist and required bullets in [specs/003-err-3-privacy-copy/contracts/privacy-copy.md](../../../specs/003-err-3-privacy-copy/contracts/privacy-copy.md).
 

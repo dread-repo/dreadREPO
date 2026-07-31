@@ -2,7 +2,7 @@
 
 Reference for agents implementing features in Dread. Reflects **shipped** layout on `master`, not the 2026-05-16 superpowers bootstrap plan.
 
-**Source of truth for runtime systems:** `Systems/DreadSystemRegistry.cs` (also enforced by `scripts/verify-dread.ps1` `arch3_registry_manifest`).
+**Source of truth for runtime systems:** `Systems/Bootstrap/DreadSystemRegistry.cs` (also enforced by `scripts/verify-dread.ps1` `arch3_registry_manifest`).
 
 ## Stack
 
@@ -28,7 +28,7 @@ First gameplay-ready scene:
     -> one DontDestroyOnLoad host per registered system
 ```
 
-Entry: `Plugin.cs` (Harmony + config only). Registry: `Systems/DreadSystemRegistry.cs`. Init loop: `Systems/DreadSystemInitializer.cs` (waits for `UnityEngine.UI` before UI-dependent components). See [ADR-0016](../../adr/0016-arch-3-extension-model.md).
+Entry: `Plugin.cs` (Harmony + config only). Registry: `Systems/Bootstrap/DreadSystemRegistry.cs`. Init loop: `Systems/Bootstrap/DreadSystemInitializer.cs` (waits for `UnityEngine.UI` before UI-dependent components). See [ADR-0016](../../adr/0016-arch-3-extension-model.md).
 
 ## Runtime systems (one host each)
 
@@ -129,7 +129,7 @@ Follow [specs/002-arch-3-extensible-core/contracts/system-lifecycle.md](../../..
 
 1. Create the system under the correct `Systems/` subfolder per [systems-folder-governance.md](../systems-folder-governance.md) (no new loose files at `Systems/` root unless the governance doc allows it)
 2. Add config entries in `Config/DreadConfig.cs`
-3. Add one row to `Systems/DreadSystemRegistry.cs` (Core or Debug group; optional `IsEnabled` predicate)
+3. Add one row to `Systems/Bootstrap/DreadSystemRegistry.cs` (Core or Debug group; optional `IsEnabled` predicate)
 4. **Do not** add `TryAddSystem` in `Plugin.cs`
 5. Subscribe/unsubscribe `SceneManager.sceneLoaded` in `OnDestroy`
 6. Gate on `DreadConfig` + `CompatibilityMode` + menu level inside the system (or `IsEnabled` on the row)

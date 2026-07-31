@@ -35,7 +35,7 @@ Game (Unity/BepInEx)
   |     |-- Enqueues errors on log callback; processes on Update() (main thread)
   |     |-- Buffers reports (max 50 per batch, flushed every 300s)
   |     |-- Serializes via ErrorReportJson.SerializePayload()
-  |     |-- POSTs JSON to Cloudflare Worker (UnityWebRequest)
+  |     |-- POSTs JSON to Cloudflare Worker (HttpWebRequest on a background thread; ADR-0015, ERR-4)
   |     |-- Re-queues batch on failed send (see Send failure handling)
   |
   |-- TestCrashSystem (ADR-0012)
@@ -70,7 +70,7 @@ The mod hooks `Application.logMessageReceived` (not the threaded variant). The c
 
 ### Send failure handling
 
-If `ErrorReportJson.SerializePayload()` does not produce a `Reports` array, or if `UnityWebRequest` fails, `SendBatch` calls `RequeueFailedBatch()` to append the batch back to `_buffer` for a later flush (next interval, new error, or scene load).
+If `ErrorReportJson.SerializePayload()` does not produce a `Reports` array, or if the `HttpWebRequest` POST fails (run on a thread-pool thread; ERR-4), `SendBatch` calls `RequeueFailedBatch()` to append the batch back to `_buffer` for a later flush (next interval, new error, or scene load).
 
 ### Serialization (ADR-0015)
 

@@ -65,7 +65,7 @@ After a feature ships:
 
 ## CI note
 
-`.github/workflows/ci.yml` analyze step greps `Systems/*.cs` (root only), not `Systems/**/*.cs`. Root loose files are style-checked; nested folders are not. When expanding globs, use `Systems/**/*.cs` for parity with AGENTS.md intent.
+Since CI-1, the `.github/workflows/ci.yml` analyze step and the `scripts/verify-dread.ps1` Tier 0 mirror grep **all** of `Systems/**/*.cs` recursively (`grep -r --include=*.cs`), so nested folders get the same style gates as root files.
 
 ## Related docs
 

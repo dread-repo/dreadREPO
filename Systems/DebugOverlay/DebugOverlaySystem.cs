@@ -49,10 +49,12 @@ namespace Dread.Systems
             if (!GuardOverlayEnabled())
                 return;
 
-            SampleFrameStats();
-
             if (Input.GetKeyDown(KeyCode.F10))
+            {
                 _visible = !_visible;
+                if (_visible)
+                    ResetFrameStats();
+            }
 
             // F9 toggles interactive mode (free the mouse to click the controls).
             // F10 only shows/hides the panel; it no longer steals the cursor.
@@ -66,6 +68,8 @@ namespace Dread.Systems
                     ReleaseOverlayCapture();
                 return;
             }
+
+            SampleFrameStats();
 
             if (_interactive)
             {
@@ -85,7 +89,8 @@ namespace Dread.Systems
             }
         }
 
-        // Runs every frame (even while toggled off) so FPS is accurate the instant the HUD is shown.
+        // Only sampled while the HUD is visible (DBG-6 / PERF-2: zero per-frame
+        // work when F10-hidden). ResetFrameStats on show re-seeds the smoothing.
         private void SampleFrameStats()
         {
             float dt = Time.unscaledDeltaTime;
@@ -108,6 +113,12 @@ namespace Dread.Systems
         }
 
         private bool IsOverlayVisible() => _visible && !SemiFunc.MenuLevel();
+
+        private void ResetFrameStats()
+        {
+            _smoothedDelta = 0f;
+            _minFpsResetAt = 0f;
+        }
 
         private bool GuardOverlayEnabled()
         {

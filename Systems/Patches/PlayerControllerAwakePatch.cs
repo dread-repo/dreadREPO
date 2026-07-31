@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using Dread.Config;
+using Dread.Systems.Core;
 using HarmonyLib;
 
 namespace Dread.Systems
@@ -22,6 +23,9 @@ namespace Dread.Systems
                 LoggingService.LogWarning("[Dread] PlayerController.Awake not found; crouch speed patch skipped");
                 return;
             }
+
+            if (HarmonyPatchCompat.ShouldSkipDueToForeignPatches(_original, "PlayerController.Awake"))
+                return;
 
             harmony.Patch(_original, postfix: new HarmonyMethod(typeof(PlayerControllerAwakePatch), nameof(Postfix)));
         }

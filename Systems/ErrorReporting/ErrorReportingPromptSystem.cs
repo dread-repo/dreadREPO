@@ -230,13 +230,13 @@ namespace Dread.Systems
 
         private void EnsureLayout(float innerW, float screenH)
         {
-            if (_layoutReady)
+            if (_layoutReady || _bodyStyle == null || _hintStyle == null)
                 return;
 
-            _summaryHeight = _bodyStyle!.CalcHeight(
+            _summaryHeight = _bodyStyle.CalcHeight(
                 new GUIContent(ErrorReportingPrivacyCopy.ShortSummary),
                 innerW);
-            _hintHeight = _hintStyle!.CalcHeight(
+            _hintHeight = _hintStyle.CalcHeight(
                 new GUIContent(ErrorReportingPrivacyCopy.DisableInstructions),
                 innerW);
 

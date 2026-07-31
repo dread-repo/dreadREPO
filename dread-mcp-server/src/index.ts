@@ -4,7 +4,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { TextContent } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import * as net from "node:net";
+import { DreadResponse, sendCommand as sendTcpCommand } from "./tcpClient.js";
+import { formatLogsText, formatPatchesText } from "./format.js";
 
 const DEBUG_SERVER_HOST = process.env.DREAD_HOST ?? "127.0.0.1";
 const DEBUG_SERVER_PORT = parseInt(process.env.DREAD_PORT ?? "15432", 10);
@@ -19,67 +20,11 @@ if (isNaN(COMMAND_TIMEOUT) || COMMAND_TIMEOUT < 100) {
   process.exit(1);
 }
 
-interface DreadResponse {
-  id: number;
-  ok: boolean;
-  data?: unknown;
-  error?: string;
-  code?: number;
-}
-
 async function sendCommand(cmd: string, data?: unknown): Promise<DreadResponse> {
-  return new Promise((resolve, reject) => {
-    const socket = new net.Socket();
-    let buffer = "";
-    let resolved = false;
-
-    const timer = setTimeout(() => {
-      socket.destroy();
-      reject(new Error(`Command timed out after ${COMMAND_TIMEOUT}ms`));
-    }, COMMAND_TIMEOUT);
-
-    socket.connect(DEBUG_SERVER_PORT, DEBUG_SERVER_HOST, () => {
-      const payload = JSON.stringify({
-        id: 1,
-        cmd,
-        data: data ?? {},
-      }) + "\n";
-      socket.write(payload);
-    });
-
-    socket.on("data", (chunk) => {
-      if (resolved) return;
-      buffer += chunk.toString("utf-8");
-
-      const idx = buffer.indexOf("\n");
-      if (idx !== -1) {
-        resolved = true;
-        const line = buffer.slice(0, idx);
-        clearTimeout(timer);
-        socket.destroy();
-
-        try {
-          resolve(JSON.parse(line) as DreadResponse);
-        } catch (e) {
-          reject(new Error(`Failed to parse response: ${line}`));
-        }
-      }
-    });
-
-    socket.on("error", (err) => {
-      if (resolved) return;
-      resolved = true;
-      clearTimeout(timer);
-      reject(new Error(`Connection failed: ${err.message}. Is the Dread debug server running on ${DEBUG_SERVER_HOST}:${DEBUG_SERVER_PORT}?`));
-    });
-
-    socket.on("close", () => {
-      if (!resolved) {
-        resolved = true;
-        clearTimeout(timer);
-        reject(new Error("Connection closed without receiving a response"));
-      }
-    });
+  return sendTcpCommand(cmd, data, {
+    host: DEBUG_SERVER_HOST,
+    port: DEBUG_SERVER_PORT,
+    timeoutMs: COMMAND_TIMEOUT,
   });
 }
 
@@ -145,13 +90,14 @@ server.registerTool(
   "dread_get_state",
   {
     title: "Get Dread Mod State",
-    description: `Capture a full snapshot of the mod's runtime state, including:
+    description: `Capture a snapshot of the game state around the mod, including:
   - Scene name
   - Enemy count and nearest enemy distance
   - Player HP and stamina
-  - Episode active status and timer
 
-Some fields may be null or empty when on the main menu (not in a level).
+For psychotic break / tension / episode status, use dread_get_runtime_state instead.
+
+Some fields may be -1 or empty when on the main menu (not in a level).
 
 Args:
   - response_format ('json' | 'text'): Output format (default: 'json')
@@ -159,14 +105,14 @@ Args:
 Returns:
   For JSON format: The raw state snapshot with fields:
   {
-    "version": string,       // Mod version
-    "scene": string,         // Current scene name
-    "enemyCount": number,     // Enemy count in scene
-    "nearestEnemyDist": number, // Distance to nearest enemy
-    "playerHp": number,      // Current player HP
-    "playerStamina": number, // Current player stamina
-    "playerHp": number,      // Current player HP
-    "playerStamina": number  // Current player stamina
+    "version": string,          // Mod version
+    "scene": string,            // Current scene name
+    "enemyCount": number,       // Enemy count in scene
+    "nearestEnemyDist": number, // Distance to nearest enemy (-1 if none)
+    "playerHp": number,         // Current player HP (-1 if unavailable)
+    "playerStamina": number,    // Current player stamina (-1 if unavailable)
+    "debugServerPort": number,  // Bound debug server port
+    "isEnabled": boolean        // Debug server enabled flag
   }
 
 Examples:
@@ -380,23 +326,7 @@ Error Handling:
         : (raw?.patches as Array<Record<string, unknown>> | undefined) ?? [];
 
       if (response_format === "text") {
-        if (patches.length === 0) {
-          return { content: [{ type: "text", text: "No Harmony patches found." }] };
-        }
-        const lines = [`# Dread Mod Harmony Patches (${patches.length} total)`, ""];
-        for (const patch of patches) {
-          lines.push(`## ${patch.method ?? "unknown"}`);
-          const types = patch.patchTypes as Record<string, number> ?? {};
-          const owners = patch.owners as string[] ?? [];
-          if (Object.keys(types).length > 0) {
-            lines.push(`- **Types**: Prefix(${types.prefixes ?? 0}), Postfix(${types.postfixes ?? 0}), Transpiler(${types.transpilers ?? 0}), Finalizer(${types.finalizers ?? 0})`);
-          }
-          if (owners.length > 0) {
-            lines.push(`- **Owners**: ${owners.join(", ")}`);
-          }
-          lines.push("");
-        }
-        return { content: [{ type: "text", text: lines.join("\n") }] };
+        return { content: [{ type: "text", text: formatPatchesText(patches) }] };
       }
 
       return {
@@ -444,17 +374,7 @@ Error Handling:
         : (raw?.logs as Array<Record<string, unknown>> | undefined) ?? [];
 
       if (response_format === "text") {
-        if (entries.length === 0) {
-          return { content: [{ type: "text", text: "No log entries found." }] };
-        }
-        const lines = [`# Recent Dread Mod Logs (${entries.length} entries)`, ""];
-        for (const entry of entries) {
-          const ts = entry.timestamp ?? "";
-          const lvl = entry.level ?? "Info";
-          const msg = entry.message ?? "";
-          lines.push(`[${ts}] [${lvl}] ${msg}`);
-        }
-        return { content: [{ type: "text", text: lines.join("\n") }] };
+        return { content: [{ type: "text", text: formatLogsText(entries) }] };
       }
 
       return {

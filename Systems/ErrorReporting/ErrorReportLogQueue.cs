@@ -12,10 +12,14 @@ namespace Dread.Systems
         internal const int MaxProcessPerFrame = 3;
         private const float DedupeCooldownSeconds = 60f;
         private const int HashPrefixLength = 16;
+        // Prune trigger for RecentHashes (ERR-6): expired entries are dropped once
+        // the map grows past this, so varied long sessions stay bounded.
+        private const int MaxRecentHashes = 256;
 
         private static readonly Queue<RawLogEntry> PendingLogs = new Queue<RawLogEntry>(32);
         private static readonly object LogsLock = new object();
         private static readonly Dictionary<string, float> RecentHashes = new Dictionary<string, float>();
+        private static bool _queueFullWarned;
 
         internal sealed class RawLogEntry
         {
@@ -37,22 +41,57 @@ namespace Dread.Systems
 
             var hash = ComputeHash(stackTrace, logString);
             var now = Time.realtimeSinceStartup;
+            var droppedAtCapacity = false;
             lock (LogsLock)
             {
                 if (RecentHashes.TryGetValue(hash, out var last) && now - last < DedupeCooldownSeconds)
                     return;
 
                 RecentHashes[hash] = now;
-                if (PendingLogs.Count >= MaxPendingLogs)
-                    return;
+                if (RecentHashes.Count > MaxRecentHashes)
+                    PruneExpiredHashes(now);
 
-                PendingLogs.Enqueue(new RawLogEntry
+                if (PendingLogs.Count >= MaxPendingLogs)
                 {
-                    Message = logString,
-                    StackTrace = stackTrace,
-                    Type = type
-                });
+                    droppedAtCapacity = true;
+                }
+                else
+                {
+                    PendingLogs.Enqueue(new RawLogEntry
+                    {
+                        Message = logString,
+                        StackTrace = stackTrace,
+                        Type = type
+                    });
+                }
             }
+
+            // ERR-5 backpressure: error spam must not silently lose signal. Warn
+            // once per session (outside the lock; warnings do not re-enter here).
+            if (droppedAtCapacity && !_queueFullWarned)
+            {
+                _queueFullWarned = true;
+                LoggingService.LogWarning(
+                    $"[ErrorReporter] Pending log queue is full ({MaxPendingLogs}); new errors are being dropped");
+            }
+        }
+
+        // Caller holds LogsLock. Entries past the dedupe cooldown can never block
+        // an enqueue again, so removing them does not change dedupe behavior.
+        private static void PruneExpiredHashes(float now)
+        {
+            List<string>? expired = null;
+            foreach (var entry in RecentHashes)
+            {
+                if (now - entry.Value >= DedupeCooldownSeconds)
+                    (expired ??= new List<string>()).Add(entry.Key);
+            }
+
+            if (expired == null)
+                return;
+
+            foreach (var key in expired)
+                RecentHashes.Remove(key);
         }
 
         internal static bool HasPending()

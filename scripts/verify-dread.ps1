@@ -72,15 +72,16 @@ if (-not $SkipBuild) {
     Add-Check -Tier "tier0" -Id "dotnet_build" -Ok $true -Message "skipped"
 }
 
-# Analyze grep (mirrors CI)
+# Analyze grep (mirrors CI; recursive over nested Systems/** per CI-1)
+$analyzePaths = @("--include=*.cs", "*.cs", "Systems", "Config")
 Invoke-GrepCheck -Id "null_forgiving" -Pattern '\w+!\.|\)!\.(?!.*!= )' `
-    -Paths @("*.cs", "Systems/*.cs", "Config/*.cs") -FailMsg "null-forgiving operator found"
+    -Paths $analyzePaths -FailMsg "null-forgiving operator found"
 Invoke-GrepCheck -Id "hardcoded_paths" -Pattern '[A-Z]:\\' `
-    -Paths @("*.cs", "Systems/*.cs", "Config/*.cs") -FailMsg "hardcoded Windows paths"
+    -Paths $analyzePaths -FailMsg "hardcoded Windows paths"
 Invoke-GrepCheck -Id "trailing_whitespace" -Pattern '[[:blank:]]$' `
-    -Paths @("*.cs", "Systems/*.cs", "Config/*.cs") -FailMsg "trailing whitespace"
+    -Paths $analyzePaths -FailMsg "trailing whitespace"
 Invoke-GrepCheck -Id "tabs" -Pattern "`t" `
-    -Paths @("*.cs", "Systems/*.cs", "Config/*.cs") -FailMsg "tab characters"
+    -Paths $analyzePaths -FailMsg "tab characters"
 
 # Feature systems must use AudioAssetApi, not bundled AudioClipLoader.LoadClip
 $legacyLoadHits = @()
@@ -101,8 +102,8 @@ if ($legacyLoadHits.Count -gt 0) {
 
 # ARCH-3: spawn only via DreadSystemRegistry + DreadSystemInitializer (no stray TryAddSystem< elsewhere)
 $arch3Allowed = @(
-    "Systems/DreadSystemInitializer.cs",
-    "Systems/DreadSystemRegistry.cs"
+    "Systems/Bootstrap/DreadSystemInitializer.cs",
+    "Systems/Bootstrap/DreadSystemRegistry.cs"
 )
 $arch3Hits = @()
 foreach ($path in @("*.cs", "Systems", "Systems/Patches", "Systems/PsychoticBreak", "Systems/ErrorReporting", "Systems/DebugOverlay", "Config")) {
@@ -126,7 +127,7 @@ if ($arch3Hits.Count -gt 0) {
 }
 
 # ARCH-3: baseline system types from extension-registry contract
-$arch3RegistryPath = "Systems/DreadSystemRegistry.cs"
+$arch3RegistryPath = "Systems/Bootstrap/DreadSystemRegistry.cs"
 $arch3CoreTypes = @(
     "AudioAssetSystem",
     "AudioDreadSystem",
@@ -175,18 +176,28 @@ if ($arch3Missing.Count -gt 0) {
     Add-Check -Tier "tier0" -Id "arch3_registry_manifest" -Ok $true -Message $manifestMsg
 }
 
-# MCP npm build
+# MCP npm build + vitest suite (MCP-3)
 if (-not $SkipMcpBuild) {
     Push-Location dread-mcp-server
     npm ci --silent 2>&1 | Out-Null
     $npmCi = $LASTEXITCODE -eq 0
     npm run build --silent 2>&1 | Out-Null
     $npmBuild = $LASTEXITCODE -eq 0
-    Pop-Location
     Add-Check -Tier "tier0" -Id "mcp_build" -Ok ($npmCi -and $npmBuild) `
         -Message $(if ($npmCi -and $npmBuild) { "dread-mcp-server built" } else { "npm ci/build failed" })
+
+    if ($npmCi -and $npmBuild) {
+        npm test --silent 2>&1 | Out-Null
+        $npmTest = $LASTEXITCODE -eq 0
+        Add-Check -Tier "tier0" -Id "mcp_test" -Ok $npmTest `
+            -Message $(if ($npmTest) { "dread-mcp-server vitest suite passed" } else { "npm test failed" })
+    } else {
+        Add-Check -Tier "tier0" -Id "mcp_test" -Ok $false -Message "skipped: npm ci/build failed"
+    }
+    Pop-Location
 } else {
     Add-Check -Tier "tier0" -Id "mcp_build" -Ok $true -Message "skipped"
+    Add-Check -Tier "tier0" -Id "mcp_test" -Ok $true -Message "skipped"
 }
 
 # Package layout (manifest + icon + audio)

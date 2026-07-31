@@ -8,8 +8,7 @@
 
   <ItemGroup Condition="'$(DreadDebug)' != 'true'">
     <Compile Remove="Systems/DebugOverlay/**/*.cs" />
-    <Compile Remove="Systems/DebugServerSystem.cs" />
-    <Compile Remove="Systems/TestCrashSystem.cs" />
+    <Compile Remove="Systems/Debug/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>

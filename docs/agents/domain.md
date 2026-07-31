@@ -47,16 +47,23 @@ Large systems are split under `Systems/` subfolders; type names and `Dread.Syste
 
 | Area | Path |
 |------|------|
+| Boot / registry / init | `Systems/Bootstrap/` (`DreadSystemRegistry`, `DreadSystemInitializer`, `PluginDependencyResolver`) |
 | Core compat | `Systems/Core/` (`ProximityScan`, `GameplayContext`, `HarmonyPatchCompat`, etc.) |
+| Runtime snapshot | `Systems/Runtime/DreadRuntimeState.cs` |
+| Logging facade | `Systems/Infrastructure/LoggingService.cs` |
+| Audio playback + monster audio | `Systems/Audio/` (`AudioClipLoader`, `AudioDreadSystem`, `AudioPlayUtil`, `MonsterOverhaulSystem`) |
 | Remote audio | `Systems/AudioAssets/` (`AudioAssetSystem`, manifest, cache, downloader) |
+| Tension | `Systems/Tension/TensionSystem.cs` |
+| Monster gameplay (host) | `Systems/Monster/` (`CampLureSystem`, `SnitchSystem`) |
 | Harmony patches | `Systems/Patches/*.cs` |
-| Psychotic break | `Systems/PsychoticBreak/PsychoticBreakSystem.cs` (+ Trigger, Episode, Overlay, PlayerLockdown, Audio partials) |
-| Error reporting | `Systems/ErrorReporting/ErrorReporterSystem.cs` (+ LogQueue, PayloadCapture, Uploader) |
-| Error JSON/types | `Systems/ErrorReportJson.cs`, `Systems/ErrorReportTypes.cs` |
+| Psychotic break | `Systems/PsychoticBreak/PsychoticBreakSystem.cs` (+ Trigger, Episode, Overlay, PlayerLockdown, Audio partials; `FlashlightStateTracker`) |
+| Error reporting | `Systems/ErrorReporting/ErrorReporterSystem.cs` (+ LogQueue, PayloadCapture, Uploader, `ErrorReportJson`, `ErrorReportTypes`) |
 | Notifications | `Systems/Notifications/DreadNotificationSystem.cs` |
 | Debug overlay | `Systems/DebugOverlay/DebugOverlaySystem.cs` (+ Panel, Styles partials) |
-| Monster audio loop | `Systems/MonsterOverhaulSystem.cs` |
-| Root loose files | `Systems/*.cs` (registry, tension, audio dread, lure, snitch, etc.; see [systems-folder-governance.md](systems-folder-governance.md)) |
+| Debug server + test crash | `Systems/Debug/` (`DebugServerSystem`, `TestCrashSystem`; development builds only) |
+| Shared UI textures | `Systems/UI/Shared/OverlayTextureUtil.cs` (+ `Systems/UI/` kit) |
+
+`Systems/` root has no loose files (ARCH-1b); placement rules in [systems-folder-governance.md](systems-folder-governance.md).
 
 ## Use the glossary's vocabulary
 

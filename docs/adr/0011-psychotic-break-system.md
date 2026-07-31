@@ -1,7 +1,7 @@
 # ADR-0011: Psychotic Break System
 
 **Date:** 2026-05-22
-**Status:** Accepted
+**Status:** Accepted (updated 2026-06-10 to match shipped names: audio assets, hiding condition, partial-class layout, `ProximityScan`)
 
 ---
 
@@ -22,7 +22,7 @@ Add a new standalone `PsychoticBreakSystem` (MonoBehaviour) with the following d
 1. **Solo:** No other alive player within 30m
 2. **Recent threat:** An `EnemyHealth` was within 15m in the last 30 seconds
 3. **LoS lost:** Player camera cannot see any enemy currently (they may have ducked behind cover or the monster walked away)
-4. **Crouching:** Player is currently crouching
+4. **Hiding:** Player is crouching or in a tumble/fallen pose (`PlayerControllerCompat.IsHidingVulnerable`)
 5. **Roll:** 1% probability check every 2 seconds
 6. **Once per match:** Never triggers again after first episode (config-toggleable)
 
@@ -37,12 +37,14 @@ Add a new standalone `PsychoticBreakSystem` (MonoBehaviour) with the following d
 
 ### Audio Assets
 
+Shipped names (loaded via `AudioAssetApi`, `psychotic_break` category; `footsteps.ogg` resolves to `shared/`):
+
 | Asset | Usage |
 |-------|-------|
-| `shadow_scream_1.ogg` | Scream variant 1 (played once per episode) |
-| `shadow_scream_2.ogg` | Scream variant 2 |
-| `shadow_scream_3.ogg` | Scream variant 3 |
-| `phantom_footsteps.ogg` | Looping circling footsteps, panned dynamically |
+| `scream_peak.ogg` | Peak scream (played once per episode) |
+| `scream_distant.ogg` | Distant scream at episode start |
+| `scream_threat.ogg` | Threat-phase scream |
+| `footsteps.ogg` | Looping circling footsteps, panned dynamically |
 
 ### Camera Effects (client-local, no netcode)
 
@@ -68,10 +70,10 @@ All entries in `DreadConfig` under a new `PsychoticBreak` section:
 
 ### Implementation Details
 
-- New file: `Systems/PsychoticBreakSystem.cs`
+- Shipped as `partial class PsychoticBreakSystem` across `Systems/PsychoticBreak/*.cs` (core loop, trigger, episode FX, overlay, lockdown, audio)
 - Follows existing patterns: `DontDestroyOnLoad` spawn from `DreadHost`, self-disabling on menu screens
-- Audio loaded via `UnityWebRequest` (as established in ADR-0006)
-- Uses `EnemyHealth` cache from `TensionSystem` scan (or independently scans `FindObjectsOfType<EnemyHealth>` on its own 2s interval)
+- Audio loaded via `AudioAssetApi` + NVorbis decode (ADR-0006 superseded by ADR-0017; decode path ADR-0007)
+- Enemy proximity comes from the shared `Systems/Core/ProximityScan` seam (0.5s cadence), independent of `TensionSystem`
 - No Harmony patches needed (client-local only, no netcode)
 
 ---

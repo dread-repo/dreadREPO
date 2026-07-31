@@ -26,7 +26,8 @@ namespace Dread.Systems
         public static readonly string[] DataBullets =
         {
             "Exception type, message (length-capped), stack trace (length-capped), and a dedupe hash",
-            "Recent Unity console output and a tail of BepInEx LogOutput.log (length-capped; may include other mods' log lines)",
+            "Recent Unity console output and a tail of BepInEx LogOutput.log "
+            + "(length-capped; may include other mods' log lines)",
             "Active scene name and session play time",
             "Enemy counts (alive, total, nearby)",
             "Player HP, stamina, and world position when available",

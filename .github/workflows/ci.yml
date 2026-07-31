@@ -156,6 +156,34 @@ jobs:
           npm ci
           npm test
 
+  mcp:
+    name: MCP server tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [relevance]
+    if: needs.relevance.outputs.passed == 'true'
+
+    defaults:
+      run:
+        working-directory: dread-mcp-server
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: dread-mcp-server/package-lock.json
+
+      - name: Install, build, and test dread-mcp-server
+        run: |
+          npm ci
+          npm run build
+          npm test
+
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
@@ -176,7 +204,8 @@ jobs:
         shell: bash
         run: |
           has_issues=0
-          cs_glob=(./*.cs Systems/*.cs Systems/AudioAssets/*.cs Config/*.cs)
+          # Recurse all mod C# (CI-1): nested Systems/** folders must not skip lint gates.
+          cs_glob=(--include=*.cs ./*.cs Systems Config)
 
           if grep -rnP '\w+!\.|\)!\.' "${cs_glob[@]}" 2>/dev/null | grep -v '!= '; then
             echo "::error::Null-forgiving operator (!) usage found"
@@ -223,7 +252,7 @@ jobs:
     name: Summary
     runs-on: ubuntu-latest
     timeout-minutes: 3
-    needs: [relevance, build, worker, analyze]
+    needs: [relevance, build, worker, mcp, analyze]
 
     if: always()
 
@@ -238,7 +267,7 @@ jobs:
 
           exit_code=0
 
-          for job in relevance build worker analyze; do
+          for job in relevance build worker mcp analyze; do
             result="${{ needs[job].result }}"
             case "$result" in
               success) status=":green_circle: Passed" ;;

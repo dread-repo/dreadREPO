@@ -35,7 +35,7 @@ Add a **clickable button** in the BepInEx ConfigurationManager UI that crashes t
   3. Logs `InvalidOperationException` with a clearly identifiable `[Dread TestCrash]` message.
   4. Runs `ErrorReporterSystem.ReportTestCrashAndWait()` (synchronous HTTP POST via `ErrorReportJson`) so the report completes before the process exits.
   5. Calls `Process.Kill()` on the game process (skipped in the Unity Editor).
-- **Production errors** still use the ADR-0010 log hook, buffer, and async `UnityWebRequest` batch flush. TestCrash is intentionally a separate, synchronous path for verification.
+- **Production errors** still use the ADR-0010 log hook, buffer, and background-thread `HttpWebRequest` batch flush (ADR-0015, ERR-4). TestCrash is intentionally a separate, synchronous path for verification.
 - Each TestCrash click uses a unique hash suffix (`|testcrash|` + `DateTime.UtcNow.Ticks`) so repeated button tests create **distinct** GitHub issues. Do not use TestCrash to verify Worker deduplication (see error-reporting checklist section F).
 - JSON body is built with `ErrorReportJson` (ADR-0015), not `JsonUtility`.
 

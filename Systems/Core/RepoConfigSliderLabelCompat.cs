@@ -74,6 +74,12 @@ namespace Dread.Systems.Core
             LoggingService.LogInfo($"[Dread] REPOConfig slider label compat active ({patched} hooks)");
         }
 
+        /// <summary>Allow a re-apply after plugin unload removed the hooks (see PatchLifecycle.Shutdown).</summary>
+        internal static void Reset()
+        {
+            _applied = false;
+        }
+
         internal static bool IsRepoConfigLoaded()
         {
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())

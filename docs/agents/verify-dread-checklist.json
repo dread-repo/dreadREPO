@@ -5,7 +5,7 @@
     "tier0": {
       "description": "Static checks, no game required",
       "command": "./scripts/verify-dread.ps1",
-      "checks": ["stubs", "dotnet_build", "null_forgiving", "hardcoded_paths", "trailing_whitespace", "tabs", "mcp_build", "manifest", "icon", "audio"]
+      "checks": ["stubs", "dotnet_build", "null_forgiving", "hardcoded_paths", "trailing_whitespace", "tabs", "mcp_build", "mcp_test", "manifest", "icon", "audio"]
     },
     "tier1": {
       "description": "Live debug server (game running, DebugServerEnabled=true)",

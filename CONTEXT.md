@@ -56,7 +56,7 @@ _Avoid_: treating **In-level** and **Run** as synonyms; prefer **In-level** for 
 
 ### Runtime systems
 
-**Ten core systems** register in `DreadSystemRegistry` on every production build; **three debug systems** register only in development builds (`#if DREAD_DEBUG`). See `Systems/DreadSystemRegistry.cs` and [mod-architecture.md](docs/agents/guides/mod-architecture.md). Each lives on its own **System host**.
+**Ten core systems** register in `DreadSystemRegistry` on every production build; **three debug systems** register only in development builds (`#if DREAD_DEBUG`). See `Systems/Bootstrap/DreadSystemRegistry.cs` and [mod-architecture.md](docs/agents/guides/mod-architecture.md). Each lives on its own **System host**.
 
 **Audio assets**:
 Downloads version-pinned OGG from the matching GitHub Release into `audio-cache/v{VERSION}/`; embedded manifest in the DLL. Feature systems request clips via `AudioAssetApi` (ADR-0017).
@@ -284,12 +284,14 @@ Open conflicts only. Resolved terms live in **Language** above.
 |------|------|
 | Plugin entry, Harmony apply | `Plugin.cs` |
 | Config bindings | `Config/DreadConfig.cs` |
-| Runtime systems (flat) | `Systems/*.cs` (initializer, tension, audio, notifications, lure, snitch, etc.) |
+| Boot / registry / init | `Systems/Bootstrap/` |
+| Runtime systems | `Systems/<Feature>/` per [systems-folder-governance.md](docs/agents/systems-folder-governance.md) (`Audio/`, `Tension/`, `Monster/`, `Runtime/`, `Infrastructure/`; no loose files at `Systems/` root) |
 | Notifications | `Systems/Notifications/` |
 | Harmony patches | `Systems/Patches/` |
 | Psychotic break | `Systems/PsychoticBreak/` |
-| Error reporting | `Systems/ErrorReporting/` (+ `ErrorReportJson.cs` at `Systems/` root) |
+| Error reporting | `Systems/ErrorReporting/` (includes `ErrorReportJson.cs`, `ErrorReportTypes.cs`) |
 | Debug overlay | `Systems/DebugOverlay/` |
+| Debug server + test crash | `Systems/Debug/` (development builds only) |
 | Remote assets (audio) | `Systems/AudioAssets/`, `audio/audio-manifest.json`, cache `audio-cache/v{VERSION}/` |
 | Remote assets (images) | Future (ASSET-1): same manifest/cache pattern, not implemented |
 | Authoring OGG (git + GitHub Release) | `audio/{category}/*.ogg` |

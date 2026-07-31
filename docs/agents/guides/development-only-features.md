@@ -47,7 +47,7 @@ Add to **`Dread.csproj`** `Compile Remove` when `DreadDebug != true` (same item 
 - Section header from **`DreadConfigSections`** (add a new constant in [DreadConfigSections.cs](../../../Config/DreadConfigSections.cs) if needed).
 - If you insert a new dev-only section **before** Logging, bump the `#else` branch number for `Logging` in `DreadConfigSections.cs`.
 
-### 3. Registry (`Systems/DreadSystemRegistry.cs`)
+### 3. Registry (`Systems/Bootstrap/DreadSystemRegistry.cs`)
 
 Register inside `#if DREAD_DEBUG` with `SystemOrderGroup.Debug`.
 
